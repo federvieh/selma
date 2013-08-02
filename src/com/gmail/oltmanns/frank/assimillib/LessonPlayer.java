@@ -1,0 +1,436 @@
+/**
+ * 
+ */
+package com.gmail.oltmanns.frank.assimillib;
+
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.net.Uri;
+import android.os.IBinder;
+import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.util.Log;
+import android.widget.Toast;
+
+/**
+ * @author frank
+ *
+ */
+public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener{
+	
+	enum PlayMode{
+//		SINGLE_TRACK,
+//		SINGLE_LESSON,
+//		ALL_LESSONS,
+		REPEAT_TRACK,
+		REPEAT_LESSON,
+		REPEAT_ALL_LESSONS,
+		REPEAT_ALL_STARRED
+	}
+	
+	private static final String PLAY = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.PLAY";
+	private static final String STOP = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.STOP";
+	private static final String NEXT_TRACK = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.NEXT_TRACK";
+	private static final String NEXT_LESSON = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.NEXT_LESSON";
+	private static final int NOTIFICATION_ID = 0x21349843;
+
+	private static AssimilLesson currentLesson;
+	private static int currentTrack = -1;
+	
+	private static int numberOfInstances = 0; //This should always be one after the first time, right?
+	
+	private static Object lock = new Object();
+	private static MediaPlayer mediaPlayer;
+	private static boolean doCont = false;
+	private static int contPos = 0;
+	private NotificationCompat.Builder notifyBuilder;
+	
+	
+	public LessonPlayer(){
+		numberOfInstances++;
+		Log.i("LT","Created a new LessonPlayer for the "+numberOfInstances+"th time.");
+		
+		notifyBuilder = new NotificationCompat.Builder(this)
+		    .setContentTitle("Language Trainer")
+		    .setContentText("Paused.")
+		    .setSmallIcon(android.R.drawable.btn_radio)
+		    .setOngoing(true);
+	}
+	
+	public static void stopPlaying(Context context){
+		Intent service = new Intent(context, LessonPlayer.class);
+		service.putExtra(STOP, (long)0);
+		context.startService(service);
+	}
+	
+	public static void playNextTrack(Context context){
+		Intent service = new Intent(context, LessonPlayer.class);
+		service.putExtra(NEXT_TRACK, (long)0);
+		context.startService(service);
+	}
+	
+	public static void playNextLesson(Context context){
+		Intent service = new Intent(context, LessonPlayer.class);
+		service.putExtra(NEXT_LESSON, (long)0);
+		context.startService(service);
+	}
+	
+	public static void play(AssimilLesson lesson, int trackNo, boolean cont){
+		long id = 0;
+		try{
+			id = lesson.getIdByTrackNo(trackNo);
+		}
+		catch (Exception e){
+			Log.w("LT","Could not find track "+trackNo+" in lesson "+lesson, e);
+			return;
+		}
+		Log.d("LT","doCont="+cont);
+		doCont = cont;
+		//send intent to service
+		currentLesson = lesson;
+		currentTrack = trackNo;
+		PlaybarManager.setCurrent(currentLesson, currentTrack);
+		Intent service = new Intent(lesson.activity, LessonPlayer.class);
+		service.putExtra(PLAY, id);
+		lesson.activity.startService(service);
+	}
+	
+	private void play(long id){
+		Uri contentUri = ContentUris.withAppendedId(
+				android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+		if(mediaPlayer == null){
+			synchronized(lock){
+				if(mediaPlayer==null){
+					mediaPlayer = new MediaPlayer();
+					mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+					mediaPlayer.setOnCompletionListener(this);
+					mediaPlayer.setOnPreparedListener(this);
+					mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+					//TODO: Move to extra function, add error listener
+				}
+			}
+		}
+		else{
+			mediaPlayer.reset();
+		}
+		try {
+			mediaPlayer.setDataSource(this, contentUri);
+			mediaPlayer.prepareAsync();
+		} catch (Exception e) {
+			Log.w("LT","Could not set data source or prepare media player "+contentUri, e);
+			return;
+		}
+	}
+	
+	private void stop(boolean savePos){
+		stopForeground(true);
+		stopSelf();
+		
+		if(savePos){
+			contPos  = ((mediaPlayer!=null)?mediaPlayer.getCurrentPosition():0);
+			Log.d("LT", "saving position "+contPos);
+		}
+		else{
+			contPos = 0;
+		}
+		if(mediaPlayer!=null){
+			//release
+			mediaPlayer.release();
+			mediaPlayer = null;
+		}
+		PlaybarManager.setPlaying(false);
+		AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		int result = audioManager.abandonAudioFocus(this);
+		if(result!=AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
+			Log.w("LT", "Releasing audio focus failed! Result: "+result);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.app.Service#onBind(android.content.Intent)
+	 */
+	@Override
+	public IBinder onBind(Intent arg0) {
+		//Binding is not used in this service
+		return null;
+	}
+	
+	private void handleCommand(Intent intent){
+		long playId = intent.getLongExtra(PLAY, -1);
+		long stopId = intent.getLongExtra(STOP, -1);
+		long nextTrackId = intent.getLongExtra(NEXT_TRACK, -1);
+		long nextLessonId = intent.getLongExtra(NEXT_LESSON, -1);
+		if(playId != -1){
+			play(playId);
+		}
+		else if(stopId != -1){
+			stop(true);
+		}
+		else if(nextTrackId != -1){
+			playNextOrStop(true);
+		}
+		else if(nextLessonId != -1){
+			playNextLesson();
+		}
+	}
+	
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+	    handleCommand(intent);
+	    // If the service is stopped for some reason, the user must explicitly
+	    // start again, e.g. by pressing the play button.
+	    return START_NOT_STICKY;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.media.MediaPlayer.OnErrorListener#onError(android.media.MediaPlayer, int, int)
+	 */
+	public boolean onError(MediaPlayer mp, int what, int extra) {
+		Log.w("LT", "Media Player has gone to error mode. What: "+what+", Extra: "+extra+". Releasing MP.");
+		stop(false);
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see android.media.MediaPlayer.OnCompletionListener#onCompletion(android.media.MediaPlayer)
+	 */
+	public void onCompletion(MediaPlayer mp) {
+		Log.d("LT", "onCompletion");
+		playNextOrStop(false);
+	}
+	
+	private void playNextOrStop(boolean force){
+		PlayMode pm = PlaybarManager.getPlayMode();
+		if(force){
+			if(pm==PlayMode.REPEAT_TRACK){
+				ListTypes lt = PlaybarManager.getListType();
+				if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
+					pm=PlayMode.REPEAT_ALL_LESSONS;
+				}
+				else{
+					pm=PlayMode.REPEAT_ALL_STARRED;
+				}
+			}
+		}
+		switch(pm){
+/*		case SINGLE_TRACK:
+			Log.d("LT", "Playing single song finished. Stopping.");
+			stop();
+			break;*/
+		case REPEAT_TRACK:
+			play(currentLesson, currentTrack, false);
+			break;
+//		case ALL_LESSONS:
+		case REPEAT_ALL_LESSONS:
+		case REPEAT_LESSON:
+//		case SINGLE_LESSON:
+		case REPEAT_ALL_STARRED:
+			boolean endOfLessonReached = false;
+			try{
+				currentLesson.getIdByTrackNo(currentTrack+1);
+				play(currentLesson, currentTrack+1, false);
+			}
+			catch(IllegalArgumentException e){
+				endOfLessonReached = true;
+			}
+			if(endOfLessonReached){
+				switch(PlaybarManager.getPlayMode()){
+/*				case SINGLE_LESSON:
+					stop();
+					break;*/
+				case REPEAT_LESSON:
+					play(currentLesson, 0, false);
+					break;
+//				case ALL_LESSONS:
+				case REPEAT_ALL_LESSONS:
+				{
+					//find next lesson
+					int lessonIdx = AssimilDatabase.getDatabase(null).indexOf(currentLesson);
+					if(lessonIdx<0){
+						Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+						stop(false);
+					}
+					else if (lessonIdx+1 < AssimilDatabase.getDatabase(null).size()){
+						play(AssimilDatabase.getDatabase(null).get(lessonIdx+1),0, false);
+					}
+					else{
+						//last lesson reached
+						if(PlaybarManager.getPlayMode() == PlayMode.REPEAT_ALL_LESSONS){
+							//start again at first lesson again
+							play(AssimilDatabase.getDatabase(null).get(0),0, false);
+						}
+						else{
+							stop(false);
+						}
+					}
+					break;
+				}
+				case REPEAT_ALL_STARRED:
+				{
+					//find next lesson
+					AssimilDatabase db = AssimilDatabase.getDatabase(null);
+					int lessonIdx = db.indexOf(currentLesson);
+					if(lessonIdx<0){
+						Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+						stop(false);
+					}
+					else{
+						AssimilLesson nextLesson = currentLesson;
+						do{
+							lessonIdx++;
+							if(lessonIdx >= db.size()){
+								lessonIdx=0;
+							}
+							nextLesson = db.get(lessonIdx);
+						}
+						while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
+						if(nextLesson.isStarred()){
+							play(nextLesson, 0, false);
+						}
+						else{
+							stop(false);
+						}
+					}
+					break;
+				}
+				default:
+					//Not possible
+					break;
+				}
+			}
+		}
+	}
+
+	private void playNextLesson(){
+		switch(PlaybarManager.getListType()){
+//		case REPEAT_ALL_STARRED:
+		case LIST_TYPE_STARRED_NO_TRANSLATE:
+		case LIST_TYPE_STARRED_TRANSLATE:
+		{
+			//find next lesson
+			AssimilDatabase db = AssimilDatabase.getDatabase(null);
+			int lessonIdx = db.indexOf(currentLesson);
+			if(lessonIdx<0){
+				Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+				stop(false);
+			}
+			else{
+				AssimilLesson nextLesson = currentLesson;
+				do{
+					lessonIdx++;
+					if(lessonIdx >= db.size()){
+						lessonIdx=0;
+					}
+					nextLesson = db.get(lessonIdx);
+				}
+				while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
+				play(nextLesson, 0, false);
+			}
+			break;
+		}
+//		case REPEAT_LESSON:
+//		case ALL_LESSONS:
+//		case REPEAT_ALL_LESSONS:
+//		case REPEAT_TRACK:
+		default:
+		{
+			//find next lesson
+			int lessonIdx = AssimilDatabase.getDatabase(null).indexOf(currentLesson);
+			if(lessonIdx<0){
+				Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+				stop(false);
+			}
+			else if (lessonIdx+1 < AssimilDatabase.getDatabase(null).size()){
+				play(AssimilDatabase.getDatabase(null).get(lessonIdx+1), 0, false);
+			}
+			else{
+				//last lesson reached
+				//start again at first lesson again
+				play(AssimilDatabase.getDatabase(null).get(0), 0, false);
+			}
+			break;
+		}
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see android.media.MediaPlayer.OnPreparedListener#onPrepared(android.media.MediaPlayer)
+	 */
+	public void onPrepared(MediaPlayer arg0) {
+		AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+		int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+		    AudioManager.AUDIOFOCUS_GAIN);
+
+		if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+	    	Toast.makeText(this, "Could not start playing! Some other media playing?", Toast.LENGTH_SHORT).show();
+	    	return;
+		}
+		if(doCont){
+			doCont=false;
+			contPos -= 100;
+			if(contPos<0){
+				contPos = 0;
+			}
+			Log.d("LT", "Resuming at position " + contPos);
+			mediaPlayer.seekTo(contPos);
+		}
+		mediaPlayer.start();
+		PlaybarManager.setPlaying(true);
+/*		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+                new Intent(getApplicationContext(), MainActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+		notifyBuilder
+		.setContentText("Playing: " + PlaybarManager.getLessonText() + " " + PlaybarManager.getTrackNumberText())
+	    .setContentIntent(pi);*/
+		PlaybarManager.setPlaying(true);
+		Intent resultIntent = new Intent(this, ShowLesson.class);
+		resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_POS, AssimilDatabase.getDatabase(null).indexOf(currentLesson));
+
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+		// Adds the back stack
+		stackBuilder.addParentStack(ShowLesson.class);
+		// Adds the Intent to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		// Gets a PendingIntent containing the entire back stack
+		PendingIntent pi = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+		notifyBuilder
+		.setContentText("Playing: " + PlaybarManager.getLessonText() + " " + PlaybarManager.getTrackNumberText())
+	    .setContentIntent(pi);
+
+		startForeground(NOTIFICATION_ID, notifyBuilder.getNotification());
+	}
+
+	/* (non-Javadoc)
+	 * @see android.media.AudioManager.OnAudioFocusChangeListener#onAudioFocusChange(int)
+	 */
+	public void onAudioFocusChange(int focusChange) {
+		switch (focusChange) {
+		case AudioManager.AUDIOFOCUS_GAIN:
+			// resume playback
+			play(currentLesson,currentTrack,true);
+			break;
+
+		case AudioManager.AUDIOFOCUS_LOSS:
+			Log.d("LT","received AUDIOFOCUS_LOSS");
+			stopPlaying(this);
+			break;
+		case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+			Log.d("LT","received AUDIOFOCUS_LOSS_TRANSIENT");
+			stopPlaying(this);
+			break;
+		case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+			// Lost focus for an unbounded amount of time: stop playback and release media player
+			Log.d("LT","received AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
+			stopPlaying(this);
+			break;
+		}
+	}
+}

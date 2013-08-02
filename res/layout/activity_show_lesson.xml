@@ -1,0 +1,34 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/listViewLessons"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/LightGrey"
+        android:divider="@color/DarkGray"
+        android:dividerHeight="1dp"
+        android:fadingEdge="vertical"
+        android:requiresFadingEdge="vertical"
+        android:cacheColorHint="@color/DarkGray"
+        android:fadingEdgeLength="8dp"  >
+
+    </ListView>
+    
+    <View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="@color/DarkGray" />
+    
+    <com.gmail.oltmanns.frank.assimillib.Playbar
+        android:id="@+id/playbar1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+    </com.gmail.oltmanns.frank.assimillib.Playbar>
+
+</LinearLayout>

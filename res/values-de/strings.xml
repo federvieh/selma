@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sprachtrainer</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="play_starred_lessons">Favoriten abspielen</string>
+    <string name="play_starred_lessons_short">Favoriten</string>
+    <string name="starred_with_translate">inkl. Übungen</string>
+    <string name="starred_without_translate">ohne Übungen</string>
+    <string name="play_all_lessons">Alle Lektionen abspielen</string>
+    <string name="play_all_lessons_short">Alle</string>
+    <string name="title_activity_show_lesson">Zeige Lektion</string>
+    <string name="lesson">Lektion</string>
+    <string name="warning_no_starred">Keine Favoriten gefunden! Bitte gehen Sie zurück und wählen Sie \"Alle Lektionen abspielen\", um Lektionen als Favoriten markieren zu können.</string>
+    
+</resources>

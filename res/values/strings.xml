@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Language Trainer</string>
+    <string name="action_settings">Settings</string>
+    <string name="play_starred_lessons">Play starred lessons</string>
+    <string name="play_starred_lessons_short">starred</string>
+    <string name="starred_with_translate">incl. exercises</string>
+    <string name="starred_without_translate">without exercises</string>
+    <string name="play_all_lessons">Play all lessons</string>
+    <string name="play_all_lessons_short">all</string>
+    <string name="title_activity_show_lesson">Show Lesson</string>
+    <string name="lesson">Lesson</string>
+    <string name="warning_no_starred">No starred items found! Please go back and select \"Play all lessons\" in order to mark lessons as starred.</string>
+    <string name="waiting_for_database">Please wait loading database&#8230;</string>
+    
+</resources>

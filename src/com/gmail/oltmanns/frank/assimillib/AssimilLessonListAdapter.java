@@ -1,0 +1,53 @@
+/**
+ * 
+ */
+package com.gmail.oltmanns.frank.assimillib;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.gmail.oltmanns.frank.languagetrainer.R;
+
+/**
+ * @author frank
+ *
+ */
+public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLesson> {
+	private final Context context;
+	private final AssimilDatabase values;
+	private ListTypes lt;
+
+	public AssimilLessonListAdapter(Context context, AssimilDatabase values, ListTypes lt) {
+		super(context, R.layout.rowlayout, values);
+		this.context = context;
+		this.values = values;
+		this.lt = lt;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		LayoutInflater inflater = (LayoutInflater) context
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View rowView = inflater.inflate(R.layout.rowlayout, parent, false);
+		TextView textView = (TextView) rowView.findViewById(R.id.label);
+		ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+		AssimilLesson current = values.get(position);
+		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getNumber());
+		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, context, position, lt);
+		textView.setOnClickListener(assimilOnClickListener);
+		// starred?
+		if (current.isStarred()) {
+			imageView.setImageResource(android.R.drawable.btn_star_big_on);
+		} else {
+			imageView.setImageResource(android.R.drawable.btn_star_big_off);
+		}
+		imageView.setOnClickListener(assimilOnClickListener);
+
+		return rowView;
+	}
+}
