@@ -1,4 +1,4 @@
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -7,11 +7,11 @@ import android.util.Log;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.gmail.oltmanns.frank.languagetrainer.R;
+import com.github.federvieh.selma.R;
 
 public class LessonListActivity extends ActionBarActivity {
 
-	public static final String EXTRA_LIST_TYPE = "com.gmail.oltmanns.frank.assimillib.EXTRA_LIST_TYPE";
+	public static final String EXTRA_LIST_TYPE = "com.github.federvieh.selma.assimillib.EXTRA_LIST_TYPE";
 	
 	private static ListTypes lt;
 

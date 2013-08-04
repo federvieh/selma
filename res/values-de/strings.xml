@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Sprachtrainer</string>
+    <string name="app_name">Selma</string>
     <string name="action_settings">Einstellungen</string>
     <string name="play_starred_lessons">Favoriten abspielen</string>
     <string name="play_starred_lessons_short">Favoriten</string>

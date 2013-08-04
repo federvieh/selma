@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,7 @@ import android.widget.ImageView;
  */
 public class AssimilOnClickListener implements OnClickListener {
 
-	public static final String EXTRA_LESSON_POS = "com.gmail.oltmanns.frank.assimillib.EXTRA_LESSON_OBJECT";
+	public static final String EXTRA_LESSON_POS = "com.github.federvieh.selma.assimillib.EXTRA_LESSON_OBJECT";
 	private AssimilLesson lesson;
 	private Context context;
 	private int position;

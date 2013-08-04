@@ -1,9 +1,9 @@
 /**
  * 
  */
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
-import com.gmail.oltmanns.frank.assimillib.LessonPlayer.PlayMode;
+import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 
 /**
  * @author frank

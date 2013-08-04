@@ -1,4 +1,4 @@
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -12,7 +12,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.gmail.oltmanns.frank.languagetrainer.R;
+import com.github.federvieh.selma.R;
 
 public class ShowLesson extends ActionBarActivity implements OnItemClickListener{
 	private AssimilLesson lesson = null;

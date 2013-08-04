@@ -1,4 +1,4 @@
-package com.gmail.oltmanns.frank.languagetrainer;
+package com.github.federvieh.selma;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,9 +10,9 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
-import com.gmail.oltmanns.frank.assimillib.AssimilDatabase;
-import com.gmail.oltmanns.frank.assimillib.LessonListActivity;
-import com.gmail.oltmanns.frank.assimillib.ListTypes;
+import com.github.federvieh.selma.assimillib.AssimilDatabase;
+import com.github.federvieh.selma.assimillib.LessonListActivity;
+import com.github.federvieh.selma.assimillib.ListTypes;
 
 public class MainActivity extends ActionBarActivity {
 	private Button starredInclTranslate;

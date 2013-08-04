@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
 /**
  * @author frank

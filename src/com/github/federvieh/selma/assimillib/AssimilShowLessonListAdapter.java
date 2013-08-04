@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -12,7 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.gmail.oltmanns.frank.languagetrainer.R;
+import com.github.federvieh.selma.R;
 
 /**
  * @author frank

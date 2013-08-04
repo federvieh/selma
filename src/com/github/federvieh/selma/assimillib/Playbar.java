@@ -1,4 +1,4 @@
-package com.gmail.oltmanns.frank.assimillib;
+package com.github.federvieh.selma.assimillib;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gmail.oltmanns.frank.languagetrainer.R;
+import com.github.federvieh.selma.R;
 
 /**
  * Playbar.
