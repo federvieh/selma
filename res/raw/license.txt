@@ -1,0 +1,5 @@
+Selma, Copyright (C) 2013 Frank Oltmanns
+
+Selma comes with ABSOLUTELY NO WARRANTY; see license for details.
+
+This is free software, and you are welcome to redistribute it under certain conditions; see license for details.

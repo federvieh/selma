@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Selma</string>
-    <string name="action_settings">Einstellungen</string>
+    <string name="action_license">Lizenz</string>
     <string name="play_starred_lessons">Favoriten abspielen</string>
     <string name="play_starred_lessons_short">Favoriten</string>
     <string name="starred_with_translate">inkl. Übungen</string>
