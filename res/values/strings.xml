@@ -12,7 +12,7 @@
     <string name="title_activity_show_lesson">Show Lesson</string>
     <string name="lesson">Lesson</string>
     <string name="warning_no_starred">No starred items found! Please go back and select \"Play all lessons\" in order to mark lessons as starred.</string>
-    <string name="waiting_for_database">Please wait loading database&#8230;</string>
+    <string name="waiting_for_database">Please wait&#8230; loading database&#8230;</string>
     <string name="no_content_found">No Assimil Audio Files have been found on your device. If the lessons show up in the \"Google Play Music\" app, you might be learning a language that is not yet supported by Selma. Please contact the author, who will be glad to be extend this free app with a little help (answering some questions) from you.</string>
     <string name="show_license">Show License</string>
     <string name="cancel">Cancel</string>

@@ -12,5 +12,10 @@
     <string name="title_activity_show_lesson">Zeige Lektion</string>
     <string name="lesson">Lektion</string>
     <string name="warning_no_starred">Keine Favoriten gefunden! Bitte gehen Sie zurück und wählen Sie \"Alle Lektionen abspielen\", um Lektionen als Favoriten markieren zu können.</string>
+    <string name="waiting_for_database">Bitte warten&#8230; Datenbank wird geladen&#8230;</string>
+    <string name="no_content_found">Es wurden keine Assimil Dateien auf Ihrem Gerät gefunden. Wenn die Lektionen in der \"Google Play Music\" App angezeigt werden, kann es sein, dass Sie eine Sprache lernen, die noch nicht von Selma unterstützt wird. Bitte kontaktieren Sie den Autor, der gerne diese freie und kostenlose App erweitert, wenn Sie bereit sind ihn durch Beantwortung einiger Fragen zu helfen.</string>
+    <string name="show_license">Lizenz anzeigen</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
     
 </resources>
