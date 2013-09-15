@@ -1,22 +1,24 @@
 package com.github.federvieh.selma.assimillib;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SpinnerAdapter;
 
 import com.github.federvieh.selma.R;
 
 public class ShowLesson extends ActionBarActivity implements OnItemClickListener{
 	private AssimilLesson lesson = null;
-	private static ListTypes lt;
+	private static ListTypes lt = PlaybarManager.getListType();
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,45 +30,61 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		
         Intent intend = getIntent();
 		int lessonTemp = intend.getIntExtra(AssimilOnClickListener.EXTRA_LESSON_POS,0);
-		ListTypes listtype = (ListTypes)intend.getSerializableExtra(LessonListActivity.EXTRA_LIST_TYPE);
-		if(listtype!=null){
-			lt=listtype;
-		}
+		lt=PlaybarManager.getListType();
 		Log.d("LT", "ShowLesson.onCreate(); lt="+lt);
 		
 		lesson = AssimilDatabase.getDatabase(null).get(lessonTemp);
+		this.setTitle(lesson.getNumber());
+
+		SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.exercise_option_list,
+				android.R.layout.simple_spinner_dropdown_item);
+		ActionBar.OnNavigationListener mOnNavigationListener = new ActionBar.OnNavigationListener() {
+			@Override
+			public boolean onNavigationItemSelected(int position, long itemId) {
+				switch(lt){
+				case LIST_TYPE_ALL_NO_TRANSLATE:
+				case LIST_TYPE_ALL_TRANSLATE:
+					if(position==0){
+						lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
+					}
+					else{
+						lt = ListTypes.LIST_TYPE_ALL_NO_TRANSLATE;
+					}
+					break;
+				case LIST_TYPE_STARRED_NO_TRANSLATE:
+				case LIST_TYPE_STARRED_TRANSLATE:
+					if(position==0){
+						lt = ListTypes.LIST_TYPE_STARRED_TRANSLATE;
+					}
+					else{
+						lt = ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE;
+					}
+					break;
+				}
+				PlaybarManager.setListType(lt);
+				updateListType();
+				return true;
+			}
+		};
+		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, mOnNavigationListener);
+		int navItem = 0;
 		switch(lt){
-		case LIST_TYPE_ALL_NO_TRANSLATE:
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_purple)));
-			this.setTitle(lesson.getNumber()+": "+getResources().getText(R.string.play_all_lessons_short)+" "+getResources().getText(R.string.starred_without_translate));
-			break;
 		case LIST_TYPE_ALL_TRANSLATE:
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_blue_dark)));
-			this.setTitle(lesson.getNumber()+": "+getResources().getText(R.string.play_all_lessons_short)+" "+getResources().getText(R.string.starred_with_translate));
+		case LIST_TYPE_STARRED_TRANSLATE:
+			navItem = 0;
 			break;
 		case LIST_TYPE_STARRED_NO_TRANSLATE:
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_orange_dark)));
-			this.setTitle(lesson.getNumber()+": "+getResources().getText(R.string.play_starred_lessons_short)+" "+getResources().getText(R.string.starred_without_translate));
+		case LIST_TYPE_ALL_NO_TRANSLATE:
+			navItem = 1;
 			break;
-		case LIST_TYPE_STARRED_TRANSLATE:
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_green_dark)));
-			this.setTitle(lesson.getNumber()+": "+getResources().getText(R.string.play_starred_lessons_short)+" "+getResources().getText(R.string.starred_with_translate));
-			break;			
 		}
-/*		String[] values;
-		if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt ==ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE)){
-			values = lesson.getLessonList();
-		}
-		else{
-			values = lesson.getTextList();
-		}
+		getSupportActionBar().setSelectedNavigationItem(navItem);
+    }
 
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_1, values);
-		ListView listView = (ListView) findViewById(R.id.listViewLessons);
-		listView.setAdapter(adapter);
-		listView.setOnItemClickListener(this);
-		*/
+    private void updateListType(){
+		PlaybarManager.setListType(lt);
+		Log.d("LT", "ShowLesson.updateListType(); lt="+lt);
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(this, lesson, lt);
 		ListView listView = (ListView) findViewById(R.id.listViewLessons);
@@ -128,16 +146,6 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		try{
 			ListView listView = (ListView) findViewById(R.id.listViewLessons);
 			listView.invalidateViews();
-/*			for(int i=0;i<listView.getChildCount();i++){
-				TextView tv = (TextView)((LinearLayout)listView.getChildAt(i)).getChildAt(0);
-				if(tv.getText().toString().equals(lesson.getTextList()[trackNumber])){
-					tv.setTypeface(null,Typeface.BOLD);					
-				}
-				else{
-					tv.setTypeface(null,Typeface.NORMAL);					
-				}
-				
-			}*/
 		}
 		catch(Exception e){}
 	}

@@ -17,5 +17,14 @@
     <string name="show_license">Show License</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+ 
+    <string-array name="playback_option_list">
+        <item>All lessons</item>
+        <item>Starred lessons</item>
+    </string-array>
+    <string-array name="exercise_option_list">
+        <item>Show exercises</item>
+        <item>No exercises</item>
+    </string-array>
     
 </resources>

@@ -1,40 +1,74 @@
 package com.github.federvieh.selma.assimillib;
 
-import android.graphics.drawable.ColorDrawable;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.github.federvieh.selma.R;
 
 public class LessonListActivity extends ActionBarActivity {
-
-	public static final String EXTRA_LIST_TYPE = "com.github.federvieh.selma.assimillib.EXTRA_LIST_TYPE";
 	
-	private static ListTypes lt;
+	private static ListTypes lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
+	
+	static TextView headerViewNoStarred;
+	static TextView headerViewNoFiles;
+	enum ActivityState{
+		DATABASE_LOADING,
+		READY_FOR_PLAYBACK
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_lesson_list);
-		/* get the content for main screen */
-		ListTypes listtype = (ListTypes) getIntent().getSerializableExtra(EXTRA_LIST_TYPE);
-		//Might be null when using back button
-		if(listtype!=null){
-			lt=listtype;
+		if(headerViewNoStarred==null){
+			headerViewNoStarred = new TextView(this);
+			headerViewNoStarred.setPadding(10, 10, 10, 10);
+			headerViewNoStarred.setTextSize(32);
+			headerViewNoStarred.setText(getResources().getText(R.string.warning_no_starred));
 		}
-		PlaybarManager.setListType(lt);
+		if(headerViewNoFiles==null){
+			headerViewNoFiles = new TextView(this);
+			headerViewNoFiles.setPadding(10, 10, 10, 10);
+			headerViewNoFiles.setTextSize(32);
+			headerViewNoFiles.setText(getResources().getText(R.string.warning_no_starred));
+		}
+		if(!AssimilDatabase.isAllocated()){
+			showWaiting(ActivityState.DATABASE_LOADING);
+			new DatabaseInitTask().execute(this);
+		}
+		else{
+			showWaiting(ActivityState.READY_FOR_PLAYBACK);
+		}
+	}
+	
+	private void updateListType(){
+		//PlaybarManager.setListType(lt);
+		lt = PlaybarManager.getListType();
+		Log.d("LT", this.getClass().getSimpleName()+".updateListType(); lt="+lt);
 		AssimilDatabase ad = AssimilDatabase.getDatabase(this);
 		switch(lt){
 		case LIST_TYPE_ALL_NO_TRANSLATE:
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_purple)));
-			this.setTitle(getResources().getText(R.string.play_all_lessons_short)+" "+getResources().getText(R.string.starred_without_translate));
 			break;
 		case LIST_TYPE_ALL_TRANSLATE:
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_blue_dark)));
-			this.setTitle(getResources().getText(R.string.play_all_lessons_short)+" "+getResources().getText(R.string.starred_with_translate));
 			break;
 		case LIST_TYPE_STARRED_NO_TRANSLATE:
 			ad = AssimilDatabase.getStarredOnly(this);
@@ -42,8 +76,6 @@ public class LessonListActivity extends ActionBarActivity {
 				LessonPlayer.stopPlaying(this);
 				PlaybarManager.setCurrent(null, -1);
 			}
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_orange_dark)));
-			this.setTitle(getResources().getText(R.string.play_starred_lessons_short)+" "+getResources().getText(R.string.starred_without_translate));
 			break;
 		case LIST_TYPE_STARRED_TRANSLATE:
 			if((PlaybarManager.getLessonInstance()!=null)&&(!PlaybarManager.getLessonInstance().isStarred())){
@@ -51,40 +83,105 @@ public class LessonListActivity extends ActionBarActivity {
 				PlaybarManager.setCurrent(null, -1);
 			}
 			ad = AssimilDatabase.getStarredOnly(this);
-			getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.holo_green_dark)));
-			this.setTitle(getResources().getText(R.string.play_starred_lessons_short)+" "+getResources().getText(R.string.starred_with_translate));
 			break;			
 		}
 		/* show the content */
 		AssimilLessonListAdapter assimilLessonListAdapter;
 		assimilLessonListAdapter = new AssimilLessonListAdapter(this, ad, lt);
 		ListView listView = (ListView) findViewById(R.id.listView1);
+		listView.removeHeaderView(headerViewNoStarred);
+		listView.removeHeaderView(headerViewNoFiles);
 		if(ad.isEmpty()){
-			TextView tv = new TextView(this);
-			//LayoutParams lp = new AbsListView.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-			tv.setPadding(10, 10, 10, 10);
-			tv.setTextSize(32);
-			//tv.setLayoutParams(lp);
-			tv.setText(getResources().getText(R.string.warning_no_starred));
-			listView.addHeaderView(tv);
+			listView.setAdapter(null);
+			switch(lt){
+			case LIST_TYPE_ALL_NO_TRANSLATE:
+			case LIST_TYPE_ALL_TRANSLATE:
+				listView.addHeaderView(headerViewNoFiles);
+				break;
+			case LIST_TYPE_STARRED_NO_TRANSLATE:
+			case LIST_TYPE_STARRED_TRANSLATE:
+				listView.addHeaderView(headerViewNoStarred);
+				break;
+			}
 		}
+		
 		listView.setAdapter(assimilLessonListAdapter);
 		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
 		playbar.update();
 		PlaybarManager.setPbInstance(playbar);
 	}
+	/**
+	 * @param b
+	 */
+	private void showWaiting(ActivityState databaseLoading) {
+		Log.d("LT", "databaseLoading="+databaseLoading);
+		if(databaseLoading==ActivityState.DATABASE_LOADING){
+			setContentView(R.layout.activity_main);
+		}
+		else {
+			setContentView(R.layout.activity_lesson_list);
+			setTitle("");
+			SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.playback_option_list,
+					android.R.layout.simple_spinner_dropdown_item);
+			ActionBar.OnNavigationListener mOnNavigationListener = new ActionBar.OnNavigationListener() {
+				@Override
+				public boolean onNavigationItemSelected(int position, long itemId) {
+					switch(lt){
+					case LIST_TYPE_ALL_NO_TRANSLATE:
+					case LIST_TYPE_STARRED_NO_TRANSLATE:
+						if(position==0){
+							lt = ListTypes.LIST_TYPE_ALL_NO_TRANSLATE;
+						}
+						else{
+							lt = ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE;
+						}
+						break;
+					case LIST_TYPE_STARRED_TRANSLATE:
+					case LIST_TYPE_ALL_TRANSLATE:
+						if(position==0){
+							lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
+						}
+						else{
+							lt = ListTypes.LIST_TYPE_STARRED_TRANSLATE;
+						}
+						break;
+					}
+					Log.d("LT", this.getClass().getSimpleName()+".onNavigationItemSelected(); lt="+lt);
+					PlaybarManager.setListType(lt);
+					updateListType();
+					return true;
+				}
+			};
+			getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+			getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, mOnNavigationListener);
+			int navItem = 0;
+			switch(lt){
+			case LIST_TYPE_ALL_NO_TRANSLATE:
+			case LIST_TYPE_ALL_TRANSLATE:
+				navItem = 0;
+				break;
+			case LIST_TYPE_STARRED_NO_TRANSLATE:
+			case LIST_TYPE_STARRED_TRANSLATE:
+				navItem = 1;
+				break;
+			}
+			getSupportActionBar().setSelectedNavigationItem(navItem);
+		}
+	}
 
 	@Override
 	protected void onPause(){
 		super.onPause();
-		Log.d("LT", "MainActivity.onPause()");
+		Log.d("LT", this.getClass().getName()+".onPause()");
 		AssimilDatabase.getDatabase(this).commit();
 	}
 
 	@Override
 	protected void onResume(){
 		super.onResume();
-		Log.d("LT", "MainActivity.onResume()");
+		Log.d("LT", this.getClass().getName()+".onResume()");
+		lt = PlaybarManager.getListType();
+		Log.d("LT", this.getClass().getSimpleName()+".onResume(); lt="+lt);
 		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
 		PlaybarManager.setPbInstance(playbar);
 	}
@@ -92,8 +189,118 @@ public class LessonListActivity extends ActionBarActivity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
-		Log.i("LT", "being destroyed");
+		Log.i("LT", this.getClass().getName()+" being destroyed");
 	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.action_license:
+	            openLicense();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	/**
+	 * 
+	 */
+	private void openLicense() {
+		// 1. Instantiate an AlertDialog.Builder with its constructor
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+		builder.setMessage(readRawTextFile(getApplicationContext(), R.raw.license))
+		       .setTitle(R.string.action_license);
+
+		builder.setPositiveButton(R.string.show_license, new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int id) {
+//	        	   Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.gnu.org/licenses/gpl-2.0-standalone.html"));
+//	        	   startActivity(browserIntent);
+	        	   openGPL();
+	           }
+	       });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	/**
+	 * 
+	 */
+	private void openGPL() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    // Get the layout inflater
+	    LayoutInflater inflater = getLayoutInflater();
+
+	    // Inflate and set the layout for the dialog
+	    // Pass null as the parent view because its going in the dialog layout
+	    View layoutView = inflater.inflate(R.layout.license_view, null);
+	    builder.setView(layoutView);
+	    TextView textView = (TextView)layoutView.findViewById(R.id.textViewLicense);
+	    textView.setText(readRawTextFile(getApplicationContext(), R.raw.gpl20));
+		textView.setHorizontallyScrolling(true);
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User closed the dialog
+            }
+        });
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	private static String readRawTextFile(Context ctx, int resId)
+	{
+	    InputStream inputStream = ctx.getResources().openRawResource(resId);
+
+	    InputStreamReader inputreader = new InputStreamReader(inputStream);
+	    BufferedReader buffreader = new BufferedReader(inputreader);
+	    String line;
+	    StringBuilder text = new StringBuilder();
+
+	    try {
+	        while (( line = buffreader.readLine()) != null) {
+	            text.append(line);
+	            text.append('\n');
+	        }
+	    } catch (IOException e) {
+	        return null;
+	    }
+	    return text.toString();
+	}
+
+	private class DatabaseInitTask extends AsyncTask<Activity, Void, ActivityState> {
+	    /** The system calls this to perform work in the UI thread and delivers
+	      * the result from doInBackground() */
+	    protected void onPostExecute(ActivityState result) {
+	    	showWaiting(result);
+	    }
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+		 */
+		@Override
+		protected ActivityState doInBackground(Activity... arg0) {
+			AssimilDatabase.getDatabase(arg0[0]);
+			return ActivityState.READY_FOR_PLAYBACK;
+		}
+	}
+
 }
 
 /*

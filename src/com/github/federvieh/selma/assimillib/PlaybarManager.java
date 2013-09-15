@@ -97,7 +97,7 @@ public class PlaybarManager {
 	private static boolean playmodeUpdated = false;
 	private static boolean playing = false;
 	private static boolean playTranlate;
-	private static ListTypes lt;
+	private static ListTypes lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
 	private static ShowLesson showLesson;
 	
 	/**
