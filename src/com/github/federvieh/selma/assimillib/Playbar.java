@@ -120,12 +120,6 @@ public class Playbar extends LinearLayout {
 	 * 
 	 */
 	public void update() {
-		if(PlaybarManager.getLessonInstance()==null){
-			this.setVisibility(GONE);
-		}
-		else{
-			this.setVisibility(VISIBLE);
-		}
 		textViewLesson.setText(PlaybarManager.getLessonText());
 		textViewTrack.setText(PlaybarManager.getTrackNumberText());
 		switch (PlaybarManager.getPlayMode()){
