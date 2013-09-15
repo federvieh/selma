@@ -30,27 +30,30 @@
 
         <ImageView
             android:id="@+id/playmode"
-            android:layout_width="30dp"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:src="@drawable/repeat_none" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButtonPlay"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:src="@android:drawable/ic_media_play" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButtonNextTrack"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:src="@android:drawable/ic_media_next" />
 
-        <ImageButton
+        <ImageView
             android:id="@+id/imageButtonNextLesson"
-            android:layout_width="wrap_content"
+            android:layout_width="48dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:src="@android:drawable/ic_media_ff" />
 
  <!-- Playmodes: Single track, single lesson, all lessons, repeat track, repeat lesson, repeat all lessons  -->

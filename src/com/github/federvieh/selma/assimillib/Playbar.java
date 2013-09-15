@@ -6,7 +6,6 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,9 +23,9 @@ public class Playbar extends LinearLayout {
 	private TextView textViewLesson;
 	private TextView textViewTrack;
 	
-	private ImageButton imageButtonPlay;
-	private ImageButton imageButtonNextTrack;
-	private ImageButton imageButtonNextLesson;	//TODO: Remove (never used that)
+	private ImageView imagePlay;
+	private ImageView imageNextTrack;
+	private ImageView imageNextLesson;	//TODO: Remove (never used that)
 
 	private ImageView playmode;
 	
@@ -78,8 +77,8 @@ public class Playbar extends LinearLayout {
 				PlaybarManager.increasePlayMode();
 			}
 		});
-		imageButtonPlay = (ImageButton) view.findViewById(R.id.imageButtonPlay);
-		imageButtonPlay.setOnClickListener(new OnClickListener() {
+		imagePlay = (ImageView) view.findViewById(R.id.imageButtonPlay);
+		imagePlay.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
 				if(PlaybarManager.isPlaying()){
@@ -91,8 +90,8 @@ public class Playbar extends LinearLayout {
 			}
 		});
 		
-		imageButtonNextTrack = (ImageButton) view.findViewById(R.id.imageButtonNextTrack);
-		imageButtonNextTrack.setOnClickListener(new OnClickListener() {
+		imageNextTrack = (ImageView) view.findViewById(R.id.imageButtonNextTrack);
+		imageNextTrack.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
 				if(PlaybarManager.isPlaying()){
@@ -103,8 +102,8 @@ public class Playbar extends LinearLayout {
 				}
 			}
 		});
-		imageButtonNextLesson = (ImageButton) view.findViewById(R.id.imageButtonNextLesson);
-		imageButtonNextLesson.setOnClickListener(new OnClickListener() {
+		imageNextLesson = (ImageView) view.findViewById(R.id.imageButtonNextLesson);
+		imageNextLesson.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
 				if(PlaybarManager.isPlaying()){
@@ -184,10 +183,10 @@ public class Playbar extends LinearLayout {
 
 		}
 		if(PlaybarManager.isPlaying()){
-			imageButtonPlay.setImageResource(android.R.drawable.ic_media_pause);
+			imagePlay.setImageResource(android.R.drawable.ic_media_pause);
 		}
 		else{
-			imageButtonPlay.setImageResource(android.R.drawable.ic_media_play);
+			imagePlay.setImageResource(android.R.drawable.ic_media_play);
 		}
 	}
 }
