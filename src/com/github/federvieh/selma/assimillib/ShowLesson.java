@@ -1,6 +1,8 @@
 package com.github.federvieh.selma.assimillib;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
@@ -84,7 +86,10 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 
     private void updateListType(){
 		PlaybarManager.setListType(lt);
-		Log.d("LT", "ShowLesson.updateListType(); lt="+lt);
+		Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+		editor.putInt(LessonListActivity.LIST_MODE, lt.ordinal());
+		editor.commit();
+		Log.d("LT", "ShowLesson.updateListType(); lt="+lt.ordinal());
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(this, lesson, lt);
 		ListView listView = (ListView) findViewById(R.id.listViewLessons);

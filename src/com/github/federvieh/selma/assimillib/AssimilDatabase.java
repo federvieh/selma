@@ -43,7 +43,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	 */
 	private static final long serialVersionUID = 3578723726780150820L;
 	private boolean initialized = false;
-	private SharedPreferences settings = null; 
+	//private SharedPreferences settings = null; 
 
 	private AssimilDatabase(){
 	}
@@ -70,7 +70,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
         else{
         	int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
         	int albumColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ALBUM);
-        	settings = caller.getPreferences(Context.MODE_PRIVATE);
+        	SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
         	//title = S00-TITLE-İki genç
         	//album = ASSIMIL Turkish With Ease - L001
         	do{
@@ -85,7 +85,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 //        		Log.i("LT", "lang =   '"+language+"'");
 //        		Log.i("LT", "album  = '"+fullAlbum+"'");
 //        		Log.i("LT", "==============================================");
-        		assimilLesson.init();
+        		assimilLesson.init(settings);
         		this.add(assimilLesson);
         	} while (cursor.moveToNext());
             cursor.close();
@@ -99,9 +99,11 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	}
 
 	/**
+	 * @param caller 
 	 * 
 	 */
-	public void commit() {
+	public void commit(Activity caller) {
+		SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		for (AssimilLesson al : this) {
 			al.store(editor);

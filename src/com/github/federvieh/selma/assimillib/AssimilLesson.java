@@ -36,7 +36,7 @@ public class AssimilLesson implements Serializable {
 	private ArrayList<AssimilLessonFile> translateFiles = new ArrayList<AssimilLessonFile>();
 	private ArrayList<String> allTexts = new ArrayList<String>();
 	private ArrayList<String> lessonTexts = new ArrayList<String>();
-	private SharedPreferences settings;
+//	private SharedPreferences settings;
 	private boolean starred = false;
 
 	public AssimilLesson(String number, String language, String album, Activity caller, SharedPreferences settings) {
@@ -44,7 +44,7 @@ public class AssimilLesson implements Serializable {
 		this.language = language;
 		this.album = album;
 		this.activity = caller;
-		this.settings = settings;
+//		this.settings = settings;
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class AssimilLesson implements Serializable {
 		this.starred = false;
 	}
 
-	public boolean init(){
+	public boolean init(SharedPreferences settings){
 		starred = settings.getBoolean(STARRED_PREFIX+album, false);
         ContentResolver contentResolver = activity.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;

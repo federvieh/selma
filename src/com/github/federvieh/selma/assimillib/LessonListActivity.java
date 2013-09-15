@@ -9,6 +9,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -27,7 +29,9 @@ import com.github.federvieh.selma.R;
 
 public class LessonListActivity extends ActionBarActivity {
 	
-	private static ListTypes lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
+	public static final String LIST_MODE = "LIST_MODE";
+
+	private static ListTypes lt;// = ListTypes.LIST_TYPE_ALL_TRANSLATE;
 	
 	static TextView headerViewNoStarred;
 	static TextView headerViewNoFiles;
@@ -36,9 +40,22 @@ public class LessonListActivity extends ActionBarActivity {
 		READY_FOR_PLAYBACK
 	}
 
+	//private SharedPreferences settings;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		if(lt==null){
+			Log.d("LT", this.getClass().getSimpleName()+".onCreate(); Reading settings.");
+			SharedPreferences settings = getSharedPreferences("selma", Context.MODE_PRIVATE);
+			int i = settings.getInt(LIST_MODE, ListTypes.LIST_TYPE_ALL_TRANSLATE.ordinal());
+			Log.d("LT", this.getClass().getSimpleName()+".onCreate(); i="+i);
+			lt = ListTypes.values()[i];
+			PlaybarManager.setListType(lt);
+		}
+		Log.d("LT", this.getClass().getSimpleName()+".onCreate(); lt="+lt);
+
 		if(headerViewNoStarred==null){
 			headerViewNoStarred = new TextView(this);
 			headerViewNoStarred.setPadding(10, 10, 10, 10);
@@ -63,7 +80,10 @@ public class LessonListActivity extends ActionBarActivity {
 	private void updateListType(){
 		//PlaybarManager.setListType(lt);
 		lt = PlaybarManager.getListType();
-		Log.d("LT", this.getClass().getSimpleName()+".updateListType(); lt="+lt);
+		Log.d("LT", this.getClass().getSimpleName()+".updateListType(); lt="+lt.ordinal());
+		Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+		editor.putInt(LIST_MODE, lt.ordinal());
+		editor.commit();
 		AssimilDatabase ad = AssimilDatabase.getDatabase(this);
 		switch(lt){
 		case LIST_TYPE_ALL_NO_TRANSLATE:
@@ -172,14 +192,14 @@ public class LessonListActivity extends ActionBarActivity {
 	@Override
 	protected void onPause(){
 		super.onPause();
-		Log.d("LT", this.getClass().getName()+".onPause()");
-		AssimilDatabase.getDatabase(this).commit();
+		Log.d("LT", this.getClass().getSimpleName()+".onPause()");
+		AssimilDatabase.getDatabase(this).commit(this);
 	}
 
 	@Override
 	protected void onResume(){
 		super.onResume();
-		Log.d("LT", this.getClass().getName()+".onResume()");
+		Log.d("LT", this.getClass().getSimpleName()+".onResume()");
 		lt = PlaybarManager.getListType();
 		Log.d("LT", this.getClass().getSimpleName()+".onResume(); lt="+lt);
 		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
@@ -189,7 +209,7 @@ public class LessonListActivity extends ActionBarActivity {
 	@Override
 	protected void onDestroy(){
 		super.onDestroy();
-		Log.i("LT", this.getClass().getName()+" being destroyed");
+		Log.i("LT", this.getClass().getSimpleName()+" being destroyed");
 	}
 
 	@Override
