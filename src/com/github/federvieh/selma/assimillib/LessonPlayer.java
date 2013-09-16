@@ -8,6 +8,7 @@ import android.app.Service;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
@@ -152,6 +153,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		if(result!=AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
 			Log.w("LT", "Releasing audio focus failed! Result: "+result);
 		}
+		Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+		editor.putString(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getNumber());
+		editor.putInt(AssimilDatabase.LAST_TRACK_PLAYED, currentTrack);
+		editor.commit();
+
 	}
 
 	/* (non-Javadoc)

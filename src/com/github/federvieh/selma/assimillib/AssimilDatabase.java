@@ -42,6 +42,8 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	 * 
 	 */
 	private static final long serialVersionUID = 3578723726780150820L;
+	public static final String LAST_LESSON_PLAYED = "LAST_LESSON_PLAYED";
+	public static final String LAST_TRACK_PLAYED = "LAST_TRACK_PLAYED";
 	private boolean initialized = false;
 	//private SharedPreferences settings = null; 
 
@@ -91,7 +93,37 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
             cursor.close();
         }
         initialized  = true;
-		return true;
+        SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
+        String lastPlayedLesson = settings.getString(LAST_LESSON_PLAYED, this.get(0).getNumber());
+        AssimilDatabase ad;
+        switch(PlaybarManager.getListType()){
+        case LIST_TYPE_STARRED_NO_TRANSLATE:
+        case LIST_TYPE_STARRED_TRANSLATE:
+        	ad = getStarredOnly(caller);
+        	break;
+        case LIST_TYPE_ALL_NO_TRANSLATE:
+        case LIST_TYPE_ALL_TRANSLATE:
+        default:
+        	ad = this;
+        	break;
+        }
+        AssimilLesson al = null;
+        for(AssimilLesson al2 : ad){
+        	if(al2.getNumber().equals(lastPlayedLesson)){
+        		al = al2;
+        		break;
+        	}
+        }
+        int lastPlayedTrack;
+        if(null == al){
+        	al = ad.get(0);
+        	lastPlayedTrack = 0;
+        }
+        else{
+        	lastPlayedTrack = settings.getInt(LAST_TRACK_PLAYED, 0);
+        }
+        PlaybarManager.setCurrent(al, lastPlayedTrack);
+        return true;
 	}
 
 	public boolean isInitialized(){
