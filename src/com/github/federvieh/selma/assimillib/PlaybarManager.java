@@ -27,9 +27,9 @@ public class PlaybarManager {
 //		case SINGLE_LESSON:
 //			playMode = PlayMode.ALL_LESSONS;
 //			break;
-//		case ALL_LESSONS:
-//			playMode = PlayMode.REPEAT_TRACK;
-//			break;
+		case ALL_LESSONS:
+			playMode = PlayMode.REPEAT_TRACK;
+			break;
 		case REPEAT_TRACK:
 			playMode = PlayMode.REPEAT_LESSON;
 			break;
@@ -42,11 +42,11 @@ public class PlaybarManager {
 			}
 			break;
 		case REPEAT_ALL_LESSONS:
-			playMode = PlayMode.REPEAT_TRACK;
+			playMode = PlayMode.ALL_LESSONS;
 			break;
 		case REPEAT_ALL_STARRED:
 //			playMode = PlayMode.SINGLE_TRACK;
-			playMode = PlayMode.REPEAT_TRACK;
+			playMode = PlayMode.ALL_LESSONS;
 			break;
 		default:
 //			playMode = PlayMode.SINGLE_TRACK;

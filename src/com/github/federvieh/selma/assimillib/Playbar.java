@@ -129,9 +129,9 @@ public class Playbar extends LinearLayout {
 //		case SINGLE_LESSON:
 //	    	Toast.makeText(this.context, "Playing single lesson", Toast.LENGTH_SHORT).show();
 //			break;
-//		case ALL_LESSONS:
-//	    	playmode.setImageResource(R.drawable.repeat_none);
-//			break;
+		case ALL_LESSONS:
+	    	playmode.setImageResource(R.drawable.repeat_none);
+			break;
 		case REPEAT_TRACK:
 	    	playmode.setImageResource(R.drawable.repeat_one);
 			break;
@@ -156,9 +156,9 @@ public class Playbar extends LinearLayout {
 //			case SINGLE_LESSON:
 //		    	Toast.makeText(this.context, "Playing single lesson", Toast.LENGTH_SHORT).show();
 //				break;
-//			case ALL_LESSONS:
-//		    	Toast.makeText(this.context, "Playing all lessons", Toast.LENGTH_SHORT).show();
-//				break;
+			case ALL_LESSONS:
+		    	Toast.makeText(this.context, "Playing all lessons", Toast.LENGTH_SHORT).show();
+				break;
 			case REPEAT_TRACK:
 		    	Toast.makeText(this.context, "Repeating single track", Toast.LENGTH_SHORT).show();
 				break;

@@ -30,7 +30,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	enum PlayMode{
 //		SINGLE_TRACK,
 //		SINGLE_LESSON,
-//		ALL_LESSONS,
+		ALL_LESSONS,
 		REPEAT_TRACK,
 		REPEAT_LESSON,
 		REPEAT_ALL_LESSONS,
@@ -234,7 +234,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		case REPEAT_TRACK:
 			play(currentLesson, currentTrack, false);
 			break;
-//		case ALL_LESSONS:
+		case ALL_LESSONS:
 		case REPEAT_ALL_LESSONS:
 		case REPEAT_LESSON:
 //		case SINGLE_LESSON:
@@ -255,23 +255,34 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 				case REPEAT_LESSON:
 					play(currentLesson, 0, false);
 					break;
-//				case ALL_LESSONS:
+				case ALL_LESSONS:
 				case REPEAT_ALL_LESSONS:
 				{
 					//find next lesson
-					int lessonIdx = AssimilDatabase.getDatabase(null).indexOf(currentLesson);
+					AssimilDatabase ad = null;
+					switch(PlaybarManager.getListType()){
+					case LIST_TYPE_ALL_NO_TRANSLATE:
+					case LIST_TYPE_ALL_TRANSLATE:
+						ad = AssimilDatabase.getDatabase(null);
+						break;
+					case LIST_TYPE_STARRED_NO_TRANSLATE:
+					case LIST_TYPE_STARRED_TRANSLATE:
+						ad = AssimilDatabase.getStarredOnly(null);
+						break;
+					}
+					int lessonIdx = ad.indexOf(currentLesson);
 					if(lessonIdx<0){
 						Log.w("LT", "Current lesson not found. WTF? Stop playing.");
 						stop(false);
 					}
-					else if (lessonIdx+1 < AssimilDatabase.getDatabase(null).size()){
-						play(AssimilDatabase.getDatabase(null).get(lessonIdx+1),0, false);
+					else if (lessonIdx+1 < ad.size()){
+						play(ad.get(lessonIdx+1),0, false);
 					}
 					else{
 						//last lesson reached
 						if(PlaybarManager.getPlayMode() == PlayMode.REPEAT_ALL_LESSONS){
 							//start again at first lesson again
-							play(AssimilDatabase.getDatabase(null).get(0),0, false);
+							play(ad.get(0),0, false);
 						}
 						else{
 							stop(false);
