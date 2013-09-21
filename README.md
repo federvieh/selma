@@ -18,7 +18,6 @@ open
  * use default background colours in list views (?)
  * long press repeat show different repeat options (--> no need for Toast anymore)
  * correct colors for exercises
- * remember repeat mode on exit
  * more resolutions for repeat icon
 
 done
@@ -30,4 +29,5 @@ done
  * restore option to repeat none (stop after last or last starred)
  * Show nicer text in Playbar
  * show repeat icon for all lessons when repeating only starred
+ * remember repeat mode on exit
 
