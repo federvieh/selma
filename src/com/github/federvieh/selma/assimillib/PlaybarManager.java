@@ -87,7 +87,8 @@ public class PlaybarManager {
 	public static String getTrackNumberText() {
 		String rv = "...";
 		if(trackNumber>=0){
-			rv = ""+trackNumber;
+//			rv = ""+trackNumber;
+			rv = lesson.getTextNumber(trackNumber);
 		}
 		return rv;
 	}

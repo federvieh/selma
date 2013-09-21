@@ -14,7 +14,6 @@ open
  * Give user possibility to directly send email from app if no content has been found
  * Add coach marks (overlay)
  * Somehow notify user in a nice way when changing filters (lessons/exercises)
- * Show nicer text in Playbar
  * let playbar drop shadow
  * use default background colours in list views (?)
  * long press repeat show different repeat options (--> no need for Toast anymore)
@@ -26,4 +25,5 @@ done
  * Last listtype should be used on app startup
  * Last played text should be used on app startup (or first lesson/text on first start)	
  * restore option to repeat none (stop after last or last starred)
+ * Show nicer text in Playbar
 

@@ -35,6 +35,7 @@ public class AssimilLesson implements Serializable {
 	private ArrayList<AssimilLessonFile> lessonFiles = new ArrayList<AssimilLessonFile>();
 	private ArrayList<AssimilLessonFile> translateFiles = new ArrayList<AssimilLessonFile>();
 	private ArrayList<String> allTexts = new ArrayList<String>();
+	private ArrayList<String> allTracknumbers = new ArrayList<String>();
 	private ArrayList<String> lessonTexts = new ArrayList<String>();
 //	private SharedPreferences settings;
 	private boolean starred = false;
@@ -108,8 +109,11 @@ public class AssimilLesson implements Serializable {
         		String fullTitle = cursor.getString(titleColumn);
         		String id = cursor.getString(idColumn);
         		String text = null;
+        		String textNumber = null;
         		if(fullTitle.startsWith(TITLE_PREFIX)){
         			text = fullTitle.substring(TITLE_PREFIX.length());
+        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
+            		this.allTracknumbers.add(textNumber);
             		AssimilLessonFile assimilLessonFile = new AssimilLessonFile(text, id);
             		this.lessonFiles .add(assimilLessonFile);
             		this.allTexts.add(text);
@@ -121,6 +125,8 @@ public class AssimilLesson implements Serializable {
         		}
         		else if(fullTitle.matches("S[0-9][0-9]-.*")){
         			text = fullTitle.substring(PREFIX_LENGTH);
+        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
+            		this.allTracknumbers.add(textNumber);
             		AssimilLessonFile assimilLessonFile = new AssimilLessonFile(text, id);
             		this.lessonFiles .add(assimilLessonFile);
             		this.allTexts.add(text);
@@ -132,6 +138,8 @@ public class AssimilLesson implements Serializable {
         		}
         		else if(fullTitle.matches("T[0-9][0-9]-.*")){
         			text = fullTitle.substring(PREFIX_LENGTH);
+        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
+            		this.allTracknumbers.add(textNumber);
             		AssimilLessonFile assimilLessonFile = new AssimilLessonFile(text, id);
             		this.translateFiles.add(assimilLessonFile);
             		this.allTexts.add(text);
@@ -142,6 +150,8 @@ public class AssimilLesson implements Serializable {
         		}
         		else if(fullTitle.matches("N[0-9]*-.*")){
         			text = fullTitle.substring(fullTitle.indexOf("-")+1);
+        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
+            		this.allTracknumbers.add(textNumber);
             		AssimilLessonFile assimilLessonFile = new AssimilLessonFile(text, id);
             		this.lessonFiles.add(assimilLessonFile);
             		this.allTexts.add(text);
@@ -176,6 +186,10 @@ public class AssimilLesson implements Serializable {
 	 */
 	public String[] getTextList() {
 		return allTexts.toArray(new String[0]);
+	}
+	
+	public String getTextNumber(int i){
+		return this.allTracknumbers.get(i);
 	}
 
 	/**
