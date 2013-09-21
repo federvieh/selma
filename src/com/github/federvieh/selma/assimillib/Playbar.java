@@ -142,7 +142,7 @@ public class Playbar extends LinearLayout {
 	    	playmode.setImageResource(R.drawable.repeat_all);
 			break;
 		case REPEAT_ALL_STARRED:
-	    	playmode.setImageResource(R.drawable.repeat_star);
+	    	playmode.setImageResource(R.drawable.repeat_all);
 			break;
 		default:
 			break;

@@ -17,6 +17,9 @@ open
  * let playbar drop shadow
  * use default background colours in list views (?)
  * long press repeat show different repeat options (--> no need for Toast anymore)
+ * correct colors for lessons
+ * remember repeat mode on exit
+ * more resolutions for repeat icon
 
 done
 ----
@@ -26,4 +29,5 @@ done
  * Last played text should be used on app startup (or first lesson/text on first start)	
  * restore option to repeat none (stop after last or last starred)
  * Show nicer text in Playbar
+ * show repeat icon for all lessons when repeating only starred
 
