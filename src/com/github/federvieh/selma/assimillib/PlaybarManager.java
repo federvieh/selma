@@ -21,6 +21,8 @@ public class PlaybarManager {
 
 	public static void setPlayMode(PlayMode pm) {
 		playMode = pm;
+		playmodeUpdated = true;
+		update();
 	}
 
 	public static void increasePlayMode() {

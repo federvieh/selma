@@ -16,8 +16,11 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -60,7 +63,7 @@ public class LessonListActivity extends ActionBarActivity {
 			PlaybarManager.setPlayMode(PlayMode.values()[i]);
 		}
 		Log.d("LT", this.getClass().getSimpleName()+".onCreate(); lt="+lt);
-
+		
 		if(headerViewNoStarred==null){
 			headerViewNoStarred = new TextView(this);
 			headerViewNoStarred.setPadding(10, 10, 10, 10);
@@ -134,6 +137,7 @@ public class LessonListActivity extends ActionBarActivity {
 		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
 		playbar.update();
 		PlaybarManager.setPbInstance(playbar);
+		registerForContextMenu(playbar.findViewById(R.id.playmode));
 	}
 	/**
 	 * @param b
@@ -223,7 +227,7 @@ public class LessonListActivity extends ActionBarActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
@@ -236,6 +240,39 @@ public class LessonListActivity extends ActionBarActivity {
 	    }
 	}
 	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.repeat, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_repeat_all:
+			if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
+				PlaybarManager.setPlayMode(PlayMode.REPEAT_ALL_LESSONS);
+			}
+			else{
+				PlaybarManager.setPlayMode(PlayMode.REPEAT_ALL_STARRED);
+			}
+			return true;
+		case R.id.action_repeat_lesson:
+			PlaybarManager.setPlayMode(PlayMode.REPEAT_LESSON);
+			return true;
+		case R.id.action_repeat_none:
+			PlaybarManager.setPlayMode(PlayMode.ALL_LESSONS);
+			return true;
+		case R.id.action_repeat_track:
+			PlaybarManager.setPlayMode(PlayMode.REPEAT_TRACK);
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
+
 	/**
 	 * 
 	 */

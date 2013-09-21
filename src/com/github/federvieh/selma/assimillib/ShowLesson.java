@@ -8,8 +8,11 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -17,6 +20,7 @@ import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 
 import com.github.federvieh.selma.R;
+import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 
 public class ShowLesson extends ActionBarActivity implements OnItemClickListener{
 	private AssimilLesson lesson = null;
@@ -99,6 +103,8 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
 		PlaybarManager.setPbInstance(playbar);
 		PlaybarManager.setLessonInstance(this);
+		PlaybarManager.setPbInstance(playbar);
+		registerForContextMenu(playbar.findViewById(R.id.playmode));
     }
 
 
@@ -125,6 +131,39 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.repeat, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_repeat_all:
+			if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
+				PlaybarManager.setPlayMode(PlayMode.REPEAT_ALL_LESSONS);
+			}
+			else{
+				PlaybarManager.setPlayMode(PlayMode.REPEAT_ALL_STARRED);
+			}
+			return true;
+		case R.id.action_repeat_lesson:
+			PlaybarManager.setPlayMode(PlayMode.REPEAT_LESSON);
+			return true;
+		case R.id.action_repeat_none:
+			PlaybarManager.setPlayMode(PlayMode.ALL_LESSONS);
+			return true;
+		case R.id.action_repeat_track:
+			PlaybarManager.setPlayMode(PlayMode.REPEAT_TRACK);
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)

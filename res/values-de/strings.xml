@@ -26,4 +26,8 @@
         <item>Übungen zeigen</item>
         <item>Ohne übungen</item>
     </string-array>
+    <string name="repeat_none">Ohne Wiederholung</string>
+    <string name="repeat_track">Track wiederholen</string>
+    <string name="repeat_lesson">Lektion wiederholen</string>
+    <string name="repeat_all">Alle Lektionen wiederholen</string>
 </resources>

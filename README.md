@@ -16,7 +16,6 @@ open
  * Somehow notify user in a nice way when changing filters (lessons/exercises)
  * let playbar drop shadow
  * use default background colours in list views (?)
- * long press repeat show different repeat options (--> no need for Toast anymore)
  * correct colors for exercises
  * more resolutions for repeat icon
 
@@ -30,4 +29,5 @@ done
  * Show nicer text in Playbar
  * show repeat icon for all lessons when repeating only starred
  * remember repeat mode on exit
+ * long press repeat show different repeat options (--> no need for Toast anymore)
 

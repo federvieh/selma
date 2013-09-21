@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.github.federvieh.selma.R;
 
 /**
@@ -150,7 +148,7 @@ public class Playbar extends LinearLayout {
 		default:
 			break;
 		}
-		if (PlaybarManager.isPlaymodeUpdated()) {
+/*		if (PlaybarManager.isPlaymodeUpdated()) {
 			//show text
 			switch (PlaybarManager.getPlayMode()){
 //			case SINGLE_TRACK:
@@ -178,7 +176,7 @@ public class Playbar extends LinearLayout {
 				break;
 			}
 
-		}
+		}*/
 		if(PlaybarManager.isPlaying()){
 			imagePlay.setImageResource(android.R.drawable.ic_media_pause);
 		}

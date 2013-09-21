@@ -27,4 +27,9 @@
         <item>No exercises</item>
     </string-array>
     
+    <string name="repeat_none">Repeat none</string>
+    <string name="repeat_track">Repeat current track</string>
+    <string name="repeat_lesson">Repeat current lesson</string>
+    <string name="repeat_all">Repeat all lessons</string>
+        
 </resources>
