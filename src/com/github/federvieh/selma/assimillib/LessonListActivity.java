@@ -26,10 +26,13 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.github.federvieh.selma.R;
+import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 
 public class LessonListActivity extends ActionBarActivity {
 	
 	public static final String LIST_MODE = "LIST_MODE";
+
+	public static final String PLAY_MODE = "PLAY_MODE";
 
 	private static ListTypes lt;// = ListTypes.LIST_TYPE_ALL_TRANSLATE;
 	
@@ -53,6 +56,8 @@ public class LessonListActivity extends ActionBarActivity {
 			Log.d("LT", this.getClass().getSimpleName()+".onCreate(); i="+i);
 			lt = ListTypes.values()[i];
 			PlaybarManager.setListType(lt);
+			i = settings.getInt(PLAY_MODE, PlayMode.ALL_LESSONS.ordinal());
+			PlaybarManager.setPlayMode(PlayMode.values()[i]);
 		}
 		Log.d("LT", this.getClass().getSimpleName()+".onCreate(); lt="+lt);
 

@@ -2,6 +2,7 @@ package com.github.federvieh.selma.assimillib;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -17,7 +18,6 @@ import com.github.federvieh.selma.R;
  * Playbar.
  */
 public class Playbar extends LinearLayout {
-	//TODO: Click on left part (titleTrackSection) should bring the user to the lesson/track
 	//TODO: Add pause after track function (off, 1s, 2s, until user interaction)
 	private Context context;
 	private TextView textViewLesson;
@@ -75,6 +75,9 @@ public class Playbar extends LinearLayout {
 			
 			public void onClick(View v) {
 				PlaybarManager.increasePlayMode();
+				Editor editor = context.getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+				editor.putInt(LessonListActivity.PLAY_MODE, PlaybarManager.getPlayMode().ordinal());
+				editor.commit();
 			}
 		});
 		imagePlay = (ImageView) view.findViewById(R.id.imageButtonPlay);

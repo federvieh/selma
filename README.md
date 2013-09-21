@@ -17,7 +17,7 @@ open
  * let playbar drop shadow
  * use default background colours in list views (?)
  * long press repeat show different repeat options (--> no need for Toast anymore)
- * correct colors for lessons
+ * correct colors for exercises
  * remember repeat mode on exit
  * more resolutions for repeat icon
 

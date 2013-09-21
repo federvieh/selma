@@ -19,6 +19,10 @@ public class PlaybarManager {
 		return playMode;
 	}
 
+	public static void setPlayMode(PlayMode pm) {
+		playMode = pm;
+	}
+
 	public static void increasePlayMode() {
 		switch (playMode){
 //		case SINGLE_TRACK:
