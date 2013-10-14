@@ -30,4 +30,5 @@ done
  * remember repeat mode on exit
  * long press repeat show different repeat options (--> no need for Toast anymore)
  * Add coach marks (overlay)
+ * Repair "no_content_found" functionality
 

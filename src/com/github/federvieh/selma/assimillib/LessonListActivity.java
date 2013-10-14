@@ -74,7 +74,7 @@ public class LessonListActivity extends ActionBarActivity {
 			headerViewNoFiles = new TextView(this);
 			headerViewNoFiles.setPadding(10, 10, 10, 10);
 			headerViewNoFiles.setTextSize(32);
-			headerViewNoFiles.setText(getResources().getText(R.string.warning_no_starred));
+			headerViewNoFiles.setText(getResources().getText(R.string.no_content_found));
 		}
 		if(!AssimilDatabase.isAllocated()){
 			showWaiting(ActivityState.DATABASE_LOADING);
