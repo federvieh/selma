@@ -10,20 +10,11 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/LightGrey"
+        android:background="@drawable/container_dropshadow"
         android:divider="@color/DarkGray"
-        android:dividerHeight="1dp"
-        android:fadingEdge="vertical"
-        android:requiresFadingEdge="vertical"
-        android:cacheColorHint="@color/DarkGray"
-        android:fadingEdgeLength="8dp"  >
+        android:dividerHeight="1dp" >
 
     </ListView>
-    
-    <View
-    android:layout_width="match_parent"
-    android:layout_height="1dp"
-    android:background="@color/DarkGray" />
     
     <com.github.federvieh.selma.assimillib.Playbar
         android:id="@+id/playbar1"
