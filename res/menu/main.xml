@@ -5,5 +5,10 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_license"/>
-
+    <item
+        android:id="@+id/action_show_tips"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_show_tips"/>
+    
 </menu>

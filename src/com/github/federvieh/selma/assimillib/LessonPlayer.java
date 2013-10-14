@@ -153,10 +153,15 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		if(result!=AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
 			Log.w("LT", "Releasing audio focus failed! Result: "+result);
 		}
-		Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
-		editor.putString(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getNumber());
-		editor.putInt(AssimilDatabase.LAST_TRACK_PLAYED, currentTrack);
-		editor.commit();
+		try{
+			Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+			editor.putString(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getNumber());
+			editor.putInt(AssimilDatabase.LAST_TRACK_PLAYED, currentTrack);
+			editor.commit();
+		}
+		catch(NullPointerException e){
+			//Might happen when in "starred only" mode but current last played lesson is not starred.
+		}
 
 	}
 

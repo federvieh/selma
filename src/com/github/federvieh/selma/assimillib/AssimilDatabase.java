@@ -116,8 +116,18 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
         }
         int lastPlayedTrack;
         if(null == al){
-        	al = ad.get(0);
-        	lastPlayedTrack = 0;
+        	try{
+        		al = ad.get(0);
+        		lastPlayedTrack = 0;
+        	}
+        	catch(IndexOutOfBoundsException e){
+        		//This may happen when starting
+        		// * the first time with a valid database
+        		// * playmode "starred only"
+        		// * no starred items
+        		al = null;
+        		lastPlayedTrack = -1;
+        	}
         }
         else{
         	lastPlayedTrack = settings.getInt(LAST_TRACK_PLAYED, 0);

@@ -3,6 +3,7 @@
 
     <string name="app_name">Selma</string>
     <string name="action_license">License</string>
+    <string name="action_show_tips">Show tips</string>
     <string name="play_starred_lessons">Play starred lessons</string>
     <string name="play_starred_lessons_short">starred</string>
     <string name="starred_with_translate">incl. exercises</string>
@@ -31,5 +32,9 @@
     <string name="repeat_track">Repeat current track</string>
     <string name="repeat_lesson">Repeat current lesson</string>
     <string name="repeat_all">Repeat all lessons</string>
-        
+
+    <string name="how_to_star">You can click on the stars to mark the lessons that you are currently focusing on.</string>
+    <string name="how_to_choose_displayed_lessons">Click here to choose if you want to see all lessons or only the ones you starred.</string>
+    <string name="how_to_playbar_buttons">Use these buttons for playback:\n\nLeft button changes repeat mode (long press to see all options).\n\nUse the second button to start or pause playback.\n\nPress the third button to jump to next text (only during playback).\n\nLast button jumps to next lesson (only during playback).</string>
+    <string name="how_to_playbar_text">Here the current lesson and text is shown. Click anytime to jump to the current lesson.</string>
 </resources>

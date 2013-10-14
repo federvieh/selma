@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="#CC444444"
+	android:orientation="vertical"
+	android:id="@+id/overlayLayout">
+
+   	<TextView
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:gravity="bottom"	    
+	    android:layout_weight="1"
+	    android:text="@string/how_to_playbar_text"
+	    android:layout_marginLeft="8dp"
+	    android:layout_marginRight="8dp"
+	    android:textColor="@color/White"
+	    android:textSize="20sp" />
+
+    <ImageView
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_marginLeft="8dp"
+    	android:layout_gravity="left"
+    	android:src="@drawable/down" />
+   	
+	<View
+    	android:layout_width="fill_parent"
+    	android:layout_height="@dimen/playbar_height"
+    	android:layout_marginLeft="0dp"
+    	android:layout_marginRight="192dp"
+    	android:layout_gravity="right"
+	    android:background="@drawable/border"
+	    />
+</LinearLayout>

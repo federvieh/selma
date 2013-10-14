@@ -138,6 +138,7 @@ public class LessonListActivity extends ActionBarActivity {
 		playbar.update();
 		PlaybarManager.setPbInstance(playbar);
 		registerForContextMenu(playbar.findViewById(R.id.playmode));
+		OverlayManager.showOverlayLessonList(this);
 	}
 	/**
 	 * @param b
@@ -183,6 +184,7 @@ public class LessonListActivity extends ActionBarActivity {
 			};
 			getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 			getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, mOnNavigationListener);
+			getSupportActionBar().setTitle("");
 			int navItem = 0;
 			switch(lt){
 			case LIST_TYPE_ALL_NO_TRANSLATE:
@@ -234,6 +236,10 @@ public class LessonListActivity extends ActionBarActivity {
 	    switch (item.getItemId()) {
 	        case R.id.action_license:
 	            openLicense();
+	            return true;
+	        case R.id.action_show_tips:
+	            OverlayManager.resetOverlays();
+	            this.updateListType();
 	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);

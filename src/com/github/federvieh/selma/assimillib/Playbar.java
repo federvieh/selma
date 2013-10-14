@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.github.federvieh.selma.R;
 
 /**
@@ -87,8 +88,10 @@ public class Playbar extends LinearLayout {
 				}
 				else{
 					LessonPlayer.play(PlaybarManager.getLessonInstance(), PlaybarManager.getTrackNumber(), true);
+					OverlayManager.showPlayOverlay(context);
 				}
 			}
+
 		});
 		
 		imageNextTrack = (ImageView) view.findViewById(R.id.imageButtonNextTrack);

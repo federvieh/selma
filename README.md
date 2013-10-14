@@ -12,7 +12,6 @@ open
 ----
  * Nicer English texts for "warning_no_starred", "waiting_for_database", "no_content_found"
  * Give user possibility to directly send email from app if no content has been found
- * Add coach marks (overlay)
  * Somehow notify user in a nice way when changing filters (lessons/exercises)
  * let playbar drop shadow
  * use default background colours in list views (?)
@@ -30,4 +29,5 @@ done
  * show repeat icon for all lessons when repeating only starred
  * remember repeat mode on exit
  * long press repeat show different repeat options (--> no need for Toast anymore)
+ * Add coach marks (overlay)
 

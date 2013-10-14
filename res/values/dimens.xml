@@ -5,7 +5,5 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <!-- dimensions for playbar. -->
-    <dimen name="playbar_height">48dp</dimen>
-    <dimen name="playbar_title_width">48dp</dimen>
-    
+    <dimen name="playbar_height">48dp</dimen>    
 </resources>

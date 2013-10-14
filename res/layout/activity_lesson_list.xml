@@ -11,12 +11,12 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@color/LightGrey"
+        android:cacheColorHint="@color/DarkGray"
         android:divider="@color/DarkGray"
         android:dividerHeight="1dp"
         android:fadingEdge="vertical"
-        android:requiresFadingEdge="vertical"
-        android:cacheColorHint="@color/DarkGray"
-        android:fadingEdgeLength="8dp" >
+        android:fadingEdgeLength="8dp"
+        android:requiresFadingEdge="vertical" >
 
     </ListView>
 
