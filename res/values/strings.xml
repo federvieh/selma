@@ -12,8 +12,8 @@
     <string name="play_all_lessons_short">all</string>
     <string name="title_activity_show_lesson">Show Lesson</string>
     <string name="lesson">Lesson</string>
-    <string name="warning_no_starred">No starred items found! Please go back and select \"Play all lessons\" in order to mark lessons as starred.</string>
-    <string name="waiting_for_database">Please wait&#8230; loading database&#8230;</string>
+    <string name="warning_no_starred">You did not yet \"star\" any lessons&#8230; If you choose \"All Lessons\" from above, you can \"star\" individual lessons by clicking on the star symbol.</string>
+    <string name="waiting_for_database">Please wait&#8230; loading lessons&#8230;</string>
     <string name="no_content_found">No Assimil Audio Files have been found on your device. Please click here and we will guide you through a set of dialogs for setting up Selma.</string>
     <string name="show_license">Show License</string>
     <string name="cancel">Cancel</string>
