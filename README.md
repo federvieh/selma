@@ -10,7 +10,7 @@ Issues to solve before 1.0
 ==========================
 open
 ----
- * more resolutions for repeat icon
+NONE! :-)
 
 done
 ----
@@ -31,4 +31,5 @@ done
  * Give user possibility to directly send email from app if no content has been found
  * Somehow notify user in a nice way when changing filters (lessons/exercises)
  * correct colors for exercises
+ * more resolutions for repeat icon
 
