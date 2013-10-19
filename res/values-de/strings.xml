@@ -13,7 +13,7 @@
     <string name="lesson">Lektion</string>
     <string name="warning_no_starred">Sie haben noch keine Favoriten ausgewählt&#8230; Wenn Sie oben \"Alle Lektionen\" auswählen, können Sie durch Markieren einzelner Lektionen mit dem Stern, Ihre Favoriten festlegen.</string>
     <string name="waiting_for_database">Bitte warten Sie&#8230; die Lektionen werden geladen&#8230;</string>
-    <string name="no_content_found">Leider konnten keine Assimil-Dateien auf Ihrem Gerät gefunden werden. Diese App setzt vorraus, dass Sie einen Assimil-Sprachkurs von der MP3-CD auf dieses Gerät übertragen haben. Wenn Sie dies getan haben und die Lektionen in der \"Google Play Music\" App angezeigt werden, kann es sein, dass Sie eine Sprache lernen, die noch nicht von Selma unterstützt wird. Bitte kontaktieren Sie den Autor, der gerne diese freie und kostenlose App erweitert, wenn Sie bereit sind ihn durch Beantwortung einiger Fragen zu helfen.</string>
+    <string name="no_content_found">Leider konnten keine Assimil-Dateien auf Ihrem Gerät gefunden werden. Bitte klicken Sie hier und wir werden Sie durch ein paar Dialoge führen, die bei der Einrichtung von Selma helfen.</string>
     <string name="show_license">Lizenz anzeigen</string>
     <string name="cancel">Abbrechen</string>
     <string name="ok">OK</string>

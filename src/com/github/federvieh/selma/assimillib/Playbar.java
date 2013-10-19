@@ -88,7 +88,9 @@ public class Playbar extends LinearLayout {
 				}
 				else{
 					LessonPlayer.play(PlaybarManager.getLessonInstance(), PlaybarManager.getTrackNumber(), true);
-					OverlayManager.showPlayOverlay(context);
+					if((PlaybarManager.getLessonInstance()!=null)&&(PlaybarManager.getTrackNumber()>=0)){
+						OverlayManager.showPlayOverlay(context);
+					}
 				}
 			}
 

@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * @author frank
@@ -19,6 +20,10 @@ import android.net.Uri;
 public class AssimilDatabase extends ArrayList<AssimilLesson>{
 
 	private static AssimilDatabase assimilDatabase = null;
+	
+	public static void reset(){
+		assimilDatabase=null;
+	}
 	
 	public static boolean isAllocated(){
 		return (assimilDatabase!=null);
@@ -48,6 +53,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	//private SharedPreferences settings = null; 
 
 	private AssimilDatabase(){
+		Log.d("LT", "new database");
 	}
 	
 	public boolean init(Activity caller){

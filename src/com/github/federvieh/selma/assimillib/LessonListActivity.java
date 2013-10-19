@@ -9,12 +9,16 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -23,7 +27,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -36,6 +42,8 @@ public class LessonListActivity extends ActionBarActivity {
 	public static final String LIST_MODE = "LIST_MODE";
 
 	public static final String PLAY_MODE = "PLAY_MODE";
+
+	private static final String FORCE_RESET = "com.github.federvieh.selma.assimillib.FORCE_RESET";
 
 	private static ListTypes lt;// = ListTypes.LIST_TYPE_ALL_TRANSLATE;
 	
@@ -51,6 +59,11 @@ public class LessonListActivity extends ActionBarActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		boolean reset = this.getIntent().getBooleanExtra(FORCE_RESET, false);
+		if(reset){
+			lt=null;
+			AssimilDatabase.reset();
+		}
 
 		if(lt==null){
 			Log.d("LT", this.getClass().getSimpleName()+".onCreate(); Reading settings.");
@@ -66,15 +79,153 @@ public class LessonListActivity extends ActionBarActivity {
 		
 		if(headerViewNoStarred==null){
 			headerViewNoStarred = new TextView(this);
-			headerViewNoStarred.setPadding(10, 10, 10, 10);
-			headerViewNoStarred.setTextSize(32);
+			headerViewNoStarred.setPadding(8, 8, 8, 8);
+			headerViewNoStarred.setTextSize(20);
 			headerViewNoStarred.setText(getResources().getText(R.string.warning_no_starred));
 		}
-		if(headerViewNoFiles==null){
+		if(true){
 			headerViewNoFiles = new TextView(this);
-			headerViewNoFiles.setPadding(10, 10, 10, 10);
-			headerViewNoFiles.setTextSize(32);
+			headerViewNoFiles.setPadding(8, 8, 8, 8);
+			headerViewNoFiles.setTextSize(20);
 			headerViewNoFiles.setText(getResources().getText(R.string.no_content_found));
+			headerViewNoFiles.setOnClickListener(new OnClickListener() {
+				
+				private void showDlg(Context ctxt, int titleResId, int msgResId, int rightBtnResId, Integer leftBtnResId,
+						DialogInterface.OnClickListener rightBtnListener, DialogInterface.OnClickListener leftBtnListener,
+						Integer midBtnResId, DialogInterface.OnClickListener midBtnListener){
+					showDlg(ctxt,titleResId,msgResId,rightBtnResId,leftBtnResId,rightBtnListener,leftBtnListener,midBtnResId,midBtnListener,null);
+				}
+				private void showDlg(Context ctxt, int titleResId, int msgResId, int rightBtnResId, Integer leftBtnResId,
+						DialogInterface.OnClickListener rightBtnListener, DialogInterface.OnClickListener leftBtnListener,
+						Integer midBtnResId, DialogInterface.OnClickListener midBtnListener, View view){
+					AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);
+					builder.setMessage(getResources().getText(msgResId));
+					builder.setTitle(titleResId);
+					if(view!=null){
+						builder.setView(view);
+					}
+
+					builder.setPositiveButton(rightBtnResId, rightBtnListener);
+					if((leftBtnResId!=null)&&(leftBtnListener!=null)){
+						builder.setNegativeButton(leftBtnResId, leftBtnListener);
+					}
+					if((midBtnResId!=null)&&(midBtnListener!=null)){
+						builder.setNeutralButton(midBtnResId, midBtnListener);
+					}
+
+					AlertDialog dialog = builder.create();
+					dialog.show();
+					
+				}
+				@Override
+				public void onClick(View v) {
+					final Context ctxt = v.getContext();
+					
+					final DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							System.exit(RESULT_OK);
+						}
+					};
+					final EditText isbnEditText = new EditText(ctxt);
+					isbnEditText.setSingleLine();
+					isbnEditText.setMaxLines(1);
+					isbnEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
+					final DialogInterface.OnClickListener dialog7aSendEmail = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+									"mailto","frank.oltmanns+selma@gmail.com", null));
+							emailIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getText(R.string.email_no_files_subject));
+							emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+									getResources().getText(R.string.email_no_files_text1)+isbnEditText.getText().toString()+getResources().getText(R.string.email_no_files_text2));
+							startActivity(Intent.createChooser(emailIntent, getResources().getText(R.string.email_chooser)));
+						}
+					};
+					final DialogInterface.OnClickListener dialog1Uninstall = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							Uri packageUri = Uri.parse("package:"+getApplicationInfo().packageName);
+							Intent uninstallIntent =
+									new Intent(Intent.ACTION_DELETE, packageUri);
+							startActivity(uninstallIntent);
+						}
+					};
+					final DialogInterface.OnClickListener dialog6No = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show dialog 7b: Quit
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_7b_msg, R.string.quit,
+									null, cancelListener, null, null, null);
+						}
+					};
+					final DialogInterface.OnClickListener dialog6Yes = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show dialog 7a: Quit / SendEmail
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_7a_msg, R.string.email_chooser,
+									R.string.quit, dialog7aSendEmail, cancelListener, null, null, isbnEditText);
+						}
+					};
+					final DialogInterface.OnClickListener dialog5Continue = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show the sixth dialog: No / Quit / Yes
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_6_msg, R.string.yes,
+									R.string.no, dialog6Yes, dialog6No, R.string.quit, cancelListener);
+						}
+					};
+					final DialogInterface.OnClickListener dialog5OpenMusicApp = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							Intent intent = new Intent(MediaStore.INTENT_ACTION_MUSIC_PLAYER);
+							startActivity(intent);
+						}
+					};
+					final DialogInterface.OnClickListener dialog4Continue = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show the fifth dialog: GooglePlay / Quit / Continue
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_5_msg, R.string.continueDlg,
+									R.string.open, dialog5Continue, dialog5OpenMusicApp, R.string.quit, cancelListener);
+						}
+					};
+					final DialogInterface.OnClickListener dialog4Retry = new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Intent i = getBaseContext().getPackageManager()
+									.getLaunchIntentForPackage( getBaseContext().getPackageName() );
+							i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							i.putExtra(FORCE_RESET, true);
+							startActivity(i);
+						}
+					};
+					final DialogInterface.OnClickListener dialog3Continue = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show the forth dialog: Re-try / Quit / Continue
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_4_msg, R.string.continueDlg,
+									R.string.retry, dialog4Continue, dialog4Retry, R.string.quit, cancelListener);
+						}
+					};
+					final DialogInterface.OnClickListener dialog2Website = new DialogInterface.OnClickListener() {
+						
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/federvieh/selma/wiki"));
+							startActivity(browserIntent);
+						}
+					};
+					final DialogInterface.OnClickListener dialog2Continue = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show the third dialog: Quit / Conitnue
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_3_msg, R.string.continueDlg,
+									R.string.quit, dialog3Continue, cancelListener, null, null);
+						}
+					};
+					DialogInterface.OnClickListener dialog1Continue = new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							//Show the second dialog: Website / Quit / Continue
+							showDlg(ctxt, R.string.no_files_title, R.string.no_files_dialog_2_msg, R.string.continueDlg,
+									R.string.open_web_site, dialog2Continue, dialog2Website, R.string.quit, cancelListener);
+						}
+					};
+					showDlg(ctxt, R.string.no_files_title, R.string.assimil_info, R.string.continueDlg, R.string.uninstall, dialog1Continue, dialog1Uninstall, R.string.quit, cancelListener);
+					
+				}
+			});
 		}
 		if(!AssimilDatabase.isAllocated()){
 			showWaiting(ActivityState.DATABASE_LOADING);
@@ -125,6 +276,7 @@ public class LessonListActivity extends ActionBarActivity {
 			case LIST_TYPE_ALL_NO_TRANSLATE:
 			case LIST_TYPE_ALL_TRANSLATE:
 				listView.addHeaderView(headerViewNoFiles);
+				headerViewNoFiles.performClick();
 				break;
 			case LIST_TYPE_STARRED_NO_TRANSLATE:
 			case LIST_TYPE_STARRED_TRANSLATE:
@@ -138,7 +290,9 @@ public class LessonListActivity extends ActionBarActivity {
 		playbar.update();
 		PlaybarManager.setPbInstance(playbar);
 		registerForContextMenu(playbar.findViewById(R.id.playmode));
-		OverlayManager.showOverlayLessonList(this);
+		if(!ad.isEmpty()){
+			OverlayManager.showOverlayLessonList(this);
+		}
 	}
 	/**
 	 * @param b

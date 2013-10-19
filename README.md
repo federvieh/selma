@@ -10,8 +10,6 @@ Issues to solve before 1.0
 ==========================
 open
 ----
- * Nicer English texts for "warning_no_starred", "waiting_for_database", "no_content_found"
- * Give user possibility to directly send email from app if no content has been found
  * Somehow notify user in a nice way when changing filters (lessons/exercises)
  * correct colors for exercises
  * more resolutions for repeat icon
@@ -31,4 +29,6 @@ done
  * Repair "no_content_found" functionality
  * let playbar drop shadow
  * use default background colours in list views (?)
+ * Nicer English texts for "warning_no_starred", "waiting_for_database", "no_content_found"
+ * Give user possibility to directly send email from app if no content has been found
 
