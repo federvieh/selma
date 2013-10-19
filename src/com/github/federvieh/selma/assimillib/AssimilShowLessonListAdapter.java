@@ -47,11 +47,11 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
 		}
 		else if(position>lesson.getLessonList().length){
 			textView.setTextSize(16);
+			textView.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
 			//textView.setTextColor(context.getResources().getColor((lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)?R.color.holo_blue_dark:R.color.holo_green_dark));
 		}
 		else if(position==lesson.getLessonList().length){
 			textView.setTextSize(18);
-			textView.setTextColor(context.getResources().getColor((lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)?R.color.holo_blue_dark:R.color.holo_green_dark));
 			textView.setTypeface(null, Typeface.ITALIC);
 		}
 		else{
