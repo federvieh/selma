@@ -58,6 +58,7 @@
 
     <string name="how_to_star">You can click on the stars to mark the lessons that you are currently focusing on.</string>
     <string name="how_to_choose_displayed_lessons">Click here to choose if you want to see all lessons or only the ones you starred.</string>
+    <string name="how_to_exercises">Click here to choose if you want to see only the lesson texts or also the exercises (translate) of the lesson.\n\nScroll down to see the exercises.</string>
     <string name="how_to_playbar_buttons">Use these buttons for playback:\n\nLeft button changes repeat mode (long press to see all options).\n\nUse the second button to start or pause playback.\n\nPress the third button to jump to next text (only during playback).\n\nLast button jumps to next lesson (only during playback).</string>
     <string name="how_to_playbar_text">Here the current lesson and text is shown. Click anytime to jump to the current lesson.</string>
 </resources>

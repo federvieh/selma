@@ -20,6 +20,7 @@
     	android:src="@drawable/up" />
 
    	<TextView
+   	    android:id="@+id/overlayTopSpinnerText"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:text="@string/how_to_choose_displayed_lessons"

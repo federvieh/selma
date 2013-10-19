@@ -10,6 +10,7 @@ import android.content.SharedPreferences.Editor;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.github.federvieh.selma.R;
 
@@ -22,11 +23,13 @@ public class OverlayManager {
 
 	private static final String OVERLAY_PLAYSHOWN = "com.github.federvieh.selma.assimillib.OVERLAY_PLAYSHOWN";
 	private static final String OVERLAY_HINTDISPLAYED = "com.github.federvieh.selma.assimillib.OVERLAY_HINTDISPLAYED";
+	private static final String OVERLAY_LESSONCONTENTSHOWN = "com.github.federvieh.selma.assimillib.OVERLAY_LESSONCONTENTSHOWN";
 	private static boolean initialized = false;
 	private static void init(Context context){
 		if(!initialized){
 			SharedPreferences settings = context.getSharedPreferences("selma", Context.MODE_PRIVATE);
 			playShown = settings.getBoolean(OVERLAY_PLAYSHOWN, false);
+			lessonContentShown = settings.getBoolean(OVERLAY_LESSONCONTENTSHOWN, false);
 			hintDisplayed = settings.getInt(OVERLAY_HINTDISPLAYED, 0);
 			initialized = true;
 		}
@@ -104,6 +107,41 @@ public class OverlayManager {
 
 	public static void resetOverlays() {
 		playShown = false;
+		lessonContentShown = false;
 		hintDisplayed = 0;
+	}
+
+	private static boolean lessonContentShown = false;
+
+	/**
+	 * @param showLesson
+	 */
+	public static void showOverlayLessonContent(Context context) {
+		init(context);
+		if(!lessonContentShown){
+			final Dialog dialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar);
+			dialog.setContentView(R.layout.overlay_view_top_spinner);
+			TextView tv = (TextView) dialog.findViewById(R.id.overlayTopSpinnerText);
+			if(tv!=null){
+				tv.setText(R.string.how_to_exercises);
+			}
+			LinearLayout layout = (LinearLayout) dialog.findViewById(R.id.overlayLayout);
+
+			layout.setOnClickListener(new OnClickListener() {
+
+				@Override
+
+				public void onClick(View arg0) {
+					dialog.dismiss();
+				}
+			});
+			dialog.show();
+			lessonContentShown=true;
+			//Store SharedPreferences
+			SharedPreferences settings = context.getSharedPreferences("selma", Context.MODE_PRIVATE);
+			Editor edit = settings.edit();
+			edit.putBoolean(OVERLAY_LESSONCONTENTSHOWN, playShown);
+			edit.commit();
+		}
 	}
 }

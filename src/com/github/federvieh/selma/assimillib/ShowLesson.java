@@ -105,6 +105,8 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		PlaybarManager.setLessonInstance(this);
 		PlaybarManager.setPbInstance(playbar);
 		registerForContextMenu(playbar.findViewById(R.id.playmode));
+		
+		OverlayManager.showOverlayLessonContent(this);
     }
 
 
