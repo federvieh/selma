@@ -140,7 +140,7 @@ public class OverlayManager {
 			//Store SharedPreferences
 			SharedPreferences settings = context.getSharedPreferences("selma", Context.MODE_PRIVATE);
 			Editor edit = settings.edit();
-			edit.putBoolean(OVERLAY_LESSONCONTENTSHOWN, playShown);
+			edit.putBoolean(OVERLAY_LESSONCONTENTSHOWN, lessonContentShown);
 			edit.commit();
 		}
 	}
