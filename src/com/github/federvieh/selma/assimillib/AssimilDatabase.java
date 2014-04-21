@@ -63,7 +63,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
         		android.provider.MediaStore.Audio.Media.ALBUM,
         		android.provider.MediaStore.Audio.Media._ID
         };
-        String findLessons = android.provider.MediaStore.Audio.Media.ALBUM+" LIKE '%ASSIMIL Turkish With Ease%' AND "+
+        String findLessons = android.provider.MediaStore.Audio.Media.ALBUM+" LIKE '%ASSIMIL %' AND "+
         		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'S00-TITLE-%'";
         
         Cursor cursor = contentResolver.query(uri, projection, findLessons, null, android.provider.MediaStore.Audio.Media.ALBUM);
