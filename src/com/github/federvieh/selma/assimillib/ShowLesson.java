@@ -1,29 +1,37 @@
 package com.github.federvieh.selma.assimillib;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SpinnerAdapter;
-
 import com.github.federvieh.selma.R;
 import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 
 public class ShowLesson extends ActionBarActivity implements OnItemClickListener{
 	private AssimilLesson lesson = null;
+	private static DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
 	private static ListTypes lt = PlaybarManager.getListType();
 	
     @Override
@@ -95,7 +103,7 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		editor.commit();
 		Log.d("LT", "ShowLesson.updateListType(); lt="+lt.ordinal());
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
-		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(this, lesson, lt);
+		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(this, lesson, lt, displayMode);
 		ListView listView = (ListView) findViewById(R.id.listViewLessons);
 		listView.setAdapter(assimilShowLessonListAdapter);
 		listView.setOnItemClickListener(this);
@@ -105,6 +113,7 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		PlaybarManager.setLessonInstance(this);
 		PlaybarManager.setPbInstance(playbar);
 		registerForContextMenu(playbar.findViewById(R.id.playmode));
+		registerForContextMenu(listView);
 		
 		OverlayManager.showOverlayLessonContent(this);
     }
@@ -124,12 +133,34 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 		PlaybarManager.setPbInstance(playbar);
 	}
     
-    @Override
+ 	@SuppressLint("NewApi")
+	@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
+	        case R.id.view_original_text:
+	            displayMode = DisplayMode.ORIGINAL_TEXT;
+	            updateListType();
+	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+	            	invalidateOptionsMenu();
+	            }
+	            return true;
+	        case R.id.view_translation:
+	            displayMode  = DisplayMode.TRANSLATION;
+	            updateListType();
+	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+	            	invalidateOptionsMenu();
+	            }
+	            return true;
+	        case R.id.view_literal:
+	            displayMode = DisplayMode.LITERAL;
+	            updateListType();
+	            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+	            	invalidateOptionsMenu();
+	            }
+	            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -139,7 +170,12 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 	                                ContextMenuInfo menuInfo) {
 	    super.onCreateContextMenu(menu, v, menuInfo);
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.repeat, menu);
+	    if(v.equals(findViewById(R.id.playmode))){
+	    	inflater.inflate(R.menu.repeat, menu);
+	    }
+	    else{
+	    	inflater.inflate(R.menu.translate, menu);
+	    }
 	}
 
 	@Override
@@ -161,6 +197,52 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 			return true;
 		case R.id.action_repeat_track:
 			PlaybarManager.setPlayMode(PlayMode.REPEAT_TRACK);
+			return true;
+		case R.id.add_translation:
+		case R.id.add_literal:
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+			final int pos = info.position;
+			final EditText translateEditText = new EditText(this);
+			int title = R.string.change_translation;
+			DisplayMode dm = DisplayMode.TRANSLATION;
+			OnClickListener ocl = new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					lesson.setTranslateText(pos, translateEditText.getText().toString());
+				}
+			};
+			if(item.getItemId() == R.id.add_literal){
+				title = R.string.change_literal;
+				dm = DisplayMode.LITERAL;
+				ocl = new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						lesson.setLiteralText(pos, translateEditText.getText().toString());
+					}
+				};
+			}
+		    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		    builder.setTitle(title);
+		    builder.setMessage(lesson.getTextList(DisplayMode.ORIGINAL_TEXT)[pos]);
+			translateEditText.setText(lesson.getTextList(dm)[pos]);
+		    builder.setView(translateEditText);
+		    builder.setPositiveButton(getText(R.string.ok), ocl);
+		    builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// Nothing to do
+				}
+			});
+		    AlertDialog dialog = builder.create();
+		    dialog.show();
+
+//			ListView listView = (ListView) findViewById(R.id.listViewLessons);
+//			Object o = listView.getAdapter().getItem(info.position);
+//			Log.d("LT", ""+o.getClass().getCanonicalName());
+//			Log.d("LT", ""+o.getClass().toString());
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -194,5 +276,25 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 			listView.invalidateViews();
 		}
 		catch(Exception e){}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.text_view, menu);
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+			switch(displayMode){
+			case ORIGINAL_TEXT:
+				menu.removeItem(R.id.view_original_text);
+				break;
+			case TRANSLATION:
+				menu.removeItem(R.id.view_translation);
+				break;
+			case LITERAL:
+				menu.removeItem(R.id.view_literal);
+				break;
+			}
+		}
+		return super.onCreateOptionsMenu(menu);
 	}
 }

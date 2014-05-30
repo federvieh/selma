@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/view_original_text" android:title="@string/view_original_text" android:showAsAction="never" android:orderInCategory="100"></item>
+    <item android:id="@+id/view_translation" android:showAsAction="never" android:orderInCategory="100" android:title="@string/view_translation"></item>
+    <item android:id="@+id/view_literal" android:showAsAction="never" android:orderInCategory="100" android:title="@string/view_literal"></item>
+
+</menu>

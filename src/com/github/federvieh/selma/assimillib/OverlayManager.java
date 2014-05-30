@@ -19,8 +19,6 @@ import com.github.federvieh.selma.R;
  *
  */
 public class OverlayManager {
-	//TODO: Add method for resetting
-
 	private static final String OVERLAY_PLAYSHOWN = "com.github.federvieh.selma.assimillib.OVERLAY_PLAYSHOWN";
 	private static final String OVERLAY_HINTDISPLAYED = "com.github.federvieh.selma.assimillib.OVERLAY_HINTDISPLAYED";
 	private static final String OVERLAY_LESSONCONTENTSHOWN = "com.github.federvieh.selma.assimillib.OVERLAY_LESSONCONTENTSHOWN";
@@ -29,7 +27,13 @@ public class OverlayManager {
 		if(!initialized){
 			SharedPreferences settings = context.getSharedPreferences("selma", Context.MODE_PRIVATE);
 			playShown = settings.getBoolean(OVERLAY_PLAYSHOWN, false);
-			lessonContentShown = settings.getBoolean(OVERLAY_LESSONCONTENTSHOWN, false);
+			try{
+				lessonContentShown = settings.getInt(OVERLAY_LESSONCONTENTSHOWN, 0);
+			}
+			catch(Exception e){
+				//Loading may fail, because this was a boolean value in earlier versions.
+				lessonContentShown = 0;
+			}
 			hintDisplayed = settings.getInt(OVERLAY_HINTDISPLAYED, 0);
 			initialized = true;
 		}
@@ -107,18 +111,18 @@ public class OverlayManager {
 
 	public static void resetOverlays() {
 		playShown = false;
-		lessonContentShown = false;
+		lessonContentShown = 0;
 		hintDisplayed = 0;
 	}
 
-	private static boolean lessonContentShown = false;
+	private static int lessonContentShown = 0;
 
 	/**
 	 * @param showLesson
 	 */
 	public static void showOverlayLessonContent(Context context) {
 		init(context);
-		if(!lessonContentShown){
+		if(lessonContentShown == 0){
 			final Dialog dialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar);
 			dialog.setContentView(R.layout.overlay_view_top_spinner);
 			TextView tv = (TextView) dialog.findViewById(R.id.overlayTopSpinnerText);
@@ -127,21 +131,33 @@ public class OverlayManager {
 			}
 			LinearLayout layout = (LinearLayout) dialog.findViewById(R.id.overlayLayout);
 
+			lessonContentShown = 1;
+			
 			layout.setOnClickListener(new OnClickListener() {
 
 				@Override
 
 				public void onClick(View arg0) {
-					dialog.dismiss();
+					LinearLayout layout;
+					Context ctxt = dialog.getContext();
+					switch(lessonContentShown){
+					case 1:
+						dialog.setContentView(R.layout.overlay_complete_view);
+						layout = (LinearLayout) dialog.findViewById(R.id.overlayLayout);
+						layout.setOnClickListener(this);
+						break;
+					default:
+						dialog.dismiss();
+					}
+					lessonContentShown++;
+					//Store SharedPreferences
+					SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
+					Editor edit = settings.edit();
+					edit.putInt(OVERLAY_LESSONCONTENTSHOWN, lessonContentShown);
+					edit.commit();
 				}
 			});
 			dialog.show();
-			lessonContentShown=true;
-			//Store SharedPreferences
-			SharedPreferences settings = context.getSharedPreferences("selma", Context.MODE_PRIVATE);
-			Editor edit = settings.edit();
-			edit.putBoolean(OVERLAY_LESSONCONTENTSHOWN, lessonContentShown);
-			edit.commit();
 		}
 	}
 }
