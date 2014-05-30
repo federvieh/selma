@@ -1,6 +1,6 @@
 Selma
 =====
-Selma is an Android app that allows you to learn a new language using the Assimil language training courses' MP3 CDs in a convenient way.
+Selma is an Android app that helps you in learning a new language using the Assimil language training courses' MP3 CDs.
 
 **Important notice:** The MP3 files that are needed for using this app are not contained. You need to buy the course (book and MP3 CD) separately and transfer the MP3s from the CD onto your android device. The app cannot be used without.
 
@@ -32,7 +32,7 @@ The following music is used in this video:
 [Aalborg Pulse from Kokoro No Toiki by Candlegravity](http://candlegravity.bandcamp.com/track/aalborg-pulse).
 
 ### How much does Selma cost?
-The app is free for everyone who already bought the Assimil MP3 pack and book.
+The app is free for everyone who already bought the Assimil MP3 pack and book. (The app of course also free for everyone else, it's just not of any use for anyone that doesn't have the MP3 pack.)
 
 ### Okay, I'm in! Give me the app!
 Selma is not (yet) available in the Play Store. In order to install Selma you need to allow installation of apps that were not downloaded from Play Store. Go to "Settings" -> "Security" and make sure that "Unknown Sources" is checked. Now you can download the [latest version](https://github.com/federvieh/selma/blob/master/build/Selma.apk?raw=true) of Selma directly from your device and install it. Have fun!
@@ -42,7 +42,7 @@ The app needs the following permissions for the following reasons:
 * Modify or delete the contents of your USB storage: The translations that you can enter will be written to the USB storage/SD card. No other content is deliberately written or deleted by Selma.
 * Prevent phone from sleeping: When playing back the lessons, the phone will not go to sleep. Going to sleep would stop the playback immediately.
 
-### Where are the older version of Selma?
+### Version history
 **Version 2.0.0** (latest version):
 Added support for showing/entering translations.
 
