@@ -1,0 +1,79 @@
+title:            Selma
+description:      Easily learning a new language.
+# Your site's domain goes here. Leave localhost server or blank when working locally.
+#url:              http://federvieh.github.io/selma
+url:              http://192.168.178.29:4000
+disqus_shortname:
+copyright_owner:  Frank Oltmanns
+# Owner/author information
+owner:
+  name:           Selma
+  avatar:         technogirl.png
+  avatarcredit:   vectorportal.com
+  avatarcreditlink: http://www.vectorportal.com/subcategory/252/TECHNO-GIRL-VECTOR.eps/ifile/9056/detailtest.asp
+  bio:            Easily learn a new language using your Android smartphone.
+  email:          frank.oltmanns@gmail.com
+  # Social networking links are used in author-bio sidebar. Update and remove as you like.
+  twitter:
+  facebook:
+  github:         federvieh
+  stackoverflow:
+  linkedin:
+  instagram:
+  lastfm:
+  tumblr:
+  pinterest:
+  foursquare:
+  steam:
+  dribbble:
+  # For Google Authorship https://plus.google.com/authorship
+  google_plus:
+
+# Analytics and webmaster tools stuff goes here
+google_analytics:
+google_verify:
+# https://ssl.bing.com/webmaster/configure/verify/ownership Option 2 content= goes here
+bing_verify:
+
+# Links to include in top navigation
+# For external links add external: true
+links:
+  - title: Home
+    url: /
+  - title: Info
+    url: /info/
+  - title: Credits
+    url: /credits/
+  - title: Contact
+    url: /contact/
+  - title: FAQ
+    url: /faq/
+  - title: Fork me on Github
+    url: https://github.com/federvieh/selma
+    external: true
+
+# http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone:    Europe/Berlin
+future:      true
+highlighter: pygments
+markdown:    kramdown
+
+# https://github.com/mojombo/jekyll/wiki/Permalinks
+permalink:   /:categories/:title/
+
+kramdown:
+  auto_ids: true
+  footnote_nr: 1
+  entity_output: as_char
+  toc_levels: 1..6
+  use_coderay: false
+
+  coderay:
+    coderay_line_numbers:
+    coderay_line_numbers_start: 1
+    coderay_tab_width: 4
+    coderay_bold_every: 10
+    coderay_css: class
+
+include: [".htaccess"]
+exclude: ["lib", "config.rb", "Capfile", "config", "log", "Rakefile", "Rakefile.rb", "tmp", "less", "*.sublime-project", "*.sublime-workspace", "test", "spec", "Gruntfile.js", "package.json", "node_modules", "Gemfile", "Gemfile.lock", "LICENSE", "README.md"]
