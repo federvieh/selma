@@ -30,7 +30,14 @@ The app needs the following permissions for the following reasons:
 
 ### Version history
 
-#### Version 2.0.0 (latest version)
+#### Version 2.0.1 (latest version)
+* Updated help to link to the introduction video
+* Updated link to homepage in error dialogs
+* Updated license to GPL v3.
+
+[Download](https://github.com/federvieh/selma/blob/409f5752d482f6cd08790abb7dca279936bd4627/build/Selma.apk?raw=true)
+
+#### Version 2.0.0
 Added support for showing/entering translations.
 [Download](https://github.com/federvieh/selma/blob/68e8348070eb756660790f9b0151dd9a0bac96dc/build/Selma.apk?raw=true)
 
