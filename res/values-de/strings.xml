@@ -62,7 +62,10 @@
     <string name="how_to_translations">Mit Hilfe des Menüs können Sie zwischen Originaltext, Übersetzung und wörtlicher Übersetzung umschalten.\n\nÜbersetzungen und wörtliche Übersetzungen müssen jedoch von Ihnen selbst eingegeben werden.\n\nUm einen Text zu übersetzen, halten Sie diesen lange gedrückt.</string>
     <string name="how_to_playbar_buttons">Verwenden Sie diese Knöpfe für die Wiedergabe:\n\nLinker Knopf ändert den Wiederholungsmodus (lange drücken, um alle Optionen zu sehen).\n\nDer zweite Knopf startet und pausiert die Wiedergabe.\n\nDer dritte Knopf springt zum nächsten Text (nur während der Wiedergabe).\n\nDer letzte Knopf springt zur nächten Lektion (nur während der Wiedergabe).</string>
     <string name="how_to_playbar_text">Hier wird die momentane Lektion und Text angezeigt. Klicken Sie hier, um zur Lektion zu springen.</string>
-
+    <string name="how_to_video">Um mehr über Selma zu erfahren, empfehlen wir das folgende einführende Video.</string>
+    <string name="how_to_openvideo">Video öffnen</string>
+    <string name="how_to_no_thanks">Nein, Danke!</string>
+    
     <string name="view_original_text">Zeige Original</string>
     <string name="view_translation">Zeige Übersetzung</string>
     <string name="view_literal">Zeige wörtliche Übersetzung</string>

@@ -5,10 +5,13 @@ package com.github.federvieh.selma.assimillib;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -66,9 +69,9 @@ public class OverlayManager {
 	}
 
 	private static int hintDisplayed = 0;
-	public static void showOverlayLessonList(Context context){
+	public static void showOverlayLessonList(final Context context){
 		init(context);
-		if(hintDisplayed==0){
+		if(hintDisplayed<4){
 
 			final Dialog dialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar);
 			dialog.setContentView(R.layout.overlay_view_starred);
@@ -90,6 +93,33 @@ public class OverlayManager {
 						break;
 					case 2:
 						dialog.setContentView(R.layout.overlay_view_playbar_buttons);
+						layout = (LinearLayout) dialog.findViewById(R.id.overlayLayout);
+						layout.setOnClickListener(this);
+						break;
+					case 3:
+						dialog.setContentView(R.layout.overlay_complete_view);
+						TextView tv = (TextView) dialog.findViewById(R.id.overlayCompleteViewText);
+						if(tv!=null){
+							tv.setText(R.string.how_to_video);
+						}
+						Button btnOpenVideo = (Button) dialog.findViewById(R.id.buttonOpenVideo);
+						if(btnOpenVideo!=null){
+							btnOpenVideo.setVisibility(View.VISIBLE);
+							btnOpenVideo.setOnClickListener(new OnClickListener() {
+								
+								@Override
+								public void onClick(View v) {
+									Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://youtu.be/Zcs657QejaY"));
+									context.startActivity(browserIntent);
+									
+								}
+							});
+						}
+						Button btnNoThanks = (Button) dialog.findViewById(R.id.buttonNoThanks);
+						if(btnNoThanks!=null){
+							btnNoThanks.setVisibility(View.VISIBLE);
+							btnNoThanks.setOnClickListener(this);
+						}
 						layout = (LinearLayout) dialog.findViewById(R.id.overlayLayout);
 						layout.setOnClickListener(this);
 						break;

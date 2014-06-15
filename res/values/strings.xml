@@ -62,7 +62,10 @@
     <string name="how_to_translations">You can switch between showing the original text, a translation and a literal translation by using the menu.\n\nTranslation and literal translation have to be provided by you.\n\nTo translate a text, long click on it.</string>
     <string name="how_to_playbar_buttons">Use these buttons for playback:\n\nLeft button changes repeat mode (long press to see all options).\n\nUse the second button to start or pause playback.\n\nPress the third button to jump to next text (only during playback).\n\nLast button jumps to next lesson (only during playback).</string>
     <string name="how_to_playbar_text">Here the current lesson and text is shown. Click anytime to jump to the current lesson.</string>
-
+    <string name="how_to_video">To learn more about how to use Selma, please watch a short video.</string>
+    <string name="how_to_openvideo">Open video</string>
+    <string name="how_to_no_thanks">No, thanks!</string>
+    
     <string name="view_original_text">View original</string>
     <string name="view_translation">View translation</string>
     <string name="view_literal">View literal translation</string>

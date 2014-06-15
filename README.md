@@ -9,14 +9,14 @@ Selma can probably be used with many different Assimil courses, but until now ha
 ### How to use Selma
 If you have not already done this, start by copying your Assimil MP3 pack to your Android device.
 
-In Selma it is possible to mark lessons as favourites using the star icon. You can use Selma to repeat the lessons you are currently trying to memorise. I normally have three or four "starred" lessons which I listen to over and over.
+In Selma it is possible to mark lessons as favourites using the star icon. This allows you to focus on the lessons you are currently trying to memorise. I normally have three or four "starred" lessons which I listen to over and over.
 
-You can tell Selma, if you want to listen only to the lesson texts or also the exercise section. I normally switch between these modes quite often. When I'm memorising my "starred" lessons, most of the times I don't listen to the exercises, because it's easier to memorise stories than sentences that have no obvious connection. But when I'm starting with a new lesson, I also listen to the exercises.
+You can tell Selma, if you want to listen only to the lesson texts or also the exercise section. When I'm memorising my "starred" lessons, most of the times I don't listen to the exercises, because it's easier to memorise stories than sentences that have no obvious connection. But when I start learning a new lesson, I also listen to the exercises.
 
 When learning a lesson, you can choose to listen to individual sentences or the whole lesson over and over. You can also manually enter a translation and a literal translation of the lesson texts, so that you can see the translation directly in the app. Unfortunately, Assimil does not provide the translations along with the MP3 pack. Which means you have to enter them yourself. But in my opinion this procedure also helps with learning.
 
 ### Contact the author
-If you have any questions, remarks, or recommendations concerning Selma the easiest way to get in contact with me, is by sending an email to send an email to frank("dot")oltmanns+selma("at")gmail("dot")com (please replace ("dot") and ("at") with . and @ respectively).
+If you have any questions, remarks, or recommendations concerning Selma the easiest way to get in contact with me, is by sending an email to frank("dot")oltmanns+selma("at")gmail("dot")com (please replace ("dot") and ("at") with . and @ respectively).
 
 ### Prerequisites
 Selma is for you if you already chose to learn a new language using the Assimil method and own the book and MP3 pack. It is known to work with "Kolay Türkçe" (Turkish with Ease) and the Spanish course, but it might also work with the language of your choice. Don't hesitate to contact the author, if it does or does not work with the language of your choice. Selma needs a device running on Android 2.2 ("Froyo") or above. Please note that Selma comes with ABSOLUTELY NO WARRANTY (see the [license](https://github.com/federvieh/selma/blob/master/LICENSE) for details).
@@ -25,11 +25,9 @@ Selma is for you if you already chose to learn a new language using the Assimil 
 In order to get more info on Assimil courses, please visit their [homepage](http://www.assimil.com/). In my opinion their courses are a great way of learning a new language. I, the author of Selma, am not affiliated with Assimil. I am simply a fan of their "Turkish with Ease" course.
 
 #### Video
-Here you can find a [short introduction into Selma]
-(http://youtu.be/FyixZn0zh0I).
+Here you can find a [short introduction into Selma](http://youtu.be/Zcs657QejaY).
 The example text shown in the video are from the ["Turkish with Ease" MP3 packs](http://en.assimil.com/methodes/tuerkisch-ohne-muehe/declinaisons/enregistrements-mp3-3074).
-The following music is used in this video:
-[Aalborg Pulse from Kokoro No Toiki by Candlegravity](http://candlegravity.bandcamp.com/track/aalborg-pulse).
+Music used under a Creative Commons License from UniqueTracks Inc.
 
 ### How much does Selma cost?
 The app is free for everyone who already bought the Assimil MP3 pack and book. (The app of course also free for everyone else, it's just not of any use for anyone that doesn't have the MP3 pack.)
@@ -43,10 +41,15 @@ The app needs the following permissions for the following reasons:
 * Prevent phone from sleeping: When playing back the lessons, the phone will not go to sleep. Going to sleep would stop the playback immediately.
 
 ### Version history
-**Version 2.0.0** (latest version):
+**Version 2.0.1** (latest version):
+* Updated help to link to the introduction video
+* Updated link to homepage in error dialogs
+* Updated license to GPL v3.
+
+**Version 2.0.0**:
 Added support for showing/entering translations.
 
-**Version 1.1.0** (latest version):
+**Version 1.1.0**:
 Added support for other languages than Turkish after user feedback (Thanks Marcin!).
 
 **Version 1.0.2**:

@@ -204,7 +204,7 @@ public class LessonListActivity extends ActionBarActivity {
 						
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
-							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/federvieh/selma/wiki"));
+							Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://federvieh.github.io/selma"));
 							startActivity(browserIntent);
 						}
 					};
@@ -445,7 +445,7 @@ public class LessonListActivity extends ActionBarActivity {
 
 		builder.setPositiveButton(R.string.show_license, new DialogInterface.OnClickListener() {
 	           public void onClick(DialogInterface dialog, int id) {
-//	        	   Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.gnu.org/licenses/gpl-2.0-standalone.html"));
+//	        	   Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.gnu.org/licenses/gpl-3.0-standalone.html"));
 //	        	   startActivity(browserIntent);
 	        	   openGPL();
 	           }
@@ -473,7 +473,7 @@ public class LessonListActivity extends ActionBarActivity {
 	    View layoutView = inflater.inflate(R.layout.license_view, null);
 	    builder.setView(layoutView);
 	    TextView textView = (TextView)layoutView.findViewById(R.id.textViewLicense);
-	    textView.setText(readRawTextFile(getApplicationContext(), R.raw.gpl20));
+	    textView.setText(readRawTextFile(getApplicationContext(), R.raw.gpl30));
 		textView.setHorizontallyScrolling(true);
 
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
