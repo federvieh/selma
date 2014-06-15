@@ -13,6 +13,7 @@ Selma is an Android app that helps you in learning a new language using the Assi
 {: .notice}
 
 ### How to use Selma
+<iframe width="560" height="315" src="//www.youtube.com/embed/Zcs657QejaY" frameborder="0" allowfullscreen></iframe>
 If you have not already done this, start by copying your Assimil MP3 pack to your Android device.
 
 In Selma it is possible to mark lessons as favourites using the star icon. This allows you to focus on the lessons you are currently trying to memorise. I normally have three or four "starred" lessons which I listen to over and over.
@@ -20,11 +21,4 @@ In Selma it is possible to mark lessons as favourites using the star icon. This 
 You can tell Selma, if you want to listen only to the lesson texts or also the exercise section. When I'm memorising my "starred" lessons, most of the times I don't listen to the exercises, because it's easier to memorise stories than sentences that have no obvious connection. But when I start learning a new lesson, I also listen to the exercises.
 
 When learning a lesson, you can choose to listen to individual sentences or the whole lesson over and over. You can also manually enter a translation and a literal translation of the lesson texts, so that you can see the translation directly in the app. Unfortunately, Assimil does not provide the translations along with the MP3 pack. Which means you have to enter them yourself. But in my opinion this procedure also helps with learning.
-
-#### Video
-Here you can find a [short introduction into Selma](http://youtu.be/FyixZn0zh0I).
-The example text shown in the video are from the ["Turkish with Ease" MP3 packs](http://en.assimil.com/methodes/tuerkisch-ohne-muehe/declinaisons/enregistrements-mp3-3074).
-The following music is used in this video:
-[Aalborg Pulse from Kokoro No Toiki by Candlegravity](http://candlegravity.bandcamp.com/track/aalborg-pulse).
-
 
