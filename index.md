@@ -2,6 +2,7 @@
 layout: page
 tags: [assimil, android, selma, language, app]
 modified: 06-08-2013
+comments: true
 image:
   feature: black.png
 ---
