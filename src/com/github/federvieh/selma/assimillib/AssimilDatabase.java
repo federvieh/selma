@@ -4,11 +4,17 @@
 package com.github.federvieh.selma.assimillib;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
+import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
+import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
 
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+//import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -17,7 +23,7 @@ import android.util.Log;
  * @author frank
  *
  */
-public class AssimilDatabase extends ArrayList<AssimilLesson>{
+public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 
 	private static AssimilDatabase assimilDatabase = null;
 	
@@ -37,6 +43,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 		if(assimilDatabase==null){
 			assimilDatabase = new AssimilDatabase();
 			if(!assimilDatabase.isInitialized()){
+				assimilDatabase.scanForLessons(caller);//FIXME: This should be done elsewhere
 				assimilDatabase.init(caller);
 			}
 		}
@@ -51,12 +58,13 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	public static final String LAST_TRACK_PLAYED = "LAST_TRACK_PLAYED";
 	private boolean initialized = false;
 	//private SharedPreferences settings = null; 
+	private HashMap<Long, AssimilLessonHeader> lessonMap;
 
 	private AssimilDatabase(){
 		Log.d("LT", "new database");
 	}
 	
-	public boolean init(Activity caller){
+	private boolean scanForLessons(Activity caller){
         ContentResolver contentResolver = caller.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { android.provider.MediaStore.Audio.Media.TITLE,
@@ -87,20 +95,33 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
         		String fullAlbum = cursor.getString(albumColumn);
         		String number = fullAlbum.substring(fullAlbum.lastIndexOf("L"));
         		String language = fullAlbum.substring(fullAlbum.indexOf(" ")+1,fullAlbum.indexOf(" - L"));
-        		AssimilLesson assimilLesson = new AssimilLesson(number, language, fullAlbum, caller, settings);
+//        		AssimilLesson assimilLesson = new AssimilLesson(number, language, fullAlbum, caller, settings);
 //        		Log.i("LT", "title =  '"+fullTitle+"'");
 //        		Log.i("LT", "number = '"+number+"'");
 //        		Log.i("LT", "lang =   '"+language+"'");
 //        		Log.i("LT", "album  = '"+fullAlbum+"'");
 //        		Log.i("LT", "==============================================");
-        		assimilLesson.init(settings);
-        		this.add(assimilLesson);
+        		AssimilSQLiteHelper.createIfNotExists(number, language, fullAlbum, caller, settings);
+//        		this.add(assimilLesson);
         	} while (cursor.moveToNext());
             cursor.close();
+            return true;
         }
+	}
+	
+	private boolean init(Activity caller){
+		lessonMap = new HashMap<Long, AssimilLessonHeader>();
+		this.clear();
+		AssimilLessonHeaderDataSource headerDS = new AssimilLessonHeaderDataSource(caller);
+		headerDS.open();
+		for(AssimilLessonHeader header: headerDS.getLessonHeaders(null)){
+			this.add(header);
+			lessonMap.put(header.getId(), header);
+		}
+		headerDS.close();
         initialized  = true;
         SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
-        String lastPlayedLesson = settings.getString(LAST_LESSON_PLAYED, this.get(0).getNumber());
+        long lastPlayedLesson = settings.getLong(LAST_LESSON_PLAYED, this.get(0).getId());
         AssimilDatabase ad;
         switch(PlaybarManager.getListType()){
         case LIST_TYPE_STARRED_NO_TRANSLATE:
@@ -113,17 +134,19 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
         	ad = this;
         	break;
         }
+        AssimilLessonDataSource lessonDS = new AssimilLessonDataSource(caller);
+        AssimilLessonHeader header = lessonMap.get(Long.valueOf(lastPlayedLesson));
         AssimilLesson al = null;
-        for(AssimilLesson al2 : ad){
-        	if(al2.getNumber().equals(lastPlayedLesson)){
-        		al = al2;
-        		break;
-        	}
-        }
         int lastPlayedTrack;
-        if(null == al){
+    	lessonDS.open();
+        if(header!=null){
+        	al = lessonDS.getLesson(header);
+        	lastPlayedTrack = settings.getInt(LAST_TRACK_PLAYED, 0);
+        }
+        else {
         	try{
-        		al = ad.get(0);
+        		header = ad.get(0);
+        		al = lessonDS.getLesson(header);
         		lastPlayedTrack = 0;
         	}
         	catch(IndexOutOfBoundsException e){
@@ -135,9 +158,7 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
         		lastPlayedTrack = -1;
         	}
         }
-        else{
-        	lastPlayedTrack = settings.getInt(LAST_TRACK_PLAYED, 0);
-        }
+    	lessonDS.close();
         PlaybarManager.setCurrent(al, lastPlayedTrack);
         return true;
 	}
@@ -151,14 +172,15 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	 * 
 	 */
 	public void commit(Activity caller) {
-		SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = settings.edit();
-		for (AssimilLesson al : this) {
-			al.store(editor);
-		}
-
-		// Commit the edits!
-		editor.commit();
+		//FIXME: This must now be done elsewhere
+//		SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
+//		SharedPreferences.Editor editor = settings.edit();
+//		for (AssimilLesson al : this) {
+//			al.store(editor);
+//		}
+//
+//		// Commit the edits!
+//		editor.commit();
 	}
 
 	/**
@@ -166,12 +188,29 @@ public class AssimilDatabase extends ArrayList<AssimilLesson>{
 	 */
 	public static AssimilDatabase getStarredOnly(Activity caller) {
 		AssimilDatabase rv = new AssimilDatabase();
-		for (AssimilLesson assimilLesson : getDatabase(caller)) {
+		for (AssimilLessonHeader assimilLesson : getDatabase(caller)) {
 			if(assimilLesson.isStarred()){
 				rv.add(assimilLesson);
 			}
 		}
 		return rv;
+	}
+
+	/** Reads lesson from the database. This may be slow! 
+	 * TODO: Think about re-design to use callback (might be complacated in LessonPlayer).
+	 * 
+	 * @param lessonId
+	 * @param ctxt 
+	 * @return
+	 */
+	public static AssimilLesson getLesson(long lessonId, Context ctxt) {
+		// TODO Auto-generated method stub
+		AssimilLessonHeader header = getDatabase(null).lessonMap.get(Long.valueOf(lessonId));
+		AssimilLessonDataSource ds =  new AssimilLessonDataSource(ctxt);
+		ds.open();
+		AssimilLesson lesson = ds.getLesson(header);
+		ds.close();
+		return lesson;
 	}
 
 }

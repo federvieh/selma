@@ -43,11 +43,11 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		
         Intent intend = getIntent();
-		int lessonTemp = intend.getIntExtra(AssimilOnClickListener.EXTRA_LESSON_POS,0);
+		long lessonTemp = intend.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID,0);
 		lt=PlaybarManager.getListType();
 		Log.d("LT", "ShowLesson.onCreate(); lt="+lt);
 		
-		lesson = AssimilDatabase.getDatabase(null).get(lessonTemp);
+		lesson = AssimilDatabase.getLesson(lessonTemp, this);
 		this.setTitle(lesson.getNumber());
 
 		SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.exercise_option_list,
@@ -255,7 +255,7 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //    	String item = (String) parent.getItemAtPosition(position);
 //    	Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
-    	LessonPlayer.play(lesson, position, false);
+    	LessonPlayer.play(lesson, position, false, view.getContext());
 	}
 
 

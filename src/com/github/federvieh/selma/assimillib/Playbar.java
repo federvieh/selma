@@ -55,7 +55,7 @@ public class Playbar extends LinearLayout {
 				if(al!=null){
 					// Go to show lesson activity
 					Intent intent = new Intent(context, ShowLesson.class);
-					intent.putExtra(AssimilOnClickListener.EXTRA_LESSON_POS, AssimilDatabase.getDatabase(null).indexOf(al));
+					intent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, al.getHeader().getId());
 //					context.startActivity(intent);
 					TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
 					// Adds the back stack
@@ -87,7 +87,7 @@ public class Playbar extends LinearLayout {
 					LessonPlayer.stopPlaying(context);
 				}
 				else{
-					LessonPlayer.play(PlaybarManager.getLessonInstance(), PlaybarManager.getTrackNumber(), true);
+					LessonPlayer.play(PlaybarManager.getLessonInstance(), PlaybarManager.getTrackNumber(), true, v.getContext());
 					if((PlaybarManager.getLessonInstance()!=null)&&(PlaybarManager.getTrackNumber()>=0)){
 						OverlayManager.showPlayOverlay(context);
 					}

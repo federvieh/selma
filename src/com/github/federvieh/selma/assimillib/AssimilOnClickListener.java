@@ -16,9 +16,9 @@ import android.widget.ImageView;
  */
 public class AssimilOnClickListener implements OnClickListener {
 
-	public static final String EXTRA_LESSON_POS = "com.github.federvieh.selma.assimillib.EXTRA_LESSON_OBJECT";
-	private AssimilLesson lesson;
-	private Context context;
+	public static final String EXTRA_LESSON_ID = "com.github.federvieh.selma.assimillib.EXTRA_LESSON_ID";
+	private AssimilLessonHeader lesson;
+	//private Context context;
 
 	/**
 	 * @param context 
@@ -27,9 +27,9 @@ public class AssimilOnClickListener implements OnClickListener {
 	 * @param current 
 	 * 
 	 */
-	public AssimilOnClickListener(AssimilLesson lesson, Context context, int position, ListTypes lt) {
+	public AssimilOnClickListener(AssimilLessonHeader lesson, Context context, int position, ListTypes lt) {
 		this.lesson = lesson;
-		this.context = context;
+		//this.context = context;
 	}
 
 	/* (non-Javadoc)
@@ -51,9 +51,9 @@ public class AssimilOnClickListener implements OnClickListener {
 		}
 		else{
 			// Go to show lesson activity
-	    	Intent intent = new Intent(context, ShowLesson.class);
-	    	intent.putExtra(EXTRA_LESSON_POS, AssimilDatabase.getDatabase(null).indexOf(lesson));
-	    	context.startActivity(intent);
+	    	Intent intent = new Intent(v.getContext(), ShowLesson.class);
+	    	intent.putExtra(EXTRA_LESSON_ID, lesson.getId());
+	    	v.getContext().startActivity(intent);
 
 		}
 	}

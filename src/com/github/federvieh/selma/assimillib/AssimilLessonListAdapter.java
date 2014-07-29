@@ -17,27 +17,28 @@ import com.github.federvieh.selma.R;
  * @author frank
  *
  */
-public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLesson> {
-	private final Context context;
+public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> {
+//	private final Context context;
 	private final AssimilDatabase values;
 	private ListTypes lt;
 
 	public AssimilLessonListAdapter(Context context, AssimilDatabase values, ListTypes lt) {
 		super(context, R.layout.rowlayout, values);
-		this.context = context;
+//		this.context = context;
 		this.values = values;
 		this.lt = lt;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		Context context = parent.getContext();
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.rowlayout, parent, false);
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
-		AssimilLesson current = values.get(position);
-		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getNumber());
+		AssimilLessonHeader current = values.get(position);
+		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getName());
 		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, context, position, lt);
 		textView.setOnClickListener(assimilOnClickListener);
 		// starred?

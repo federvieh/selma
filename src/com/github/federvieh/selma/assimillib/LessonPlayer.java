@@ -3,9 +3,10 @@
  */
 package com.github.federvieh.selma.assimillib;
 
+import java.io.File;
+
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -84,10 +85,10 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		context.startService(service);
 	}
 	
-	public static void play(AssimilLesson lesson, int trackNo, boolean cont){
-		long id = 0;
+	public static void play(AssimilLesson lesson, int trackNo, boolean cont, Context ctxt){
+		String id = null;
 		try{
-			id = lesson.getIdByTrackNo(trackNo);
+			id = lesson.getPathByTrackNo(trackNo);
 		}
 		catch (Exception e){
 			Log.w("LT","Could not find track "+trackNo+" in lesson "+lesson, e);
@@ -99,14 +100,16 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		currentLesson = lesson;
 		currentTrack = trackNo;
 		PlaybarManager.setCurrent(currentLesson, currentTrack);
-		Intent service = new Intent(lesson.activity, LessonPlayer.class);
+		Intent service = new Intent(ctxt, LessonPlayer.class);
 		service.putExtra(PLAY, id);
-		lesson.activity.startService(service);
+		ctxt.startService(service);
 	}
 	
-	private void play(long id){
-		Uri contentUri = ContentUris.withAppendedId(
-				android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+	private void play(String path){
+		File f = new File(path);
+		Uri contentUri = Uri.fromFile(f);
+//		Uri contentUri = ContentUris.withAppendedId(
+//				android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
 		if(mediaPlayer == null){
 			synchronized(lock){
 				if(mediaPlayer==null){
@@ -155,7 +158,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		}
 		try{
 			Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
-			editor.putString(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getNumber());
+			editor.putLong(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getHeader().getId());
 			editor.putInt(AssimilDatabase.LAST_TRACK_PLAYED, currentTrack);
 			editor.commit();
 		}
@@ -175,12 +178,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	}
 	
 	private void handleCommand(Intent intent){
-		long playId = intent.getLongExtra(PLAY, -1);
+		String playPath = intent.getStringExtra(PLAY);
 		long stopId = intent.getLongExtra(STOP, -1);
 		long nextTrackId = intent.getLongExtra(NEXT_TRACK, -1);
 		long nextLessonId = intent.getLongExtra(NEXT_LESSON, -1);
-		if(playId != -1){
-			play(playId);
+		if(playPath != null){
+			play(playPath);
 		}
 		else if(stopId != -1){
 			stop(true);
@@ -237,7 +240,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 			stop();
 			break;*/
 		case REPEAT_TRACK:
-			play(currentLesson, currentTrack, false);
+			play(currentLesson, currentTrack, false, this);
 			break;
 		case ALL_LESSONS:
 		case REPEAT_ALL_LESSONS:
@@ -246,8 +249,8 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		case REPEAT_ALL_STARRED:
 			boolean endOfLessonReached = false;
 			try{
-				currentLesson.getIdByTrackNo(currentTrack+1);
-				play(currentLesson, currentTrack+1, false);
+				currentLesson.getPathByTrackNo(currentTrack+1);
+				play(currentLesson, currentTrack+1, false, this);
 			}
 			catch(IllegalArgumentException e){
 				endOfLessonReached = true;
@@ -258,7 +261,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 					stop();
 					break;*/
 				case REPEAT_LESSON:
-					play(currentLesson, 0, false);
+					play(currentLesson, 0, false, this);
 					break;
 				case ALL_LESSONS:
 				case REPEAT_ALL_LESSONS:
@@ -281,13 +284,17 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 						stop(false);
 					}
 					else if (lessonIdx+1 < ad.size()){
-						play(ad.get(lessonIdx+1),0, false);
+						AssimilLesson lesson =
+								AssimilDatabase.getLesson(ad.get(lessonIdx+1).getId(), this);
+						play(lesson,0, false, this);
 					}
 					else{
 						//last lesson reached
 						if(PlaybarManager.getPlayMode() == PlayMode.REPEAT_ALL_LESSONS){
 							//start again at first lesson again
-							play(ad.get(0),0, false);
+							AssimilLesson lesson =
+									AssimilDatabase.getLesson(ad.get(0).getId(), this);
+							play(lesson,0, false, this);
 						}
 						else{
 							stop(false);
@@ -311,11 +318,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 							if(lessonIdx >= db.size()){
 								lessonIdx=0;
 							}
-							nextLesson = db.get(lessonIdx);
+							nextLesson = AssimilDatabase.getLesson(db.get(lessonIdx).getId(), this);
 						}
 						while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
 						if(nextLesson.isStarred()){
-							play(nextLesson, 0, false);
+							play(nextLesson, 0, false, this);
 						}
 						else{
 							stop(false);
@@ -345,16 +352,24 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 				stop(false);
 			}
 			else{
-				AssimilLesson nextLesson = currentLesson;
+				AssimilLessonHeader nextLessonHeader = currentLesson.getHeader();
 				do{
 					lessonIdx++;
 					if(lessonIdx >= db.size()){
 						lessonIdx=0;
 					}
-					nextLesson = db.get(lessonIdx);
+					nextLessonHeader = db.get(lessonIdx);
 				}
-				while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
-				play(nextLesson, 0, false);
+				while((!nextLessonHeader.isStarred()) &&
+						(!nextLessonHeader.equals(currentLesson.getHeader())));
+				AssimilLesson lesson;
+				if(nextLessonHeader.equals(currentLesson.getHeader())){
+					lesson = currentLesson;
+				}
+				else{
+					lesson = AssimilDatabase.getLesson(nextLessonHeader.getId(), this);
+				}
+				play(lesson, 0, false, this);
 			}
 			break;
 		}
@@ -371,12 +386,13 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 				stop(false);
 			}
 			else if (lessonIdx+1 < AssimilDatabase.getDatabase(null).size()){
-				play(AssimilDatabase.getDatabase(null).get(lessonIdx+1), 0, false);
+
+				play(AssimilDatabase.getLesson(AssimilDatabase.getDatabase(null).get(lessonIdx+1).getId(), this), 0, false, this);
 			}
 			else{
 				//last lesson reached
 				//start again at first lesson again
-				play(AssimilDatabase.getDatabase(null).get(0), 0, false);
+				play(AssimilDatabase.getLesson(AssimilDatabase.getDatabase(null).get(0).getId(), this), 0, false, this);
 			}
 			break;
 		}
@@ -414,7 +430,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	    .setContentIntent(pi);*/
 		PlaybarManager.setPlaying(true);
 		Intent resultIntent = new Intent(this, ShowLesson.class);
-		resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_POS, AssimilDatabase.getDatabase(null).indexOf(currentLesson));
+		resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
 
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack
@@ -437,7 +453,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		switch (focusChange) {
 		case AudioManager.AUDIOFOCUS_GAIN:
 			// resume playback
-			play(currentLesson,currentTrack,true);
+			play(currentLesson,currentTrack,true, this);
 			break;
 
 		case AudioManager.AUDIOFOCUS_LOSS:
