@@ -38,7 +38,7 @@ public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> 
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
 		AssimilLessonHeader current = values.get(position);
-		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getName());
+		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getNumber());
 		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, context, position, lt);
 		textView.setOnClickListener(assimilOnClickListener);
 		// starred?

@@ -358,7 +358,7 @@ public class LessonListActivity extends ActionBarActivity {
 	protected void onPause(){
 		super.onPause();
 		Log.d("LT", this.getClass().getSimpleName()+".onPause()");
-		AssimilDatabase.getDatabase(this).commit(this);
+//		AssimilDatabase.getDatabase(this).commit(this);
 	}
 
 	@Override

@@ -40,12 +40,12 @@ public class AssimilOnClickListener implements OnClickListener {
 			ImageView imageView = (ImageView) v;
 			if(lesson.isStarred()){
 				Log.i("LT", "unstarring");
-				lesson.unstar();
+				lesson.unstar(v.getContext());
 				imageView.setImageResource(android.R.drawable.btn_star_big_off);
 			}
 			else{
 				Log.i("LT", "starring");
-				lesson.star();				
+				lesson.star(v.getContext());				
 				imageView.setImageResource(android.R.drawable.btn_star_big_on);
 			}
 		}

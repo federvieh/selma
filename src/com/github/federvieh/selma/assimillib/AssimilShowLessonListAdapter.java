@@ -60,7 +60,7 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
 			textView.setTextSize(18);
 			textView.setTypeface(null, Typeface.ITALIC);
 		}
-		if((PlaybarManager.getTrackNumber()==position)&&(PlaybarManager.getLessonInstance().equals(lesson))){
+		if((PlaybarManager.getTrackNumber()==position)&&(PlaybarManager.getLessonInstance().getHeader().equals(lesson.getHeader()))){
 			textView.setTypeface(null, Typeface.BOLD|((textView.getTypeface()!=null)?textView.getTypeface().getStyle():0));
 		}
 //		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, context, position, lt);

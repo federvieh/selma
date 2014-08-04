@@ -28,7 +28,7 @@ import android.util.Log;
  */
 public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	
-	private static final int ASSIMIL_DATABASE_VERSION = 1;
+	private static final int ASSIMIL_DATABASE_VERSION = 2;
 	private static final String ASSIMIL_DATABASE_NAME = "assimil.db";
 	
 	/* Table "lessons"
@@ -58,16 +58,11 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	 * +-----+-----------------------+--------+----------------+--------------+--------------+------------------+
 	 * |auto | ref to _id of lessons | S01    | Merhaba Mehmet | Hello Mehmet | Hello Mehmet | /path/to/S01.mp3 |
 	 * |auto | ref to _id of lessons | S02    | Nasilsin?      | How are you? | How-you-are  | /path/to/S02.mp3 |
-	 * 
-	 * Old idea: TODO: Remove comment!
-	 * |auto | ref to _id of lessons | S01    | 1    | Hello Mehmet   | /path/to/S01.mp3 |
-	 * |auto | ref to _id of lessons | S02    | 1    | How are you?   | /path/to/S02.mp3 |
 	 */
 	public static final String TABLE_LESSONTEXTS = "lessontexts";
 	public static final String TABLE_LESSONTEXTS_ID = "_id";
 	public static final String TABLE_LESSONTEXTS_LESSONID = "lessonid";
 	public static final String TABLE_LESSONTEXTS_TEXTID = "textid";
-//TODO: Remove! Old idea	public static final String TABLE_LESSONTEXTS_LANG = "language";
 	public static final String TABLE_LESSONTEXTS_TEXT = "text";
 	public static final String TABLE_LESSONTEXTS_TEXTTRANS = "text_trans";
 	public static final String TABLE_LESSONTEXTS_TEXTLIT = "text_lit";
@@ -85,6 +80,8 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 			");";
 	private static final String ASSIMIL_DROP_TABLE_LESSONTEXTS = 
 			"drop TABLE if exists " + TABLE_LESSONTEXTS + ";";
+	private static final String ASSIMIL_INDEX_LESSONID_LESSONTEXTS = 
+			"create index idx_lessonid on " + TABLE_LESSONTEXTS + "(" + TABLE_LESSONTEXTS_LESSONID + ")";
 			
 	/* Prefixes as used in the Assimil lesson MP3 files.
 	 * 
@@ -108,6 +105,7 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(ASSIMIL_CREATE_TABLE_LESSONS);
 		db.execSQL(ASSIMIL_CREATE_TABLE_LESSONTEXTS);
+		db.execSQL(ASSIMIL_INDEX_LESSONID_LESSONTEXTS);
 	}
 
 	/* (non-Javadoc)
@@ -115,14 +113,17 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// Right now not really needed (only one version exists). For now
-		// just drop the tables and re-create.
-		// Improve when needed.
-		Log.w(this.getClass().getName(), "Dropping database content in order" +
-				" to upgrade from version " + oldVersion + " to " + newVersion);
-		db.execSQL(ASSIMIL_DROP_TABLE_LESSONTEXTS);
-		db.execSQL(ASSIMIL_DROP_TABLE_LESSONS);
-		onCreate(db);
+		if((oldVersion == 1)&&(newVersion == 2)){
+			//Change from Version 1 to 2: Added index
+			db.execSQL(ASSIMIL_INDEX_LESSONID_LESSONTEXTS);
+		}
+		else{
+			Log.w(this.getClass().getName(), "Unknown version upgrade. Dropping database content in order" +
+					" to upgrade from version " + oldVersion + " to " + newVersion);
+			db.execSQL(ASSIMIL_DROP_TABLE_LESSONTEXTS);
+			db.execSQL(ASSIMIL_DROP_TABLE_LESSONS);
+			onCreate(db);
+		}
 	}
 	/**
 	 * @param number
@@ -133,7 +134,6 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	 */
 	public static void createIfNotExists(String number, String language,
 			String fullAlbum, Activity caller, SharedPreferences settings) {
-		// TODO Auto-generated method stub
         ContentResolver contentResolver = caller.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { android.provider.MediaStore.Audio.Media.TITLE,
@@ -155,7 +155,6 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
         	return;
         }
         else{
-			//TODO: Should the following be moved to a DAO class?
 			AssimilSQLiteHelper dbHelper = new AssimilSQLiteHelper(caller);
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			//Find the lesson in the lesson table
@@ -164,6 +163,7 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 					AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + fullAlbum + "'", null, null, null, null);
 			if(!cursorAlbum.moveToFirst()){
 				//No result, i.e. we need to create a new entry for this album
+				Log.d("LT", "Creating new lesson for " + fullAlbum);
 				ContentValues valuesLessonTable = new ContentValues();
 				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME, language);
 				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME, fullAlbum);
@@ -174,12 +174,12 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 			}
 			if(!cursorAlbum.moveToFirst()){
 				//Still no result!
-				//FIXME: What now!?
+				Log.wtf("LT", "Creating new lesson header was unsuccessful!");
 				return;
 			}
 			if(cursorAlbum.getCount()!=1){
 				//Hmm... also not expected
-				//FIXME: What now!?
+				Log.wtf("LT", "Query for lesson header returned " + cursorAlbum.getCount() + ", but expected is 1!");
 				return;
 			}
 			long albumId = cursorAlbum.getLong(cursorAlbum.getColumnIndex(AssimilSQLiteHelper.TABLE_LESSONS_ID));
@@ -193,12 +193,10 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
         		String fullTitle = cursor.getString(titleColumn);
         		String id = cursor.getString(idColumn);
         		String path = cursor.getString(dataColumn);
-//        		Log.i("LT", "Path: "+path);
+//      		Log.i("LT", "Path: "+path);
         		String text = null;
         		String textNumber = null;
         		if(fullTitle.startsWith(TITLE_PREFIX)){
-        			//TODO: Should the following be moved to a DAO class?
-        			//TODO: Check if the entry already exists
         			text = fullTitle.substring(TITLE_PREFIX.length());
         			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
         		}
@@ -222,45 +220,33 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
             		Log.w("LT", "==============================================");
             		continue;
         		}
-           		String[] translations = findTranslations(path);
-    			ContentValues values = new ContentValues();
-    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_LESSONID,  albumId);
-    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTID,    textNumber);
-//TODO: Remove, Old idea:    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_LANG,      0);
-    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXT,      text);
-    			if(translations[0] != null){
-    				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, translations[0]);
+    			//Find the lesson in the lesson table
+    			String[] columnsTexts = {TABLE_LESSONTEXTS_TEXTID};
+    			Cursor cursorLessontext = db.query(TABLE_LESSONTEXTS, columnsTexts,
+    					TABLE_LESSONTEXTS_TEXTID + " = '" + textNumber + "' AND "
+    							+ TABLE_LESSONTEXTS_LESSONID + " = " + albumId, null, null, null, null);
+    			if(cursorLessontext.moveToFirst()){
+    				//No result, i.e. we don't need to create a new entry for this text
+    				Log.d("LT", "Text " + textNumber + " for lesson \"" + fullAlbum + "\" already exists. Skipping...");
     			}
-    			if(translations[1] != null){
-    				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, translations[1]);
+    			else{
+    				String[] translations = findTranslations(path);
+    				ContentValues values = new ContentValues();
+    				values.put(TABLE_LESSONTEXTS_LESSONID,  albumId);
+    				values.put(TABLE_LESSONTEXTS_TEXTID,    textNumber);
+    				values.put(TABLE_LESSONTEXTS_TEXT,      text);
+    				if(translations[0] != null){
+    					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, translations[0]);
+    				}
+    				if(translations[1] != null){
+    					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, translations[1]);
+    				}
+    				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);
+    				db.insert(AssimilSQLiteHelper.TABLE_LESSONTEXTS, null, values);
     			}
-    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);
-    			db.insert(AssimilSQLiteHelper.TABLE_LESSONTEXTS, null, values);
-    			
-                /* TODO: Old idea, remove! */
-//        		String[] translations = findTranslations(path);
-//
-//        		values = new ContentValues();
-//        		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_LESSONID,  albumId);
-//    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTID,    textNumber);
-//    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_LANG,      1);
-//    			if(translations[0] != null){
-//    				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXT,      translations[0]);
-//    			}
-//    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);
-//    			db.insert(AssimilSQLiteHelper.TABLE_LESSONTEXTS, null, values);
-//
-//        		values = new ContentValues();
-//        		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_LESSONID,  albumId);
-//    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTID,    textNumber);
-//    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_LANG,      2);
-//    			if(translations[1] != null){
-//    				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXT,      translations[1]);
-//    			}
-//    			values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);
-//    			db.insert(AssimilSQLiteHelper.TABLE_LESSONTEXTS, null, values);
         	} while (cursor.moveToNext());
         	cursor.close();
+        	db.close();
         }
         files.clear();
 	}
@@ -283,28 +269,8 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 		String translatedText = getFileContent(directory.toString(), fileNamePatt+"_translate.txt");
 		String translatedTextVerbatim = getFileContent(directory.toString(), fileNamePatt+"_translate_verbatim.txt");
 		
-		//FIXME: Handle null values in caller! activity.getResources().getText(R.string.not_yet_translated)
 		String[] rv = {translatedText, translatedTextVerbatim};
 		return rv;
-//		Log.d("LT", "_translate: "+translatedText);
-//		Log.d("LT", "_translate_verbatim: "+translatedTextVerbatim);
-//		
-//		allPaths.add(directory.toString());
-//		allTranslationFilenames.add(fileNamePatt+"_translate.txt");
-//		allLiteralFilenames.add(fileNamePatt+"_translate_verbatim.txt");
-//
-//		if(translatedText!=null){
-//			allTextsTranslate.add(translatedText);			
-//		}
-//		else{
-//			allTextsTranslate.add(activity.getResources().getText(R.string.not_yet_translated).toString());			
-//		}
-//		if(translatedTextVerbatim!=null){
-//			allTextsTranslateSimple.add(translatedTextVerbatim);			
-//		}
-//		else{
-//			allTextsTranslateSimple.add(activity.getResources().getText(R.string.not_yet_translated).toString());			
-//		}
 	}
 
 	/**
@@ -313,7 +279,7 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	 * @return
 	 */
 	private static String getFileContent(String directory, String filename) {
-		//FIXME: Why don't we directly access the files here? Why scan the dir?
+		//TODO: Why don't we directly access the files here? Why scan the dir?
 		File d = new File(directory);
 		if(d.exists()&&d.isDirectory()){
 			File[] dirList = files.get(directory);

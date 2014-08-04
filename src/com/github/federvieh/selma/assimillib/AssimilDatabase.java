@@ -43,8 +43,11 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 		if(assimilDatabase==null){
 			assimilDatabase = new AssimilDatabase();
 			if(!assimilDatabase.isInitialized()){
-				assimilDatabase.scanForLessons(caller);//FIXME: This should be done elsewhere
 				assimilDatabase.init(caller);
+				if(assimilDatabase.isEmpty()){
+					assimilDatabase.scanForLessons(caller);//FIXME: This should also be callable from menu be done elsewhere
+					assimilDatabase.init(caller);
+				}
 			}
 		}
 		return assimilDatabase;
@@ -165,22 +168,6 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 
 	public boolean isInitialized(){
 		return initialized;
-	}
-
-	/**
-	 * @param caller 
-	 * 
-	 */
-	public void commit(Activity caller) {
-		//FIXME: This must now be done elsewhere
-//		SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
-//		SharedPreferences.Editor editor = settings.edit();
-//		for (AssimilLesson al : this) {
-//			al.store(editor);
-//		}
-//
-//		// Commit the edits!
-//		editor.commit();
 	}
 
 	/**

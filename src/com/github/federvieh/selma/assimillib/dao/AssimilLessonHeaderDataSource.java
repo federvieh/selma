@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.github.federvieh.selma.assimillib.AssimilLessonHeader;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -59,15 +60,28 @@ public class AssimilLessonHeaderDataSource {
 	}
 
 	private static AssimilLessonHeader cursorToHeader(Cursor cursor) {
-		AssimilLessonHeader header = new AssimilLessonHeader();
-		header.setId(cursor.getLong(1));
-		header.setName(cursor.getString(0));
-		if(cursor.getLong(2)>0){
-			header.star();
-		}
-		else{
-			//default is unstarred: Nothing to do
-		}
+		AssimilLessonHeader header = new AssimilLessonHeader(cursor.getLong(1), cursor.getString(0), cursor.getLong(2)>0);
 		return header;
+	}
+
+	/**
+	 * @param id 
+	 * 
+	 */
+	public void star(long id) {
+		String whereClause = AssimilSQLiteHelper.TABLE_LESSONS_ID + " = " + id;
+		ContentValues values = new ContentValues();
+		values.put(AssimilSQLiteHelper.TABLE_LESSONS_STARRED, 1);
+		database.update(AssimilSQLiteHelper.TABLE_LESSONS, values , whereClause, null);		
+	}
+
+	/**
+	 * @param id
+	 */
+	public void unstar(long id) {
+		String whereClause = AssimilSQLiteHelper.TABLE_LESSONS_ID + " = " + id;
+		ContentValues values = new ContentValues();
+		values.put(AssimilSQLiteHelper.TABLE_LESSONS_STARRED, 0);
+		database.update(AssimilSQLiteHelper.TABLE_LESSONS, values , whereClause, null);		
 	}
 }

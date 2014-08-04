@@ -278,7 +278,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 						ad = AssimilDatabase.getStarredOnly(null);
 						break;
 					}
-					int lessonIdx = ad.indexOf(currentLesson);
+					int lessonIdx = ad.indexOf(currentLesson.getHeader());
 					if(lessonIdx<0){
 						Log.w("LT", "Current lesson not found. WTF? Stop playing.");
 						stop(false);

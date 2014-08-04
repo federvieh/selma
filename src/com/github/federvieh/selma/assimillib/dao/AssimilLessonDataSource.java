@@ -3,16 +3,15 @@
  */
 package com.github.federvieh.selma.assimillib.dao;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.github.federvieh.selma.assimillib.AssimilLesson;
-import com.github.federvieh.selma.assimillib.AssimilLessonHeader;
-
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.github.federvieh.selma.R;
+import com.github.federvieh.selma.assimillib.AssimilLesson;
+import com.github.federvieh.selma.assimillib.AssimilLessonHeader;
 
 /**
  * @author frank
@@ -21,9 +20,11 @@ import android.database.sqlite.SQLiteDatabase;
 public class AssimilLessonDataSource {
 	private AssimilSQLiteHelper dbHelper;
 	private SQLiteDatabase database;
+	private Context ctxt;
 
 	public AssimilLessonDataSource(Context ctxt){
 		dbHelper = new AssimilSQLiteHelper(ctxt);
+		this.ctxt = ctxt;
 	}
 
 	public void open() throws SQLException {
@@ -63,14 +64,42 @@ public class AssimilLessonDataSource {
 		return rv;
 	}
 
-	private static void addCursorToLesson(Cursor cursor, AssimilLesson lesson) {
+	private void addCursorToLesson(Cursor cursor, AssimilLesson lesson) {
 		String textId = cursor.getString(0);
 		String text = cursor.getString(1);
 //		int lang = cursor.getInt(2);
 		String texttrans = cursor.getString(2);
+		if(texttrans==null){
+			texttrans = ctxt.getResources().getText(R.string.not_yet_translated).toString();
+		}
 		String textlit = cursor.getString(3);
+		if(textlit==null){
+			textlit = ctxt.getResources().getText(R.string.not_yet_translated).toString();
+		}
 		int id = cursor.getInt(4);
 		String audioPath = cursor.getString(5);
 		lesson.addText(textId, text, texttrans, textlit, id, audioPath);
+	}
+
+	/**
+	 * @param id
+	 * @param newTrans
+	 */
+	public void updateTranslation(int id, String newTrans) {
+		String whereClause = AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
+		ContentValues values = new ContentValues();
+		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, newTrans);
+		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
+	}
+
+	/**
+	 * @param id
+	 * @param newLit
+	 */
+	public void updateTranslationLit(Integer id, String newLit) {
+		String whereClause = AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
+		ContentValues values = new ContentValues();
+		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, newLit);
+		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
 	}
 }

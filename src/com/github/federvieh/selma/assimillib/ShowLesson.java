@@ -203,13 +203,14 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 			final int pos = info.position;
 			final EditText translateEditText = new EditText(this);
+			final Context ctxt = this;
 			int title = R.string.change_translation;
 			DisplayMode dm = DisplayMode.TRANSLATION;
 			OnClickListener ocl = new OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					lesson.setTranslateText(pos, translateEditText.getText().toString());
+					lesson.setTranslateText(pos, translateEditText.getText().toString(), ctxt);
 				}
 			};
 			if(item.getItemId() == R.id.add_literal){
@@ -219,7 +220,7 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						lesson.setLiteralText(pos, translateEditText.getText().toString());
+						lesson.setLiteralText(pos, translateEditText.getText().toString(), ctxt);
 					}
 				};
 			}
