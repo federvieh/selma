@@ -72,6 +72,7 @@
     <string name="view_translation">Zeige Übersetzung</string>
     <string name="view_literal">Zeige wörtliche Übersetzung</string>
     <string name="not_yet_translated">(Noch nicht übersetzt)</string>
+    <string name="change_original_text">Originaltext eingeben</string>
     <string name="change_translation">Übersetzung eingeben</string>
     <string name="change_literal">Wörtliche Übersetzung eingeben</string>
 </resources>

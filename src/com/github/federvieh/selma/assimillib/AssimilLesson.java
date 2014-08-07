@@ -147,6 +147,20 @@ public class AssimilLesson implements Serializable {
 	}
 
 	/**
+	 * @param pos
+	 * @param newText
+	 * @param ctxt 
+	 */
+	public void setOriginalText(int pos, String newText, Context ctxt) {
+		allTexts.remove(pos);
+		allTexts.add(pos, newText);
+		AssimilLessonDataSource ds = new AssimilLessonDataSource(ctxt);
+		ds.open();
+		ds.updateOriginalText(allIds.get(pos), newText);
+		ds.close();
+	}
+
+	/**
 	 * @return
 	 */
 	public AssimilLessonHeader getHeader() {

@@ -102,4 +102,15 @@ public class AssimilLessonDataSource {
 		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, newLit);
 		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
 	}
+
+	/**
+	 * @param id
+	 * @param newText
+	 */
+	public void updateOriginalText(Integer id, String newText) {
+		String whereClause = AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
+		ContentValues values = new ContentValues();
+		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXT, newText);
+		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
+	}
 }

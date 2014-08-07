@@ -199,6 +199,7 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 			PlaybarManager.setPlayMode(PlayMode.REPEAT_TRACK);
 			return true;
 		case R.id.add_translation:
+		case R.id.add_original_text:
 		case R.id.add_literal:
 			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 			final int pos = info.position;
@@ -221,6 +222,17 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						lesson.setLiteralText(pos, translateEditText.getText().toString(), ctxt);
+					}
+				};
+			}
+			if(item.getItemId() == R.id.add_original_text){
+				title = R.string.change_original_text;
+				dm = DisplayMode.ORIGINAL_TEXT;
+				ocl = new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						lesson.setOriginalText(pos, translateEditText.getText().toString(), ctxt);
 					}
 				};
 			}
