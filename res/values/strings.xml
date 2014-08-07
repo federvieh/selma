@@ -4,6 +4,7 @@
     <string name="app_name">Selma</string>
     <string name="action_license">License</string>
     <string name="action_show_tips">Show tips</string>
+    <string name="action_scan">Scan for lessons</string>
     <string name="play_starred_lessons">Play starred lessons</string>
     <string name="play_starred_lessons_short">starred</string>
     <string name="starred_with_translate">incl. exercises</string>
@@ -14,6 +15,7 @@
     <string name="lesson">Lesson</string>
     <string name="warning_no_starred">You did not yet \"star\" any lessons&#8230; If you choose \"All Lessons\" from above, you can \"star\" individual lessons by clicking on the star symbol.</string>
     <string name="waiting_for_database">Please wait&#8230; loading lessons&#8230;</string>
+    <string name="refreshing_database">Please wait&#8230; scanning for lessons&#8230;</string>
     <string name="no_content_found">No Assimil Audio Files have been found on your device. Please click here and we will guide you through a set of dialogs for setting up Selma.</string>
     <string name="show_license">Show License</string>
     <string name="cancel">Cancel</string>

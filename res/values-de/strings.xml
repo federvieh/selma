@@ -4,6 +4,7 @@
     <string name="app_name">Selma</string>
     <string name="action_license">Lizenz</string>
     <string name="action_show_tips">Hilfe zeigen</string>
+    <string name="action_scan">Nach Lektionen suchen</string>
     <string name="play_starred_lessons">Favoriten abspielen</string>
     <string name="play_starred_lessons_short">Favoriten</string>
     <string name="starred_with_translate">inkl. Übungen</string>
@@ -14,6 +15,7 @@
     <string name="lesson">Lektion</string>
     <string name="warning_no_starred">Sie haben noch keine Favoriten ausgewählt&#8230; Wenn Sie oben \"Alle Lektionen\" auswählen, können Sie durch Markieren einzelner Lektionen mit dem Stern, Ihre Favoriten festlegen.</string>
     <string name="waiting_for_database">Bitte warten Sie&#8230; die Lektionen werden geladen&#8230;</string>
+    <string name="refreshing_database">Bitte warten Sie&#8230; Lektionen werden gesucht&#8230;</string>
     <string name="no_content_found">Leider konnten keine Assimil-Dateien auf Ihrem Gerät gefunden werden. Bitte klicken Sie hier und wir werden Sie durch ein paar Dialoge führen, die bei der Einrichtung von Selma helfen.</string>
     <string name="show_license">Lizenz anzeigen</string>
     <string name="cancel">Abbrechen</string>

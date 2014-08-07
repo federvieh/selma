@@ -10,5 +10,10 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_show_tips"/>
+    <item
+        android:id="@+id/action_scan"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_scan"/>
     
 </menu>

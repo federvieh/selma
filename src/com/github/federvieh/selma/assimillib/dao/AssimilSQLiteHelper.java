@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import android.app.Activity;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,6 +24,9 @@ import android.util.Log;
 
 /**
  * @author frank
+ * 
+ * TODO: Backup database
+ * TODO: Possibility to delete entries that no longer exist
  *
  */
 public class AssimilSQLiteHelper extends SQLiteOpenHelper {
@@ -133,7 +136,7 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	 * @param settings
 	 */
 	public static void createIfNotExists(String number, String language,
-			String fullAlbum, Activity caller, SharedPreferences settings) {
+			String fullAlbum, Context caller, SharedPreferences settings) {
         ContentResolver contentResolver = caller.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { android.provider.MediaStore.Audio.Media.TITLE,

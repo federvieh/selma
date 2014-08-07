@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application.OnProvideAssistDataListener;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,7 +52,8 @@ public class LessonListActivity extends ActionBarActivity {
 	static TextView headerViewNoFiles;
 	enum ActivityState{
 		DATABASE_LOADING,
-		READY_FOR_PLAYBACK
+		SCANNING_FOR_LESSONS,
+		READY_FOR_PLAYBACK,
 	}
 
 	//private SharedPreferences settings;
@@ -229,7 +231,7 @@ public class LessonListActivity extends ActionBarActivity {
 		}
 		if(!AssimilDatabase.isAllocated()){
 			showWaiting(ActivityState.DATABASE_LOADING);
-			new DatabaseInitTask().execute(this);
+			new DatabaseInitTask().execute(reset);
 		}
 		else{
 			showWaiting(ActivityState.READY_FOR_PLAYBACK);
@@ -301,6 +303,11 @@ public class LessonListActivity extends ActionBarActivity {
 		Log.d("LT", "databaseLoading="+databaseLoading);
 		if(databaseLoading==ActivityState.DATABASE_LOADING){
 			setContentView(R.layout.activity_main);
+		}
+		else if(databaseLoading == ActivityState.SCANNING_FOR_LESSONS){
+			setContentView(R.layout.activity_main);
+		    TextView textView = (TextView)findViewById(R.id.wait_for_database_text);
+		    textView.setText(R.string.refreshing_database);
 		}
 		else {
 			setContentView(R.layout.activity_lesson_list);
@@ -395,6 +402,13 @@ public class LessonListActivity extends ActionBarActivity {
 	            OverlayManager.resetOverlays();
 	            this.updateListType();
 	            return true;
+	        case R.id.action_scan:
+	        	Intent i = getBaseContext().getPackageManager()
+	        	.getLaunchIntentForPackage( getBaseContext().getPackageName() );
+	        	i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	        	i.putExtra(FORCE_RESET, true);
+	        	startActivity(i);
+	        	return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
@@ -506,7 +520,7 @@ public class LessonListActivity extends ActionBarActivity {
 	    return text.toString();
 	}
 
-	private class DatabaseInitTask extends AsyncTask<Activity, Void, ActivityState> {
+	private class DatabaseInitTask extends AsyncTask<Boolean, ActivityState, ActivityState> {
 	    /** The system calls this to perform work in the UI thread and delivers
 	      * the result from doInBackground() */
 	    protected void onPostExecute(ActivityState result) {
@@ -517,9 +531,27 @@ public class LessonListActivity extends ActionBarActivity {
 		 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
 		 */
 		@Override
-		protected ActivityState doInBackground(Activity... arg0) {
-			AssimilDatabase.getDatabase(arg0[0]);
+		protected ActivityState doInBackground(Boolean... forceScan) {
+			if(!forceScan[0]){
+				AssimilDatabase ad = AssimilDatabase.getDatabase(getApplicationContext(), false);
+				if(ad.size()<=0){
+					publishProgress(ActivityState.SCANNING_FOR_LESSONS);
+					AssimilDatabase.getDatabase(getApplicationContext(), true);
+				}
+				else{
+					//Lessons were already found. No need to re-scan.
+				}
+			}
+			else{
+				publishProgress(ActivityState.SCANNING_FOR_LESSONS);
+				AssimilDatabase.getDatabase(getApplicationContext(), true);
+			}
 			return ActivityState.READY_FOR_PLAYBACK;
+		}
+		
+		@Override
+		protected void onProgressUpdate(ActivityState...activityStates){
+			showWaiting(activityStates[0]);
 		}
 	}
 

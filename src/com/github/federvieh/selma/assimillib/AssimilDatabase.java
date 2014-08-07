@@ -6,11 +6,6 @@ package com.github.federvieh.selma.assimillib;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
-import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
-import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
-
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,6 +13,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
+
+import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
+import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
+import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
 
 /**
  * @author frank
@@ -39,15 +38,28 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	/**
 	 * @return the assimildatabase
 	 */
-	public static synchronized AssimilDatabase getDatabase(Activity caller) {
-		if(assimilDatabase==null){
+	public static synchronized AssimilDatabase getDatabase(Context caller) {
+		return getDatabase(caller, false);
+	}
+
+	/**
+	 * @param forceScan 
+	 * @return the assimildatabase
+	 */
+	public static synchronized AssimilDatabase getDatabase(Context caller, boolean forceScan) {
+		if(forceScan){
+			assimilDatabase = new AssimilDatabase();
+			assimilDatabase.scanForLessons(caller);
+			assimilDatabase.init(caller);
+		}
+		else if(assimilDatabase==null){
 			assimilDatabase = new AssimilDatabase();
 			if(!assimilDatabase.isInitialized()){
 				assimilDatabase.init(caller);
-				if(assimilDatabase.isEmpty()){
-					assimilDatabase.scanForLessons(caller);//FIXME: This should also be callable from menu be done elsewhere
-					assimilDatabase.init(caller);
-				}
+//				if(assimilDatabase.isEmpty()){
+//						assimilDatabase.scanForLessons(caller);
+//						assimilDatabase.init(caller);
+//				}
 			}
 		}
 		return assimilDatabase;
@@ -67,7 +79,7 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 		Log.d("LT", "new database");
 	}
 	
-	private boolean scanForLessons(Activity caller){
+	private boolean scanForLessons(Context caller){
         ContentResolver contentResolver = caller.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { android.provider.MediaStore.Audio.Media.TITLE,
@@ -112,7 +124,7 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
         }
 	}
 	
-	private boolean init(Activity caller){
+	private boolean init(Context caller){
 		lessonMap = new HashMap<Long, AssimilLessonHeader>();
 		this.clear();
 		AssimilLessonHeaderDataSource headerDS = new AssimilLessonHeaderDataSource(caller);
@@ -124,7 +136,13 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 		headerDS.close();
         initialized  = true;
         SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
-        long lastPlayedLesson = settings.getLong(LAST_LESSON_PLAYED, this.get(0).getId());
+        long lastPlayedLesson = -1;
+        try{
+        	settings.getLong(LAST_LESSON_PLAYED, this.get(0).getId());
+        }
+        catch(IndexOutOfBoundsException e){
+        	Log.d("LT", "Np headers found in database.");
+        }
         AssimilDatabase ad;
         switch(PlaybarManager.getListType()){
         case LIST_TYPE_STARRED_NO_TRANSLATE:
@@ -173,7 +191,7 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	/**
 	 * @return
 	 */
-	public static AssimilDatabase getStarredOnly(Activity caller) {
+	public static AssimilDatabase getStarredOnly(Context caller) {
 		AssimilDatabase rv = new AssimilDatabase();
 		for (AssimilLessonHeader assimilLesson : getDatabase(caller)) {
 			if(assimilLesson.isStarred()){
@@ -184,14 +202,13 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	}
 
 	/** Reads lesson from the database. This may be slow! 
-	 * TODO: Think about re-design to use callback (might be complacated in LessonPlayer).
+	 * TODO: Think about re-design to use callback (might be complicated in LessonPlayer).
 	 * 
 	 * @param lessonId
 	 * @param ctxt 
 	 * @return
 	 */
 	public static AssimilLesson getLesson(long lessonId, Context ctxt) {
-		// TODO Auto-generated method stub
 		AssimilLessonHeader header = getDatabase(null).lessonMap.get(Long.valueOf(lessonId));
 		AssimilLessonDataSource ds =  new AssimilLessonDataSource(ctxt);
 		ds.open();
