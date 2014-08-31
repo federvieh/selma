@@ -39,7 +39,8 @@ public class AssimilLessonHeaderDataSource {
 
 		String[] returnColumns = {AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME,
 				AssimilSQLiteHelper.TABLE_LESSONS_ID,
-				AssimilSQLiteHelper.TABLE_LESSONS_STARRED};
+				AssimilSQLiteHelper.TABLE_LESSONS_STARRED,
+				AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME};
 		String selection = null;
 		if (coursename!=null){
 			selection = AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME + "=" +
@@ -60,7 +61,7 @@ public class AssimilLessonHeaderDataSource {
 	}
 
 	private static AssimilLessonHeader cursorToHeader(Cursor cursor) {
-		AssimilLessonHeader header = new AssimilLessonHeader(cursor.getLong(1), cursor.getString(0), cursor.getLong(2)>0);
+		AssimilLessonHeader header = new AssimilLessonHeader(cursor.getLong(1), cursor.getString(3), cursor.getString(0), cursor.getLong(2)>0);
 		return header;
 	}
 

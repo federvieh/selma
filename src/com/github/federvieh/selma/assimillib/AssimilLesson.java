@@ -51,7 +51,7 @@ public class AssimilLesson implements Serializable {
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString(){
-		return header.getName();
+		return header.getLang() + header.getNumber();
 	}
 	
 	public String getNumber(){

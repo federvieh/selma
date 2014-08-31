@@ -163,17 +163,21 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 			//Find the lesson in the lesson table
 			String[] columns = {AssimilSQLiteHelper.TABLE_LESSONS_ID};
 			Cursor cursorAlbum = db.query(AssimilSQLiteHelper.TABLE_LESSONS, columns,
-					AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + fullAlbum + "'", null, null, null, null);
+					AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + number + "'" +
+							" AND " + AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
+							null, null, null, null);
 			if(!cursorAlbum.moveToFirst()){
 				//No result, i.e. we need to create a new entry for this album
 				Log.d("LT", "Creating new lesson for " + fullAlbum);
 				ContentValues valuesLessonTable = new ContentValues();
 				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME, language);
-				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME, fullAlbum);
+				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME, number);
 				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_STARRED, 0);
 				db.insert(AssimilSQLiteHelper.TABLE_LESSONS, null, valuesLessonTable);
 				cursorAlbum = db.query(AssimilSQLiteHelper.TABLE_LESSONS, columns,
-						AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + fullAlbum + "'", null, null, null, null);
+						AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + number + "'" +
+								" AND " + AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
+								null, null, null, null);
 			}
 			if(!cursorAlbum.moveToFirst()){
 				//Still no result!

@@ -13,7 +13,7 @@ import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
  */
 public class AssimilLessonHeader {
 	private long id;
-	private String name;
+	private String lang;
 	private boolean starred = false;
 	private String number;
 
@@ -22,11 +22,11 @@ public class AssimilLessonHeader {
 	 * @param name
 	 * @param starred
 	 */
-	public AssimilLessonHeader(long id, String name, boolean starred) {
+	public AssimilLessonHeader(long id, String lang, String number, boolean starred) {
 		this.id = id;
-		this.name = name;
 		this.starred = starred;
-		this.number = name.substring(name.lastIndexOf("L"));
+		this.number = number;
+		this.lang = lang;
 	}
 
 	public long getId(){
@@ -39,11 +39,6 @@ public class AssimilLessonHeader {
 //	public void setId(long id) {
 //		this.id = id;
 //	}
-
-	public String getName(){
-		return name;
-	}
-
 //	/**
 //	 * @param name
 //	 */
@@ -88,5 +83,12 @@ public class AssimilLessonHeader {
 	 */
 	public String getNumber() {
 		return number;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getLang() {
+		return lang;
 	}
 }
