@@ -25,8 +25,6 @@ import android.util.Log;
 /**
  * @author frank
  * 
- * TODO: Backup database
- * TODO: Possibility to delete entries that no longer exist
  *
  */
 public class AssimilSQLiteHelper extends SQLiteOpenHelper {
@@ -237,10 +235,13 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
     				Log.d("LT", "Text " + textNumber + " for lesson \"" + fullAlbum + "\" already exists. Skipping...");
     			}
     			else{
-    				String[] translations = findTranslations(path);
+    				String[] translations = findTexts(path);
     				ContentValues values = new ContentValues();
     				values.put(TABLE_LESSONTEXTS_LESSONID,  albumId);
     				values.put(TABLE_LESSONTEXTS_TEXTID,    textNumber);
+    				if(translations[2] != null){
+    					text = translations[2];
+    				}
     				values.put(TABLE_LESSONTEXTS_TEXT,      text);
     				if(translations[0] != null){
     					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, translations[0]);
@@ -260,23 +261,25 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	/** Find translation on SD card of the given MP3 file.
 	 * @param pathStr path to the MP3 file
 	 * @return rv[0] contains translation, rv[1] contains literal translation,
-	 *         any of which can be null if no translation was found.
+	 *         rv[2] contains manually corrected original,
+	 *         any of which can be null if no text was found on SD card.
 	 */
-	private static String[] findTranslations(String pathStr) {
+	private static String[] findTexts(String pathStr) {
 		StringBuffer fileNamePatt = new StringBuffer(pathStr);
 		fileNamePatt.delete(fileNamePatt.length()-4, fileNamePatt.length());
-		fileNamePatt.delete(0, fileNamePatt.lastIndexOf("/")+1);
+//		fileNamePatt.delete(0, fileNamePatt.lastIndexOf("/")+1);
 		
-		StringBuffer directory = new StringBuffer(pathStr);
-		directory.delete(directory.lastIndexOf("/")+1,directory.length());
+//		StringBuffer directory = new StringBuffer(pathStr);
+//		directory.delete(directory.lastIndexOf("/")+1,directory.length());
 		
-		Log.d("LT", "directory: "+directory.toString());
+//		Log.d("LT", "directory: "+directory.toString());
 		Log.d("LT", "fileNamePatt: "+fileNamePatt.toString());
 		
-		String translatedText = getFileContent(directory.toString(), fileNamePatt+"_translate.txt");
-		String translatedTextVerbatim = getFileContent(directory.toString(), fileNamePatt+"_translate_verbatim.txt");
+		String translatedText = getFileContent(fileNamePatt+"_translate.txt");
+		String translatedTextVerbatim = getFileContent(fileNamePatt+"_translate_verbatim.txt");
+		String originalText = getFileContent(fileNamePatt+"_orig.txt");
 		
-		String[] rv = {translatedText, translatedTextVerbatim};
+		String[] rv = {translatedText, translatedTextVerbatim, originalText};
 		return rv;
 	}
 
@@ -285,44 +288,29 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
 	 * @param filename
 	 * @return
 	 */
-	private static String getFileContent(String directory, String filename) {
-		//TODO: Why don't we directly access the files here? Why scan the dir?
-		File d = new File(directory);
-		if(d.exists()&&d.isDirectory()){
-			File[] dirList = files.get(directory);
-			if(dirList==null){
-				dirList = d.listFiles();
-				files.put(directory, dirList);
+	private static String getFileContent(/*String directory, String filename,*/ String path) {
+		InputStream is;
+		try {
+			is = new FileInputStream(path);
+			InputStreamReader isr = new InputStreamReader(is,"UTF-16");
+			BufferedReader br = new BufferedReader(isr);
+			String nextLine;
+			StringBuilder sb = new StringBuilder();
+			while((nextLine=br.readLine())!=null){
+				sb.append(nextLine);
 			}
-			for(File f : dirList){
-				if(f.getName().equalsIgnoreCase(filename)){
-					InputStream is;
-					try {
-						is = new FileInputStream(f);
-						InputStreamReader isr = new InputStreamReader(is,"UTF-16");
-						BufferedReader br = new BufferedReader(isr);
-						String nextLine;
-						StringBuilder sb = new StringBuilder();
-						while((nextLine=br.readLine())!=null){
-							sb.append(nextLine);
-						}
-						br.close();
-						isr.close();
-						is.close();
-						if(sb.length()>0){
-							return sb.toString();
-						}
-					} catch (FileNotFoundException e1) {
-						Log.w("LT", e1);
-					}
-					catch (IOException e) {
-						Log.w("LT", e);
-					}
-				}
+			br.close();
+			isr.close();
+			is.close();
+			if(sb.length()>0){
+				return sb.toString();
 			}
+		} catch (FileNotFoundException e1) {
+			/* Silently fail, no translation was manually entered for this text */
+			//Log.w("LT", e1);
 		}
-		else{
-			Log.w("LT", "\"" + d.toString() +"\" is not a valid directory.");
+		catch (IOException e) {
+			Log.w("LT", e);
 		}
 		return null;
 	}

@@ -3,7 +3,12 @@
  */
 package com.github.federvieh.selma.assimillib;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -130,6 +135,28 @@ public class AssimilLesson implements Serializable {
 		ds.open();
 		ds.updateTranslation(allIds.get(pos), newTrans);
 		ds.close();
+		try{
+			String path = allAudioFiles.get(pos);
+			StringBuffer fileNamePatt = new StringBuffer(path);
+			fileNamePatt.delete(fileNamePatt.length()-4, fileNamePatt.length());
+			path = fileNamePatt+"_translate.txt";
+			Log.i("LT", "Writing new translation '" + newTrans + "' to file '" +
+					path + "'");
+			FileOutputStream fos = new FileOutputStream(path);
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-16");
+			osw.write(newTrans);
+			osw.close();
+			fos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -144,6 +171,28 @@ public class AssimilLesson implements Serializable {
 		ds.open();
 		ds.updateTranslationLit(allIds.get(pos), newLit);
 		ds.close();
+		try{
+			String path = allAudioFiles.get(pos);
+			StringBuffer fileNamePatt = new StringBuffer(path);
+			fileNamePatt.delete(fileNamePatt.length()-4, fileNamePatt.length());
+			path = fileNamePatt+"_translate_verbatim.txt";
+			Log.i("LT", "Writing new translation '" + newLit + "' to file '" +
+					path + "'");
+			FileOutputStream fos = new FileOutputStream(path);
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-16");
+			osw.write(newLit);
+			osw.close();
+			fos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -158,6 +207,28 @@ public class AssimilLesson implements Serializable {
 		ds.open();
 		ds.updateOriginalText(allIds.get(pos), newText);
 		ds.close();
+		try{
+			String path = allAudioFiles.get(pos);
+			StringBuffer fileNamePatt = new StringBuffer(path);
+			fileNamePatt.delete(fileNamePatt.length()-4, fileNamePatt.length());
+			path = fileNamePatt+"_orig.txt";
+			Log.i("LT", "Writing new translation '" + newText + "' to file '" +
+					path + "'");
+			FileOutputStream fos = new FileOutputStream(path);
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-16");
+			osw.write(newText);
+			osw.close();
+			fos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
