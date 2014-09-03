@@ -257,9 +257,10 @@ public class AssimilLesson implements Serializable {
 		this.allTracknumbers.add(textId);
 		this.allAudioFiles.add(audioPath);
 		this.allIds.add(id);
-		if((textId.startsWith(AssimilSQLiteHelper.TITLE_PREFIX))||
+		if((textId.matches("N[0-9]+"))||
 				(textId.matches("S[0-9][0-9]"))){
 			lessonTextNum++;
+			Log.d("LT", "is lesson text");
 		}
 	}
 

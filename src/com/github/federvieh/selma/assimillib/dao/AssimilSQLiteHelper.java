@@ -215,7 +215,7 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
         		}
         		else if(fullTitle.matches("N[0-9]*-.*")){
         			text = fullTitle.substring(fullTitle.indexOf("-")+1);
-        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
+        			textNumber = fullTitle.substring(0, fullTitle.indexOf("-"));
         		}
         		else{
         			//Something's wrong!
