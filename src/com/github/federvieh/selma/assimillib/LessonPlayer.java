@@ -280,7 +280,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 					}
 					int lessonIdx = ad.indexOf(currentLesson.getHeader());
 					if(lessonIdx<0){
-						Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+						Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextOrStop_1). WTF? Stop playing.");
 						stop(false);
 					}
 					else if (lessonIdx+1 < ad.size()){
@@ -308,7 +308,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 					AssimilDatabase db = AssimilDatabase.getDatabase(null);
 					int lessonIdx = db.indexOf(currentLesson.getHeader());
 					if(lessonIdx<0){
-						Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+						Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextOrStop_2). WTF? Stop playing.");
 						stop(false);
 					}
 					else{
@@ -346,9 +346,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		{
 			//find next lesson
 			AssimilDatabase db = AssimilDatabase.getDatabase(null);
-			int lessonIdx = db.indexOf(currentLesson);
+			int lessonIdx = db.indexOf(currentLesson.getHeader());
 			if(lessonIdx<0){
-				Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+				Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_1). WTF? Stop playing.");
 				stop(false);
 			}
 			else{
@@ -382,7 +382,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 			//find next lesson
 			int lessonIdx = AssimilDatabase.getDatabase(null).indexOf(currentLesson.getHeader());
 			if(lessonIdx<0){
-				Log.w("LT", "Current lesson not found. WTF? Stop playing.");
+				Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_2). WTF? Stop playing.");
 				stop(false);
 			}
 			else if (lessonIdx+1 < AssimilDatabase.getDatabase(null).size()){
