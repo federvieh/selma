@@ -150,10 +150,10 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
         SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
         long lastPlayedLesson = -1;
         try{
-        	settings.getLong(LAST_LESSON_PLAYED, this.get(0).getId());
+        	lastPlayedLesson = settings.getLong(LAST_LESSON_PLAYED, this.get(0).getId());
         }
         catch(IndexOutOfBoundsException e){
-        	Log.d("LT", "Np headers found in database.");
+        	Log.d("LT", "No headers found in database.");
         }
         AssimilDatabase ad;
         switch(PlaybarManager.getListType()){
@@ -221,7 +221,7 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	 * @return
 	 */
 	public static AssimilLesson getLesson(long lessonId, Context ctxt) {
-		AssimilLessonHeader header = getDatabase(null).lessonMap.get(Long.valueOf(lessonId));
+		AssimilLessonHeader header = getDatabase(ctxt).lessonMap.get(Long.valueOf(lessonId));
 		AssimilLessonDataSource ds =  new AssimilLessonDataSource(ctxt);
 		ds.open();
 		AssimilLesson lesson = ds.getLesson(header);
