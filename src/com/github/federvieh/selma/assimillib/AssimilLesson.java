@@ -15,7 +15,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
-import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
 
 /**
  * @author frank

@@ -18,7 +18,6 @@ public class AssimilOnClickListener implements OnClickListener {
 
 	public static final String EXTRA_LESSON_ID = "com.github.federvieh.selma.assimillib.EXTRA_LESSON_ID";
 	private AssimilLessonHeader lesson;
-	//private Context context;
 
 	/**
 	 * @param context 
@@ -29,7 +28,6 @@ public class AssimilOnClickListener implements OnClickListener {
 	 */
 	public AssimilOnClickListener(AssimilLessonHeader lesson, Context context, int position, ListTypes lt) {
 		this.lesson = lesson;
-		//this.context = context;
 	}
 
 	/* (non-Javadoc)

@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application.OnProvideAssistDataListener;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;

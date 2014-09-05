@@ -19,23 +19,20 @@ import com.github.federvieh.selma.R;
  *
  */
 public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
-	private ListTypes lt;
-	private Context context;
 	private AssimilLesson lesson;
 	private DisplayMode displayMode;
 
 
 	public AssimilShowLessonListAdapter(Context context, AssimilLesson lesson, ListTypes lt, DisplayMode displayMode) {
 		super(context, R.layout.rowlayout, ((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt ==ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE))?lesson.getLessonList(displayMode):lesson.getTextList(displayMode));
-		this.context = context;
 		this.lesson = lesson;
-		this.lt = lt;
 		this.displayMode = displayMode;
 	}
 
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		Context context = parent.getContext();
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View rowView = inflater.inflate(R.layout.rowlayout, parent, false);

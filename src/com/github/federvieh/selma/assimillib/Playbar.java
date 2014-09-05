@@ -18,7 +18,6 @@ import com.github.federvieh.selma.R;
  */
 public class Playbar extends LinearLayout {
 	//TODO: Add pause after track function (off, 1s, 2s, until user interaction)
-	private Context context;
 	private TextView textViewLesson;
 	private TextView textViewTrack;
 	
@@ -33,19 +32,17 @@ public class Playbar extends LinearLayout {
 	public Playbar(Context context) {
 		super(context);
 		
-		this.context = context;
 		init();
 	}
 	
 	public Playbar(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		this.context = context;
 		init();
 	}
 	
 	private void init(){
-		LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view=layoutInflater.inflate(R.layout.playbar,this);
 		
 		view.findViewById(R.id.titleTrackSection).setOnClickListener(new OnClickListener() {
@@ -54,10 +51,9 @@ public class Playbar extends LinearLayout {
 				AssimilLesson al = PlaybarManager.getLessonInstance();
 				if(al!=null){
 					// Go to show lesson activity
-					Intent intent = new Intent(context, ShowLesson.class);
+					Intent intent = new Intent(getContext(), ShowLesson.class);
 					intent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, al.getHeader().getId());
-//					context.startActivity(intent);
-					TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+					TaskStackBuilder stackBuilder = TaskStackBuilder.create(getContext());
 					// Adds the back stack
 					stackBuilder.addParentStack(ShowLesson.class);
 					// Adds the Intent to the top of the stack
@@ -74,7 +70,7 @@ public class Playbar extends LinearLayout {
 			
 			public void onClick(View v) {
 				PlaybarManager.increasePlayMode();
-				Editor editor = context.getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+				Editor editor = getContext().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
 				editor.putInt(LessonListActivity.PLAY_MODE, PlaybarManager.getPlayMode().ordinal());
 				editor.commit();
 			}
@@ -84,12 +80,12 @@ public class Playbar extends LinearLayout {
 			
 			public void onClick(View v) {
 				if(PlaybarManager.isPlaying()){
-					LessonPlayer.stopPlaying(context);
+					LessonPlayer.stopPlaying(getContext());
 				}
 				else{
 					LessonPlayer.play(PlaybarManager.getLessonInstance(), PlaybarManager.getTrackNumber(), true, v.getContext());
 					if((PlaybarManager.getLessonInstance()!=null)&&(PlaybarManager.getTrackNumber()>=0)){
-						OverlayManager.showPlayOverlay(context);
+						OverlayManager.showPlayOverlay(getContext());
 					}
 				}
 			}
@@ -101,7 +97,7 @@ public class Playbar extends LinearLayout {
 			
 			public void onClick(View v) {
 				if(PlaybarManager.isPlaying()){
-					LessonPlayer.playNextTrack(context);
+					LessonPlayer.playNextTrack(getContext());
 				}
 				else{
 					//Do nuffin.
@@ -113,7 +109,7 @@ public class Playbar extends LinearLayout {
 			
 			public void onClick(View v) {
 				if(PlaybarManager.isPlaying()){
-					LessonPlayer.playNextLesson(context);
+					LessonPlayer.playNextLesson(getContext());
 				}
 				else{
 					//Do nuffin.
@@ -129,12 +125,6 @@ public class Playbar extends LinearLayout {
 		textViewLesson.setText(PlaybarManager.getLessonText());
 		textViewTrack.setText(PlaybarManager.getTrackNumberText());
 		switch (PlaybarManager.getPlayMode()){
-//		case SINGLE_TRACK:
-//	    	Toast.makeText(this.context, "Playing single track", Toast.LENGTH_SHORT).show();
-//			break;
-//		case SINGLE_LESSON:
-//	    	Toast.makeText(this.context, "Playing single lesson", Toast.LENGTH_SHORT).show();
-//			break;
 		case ALL_LESSONS:
 	    	playmode.setImageResource(R.drawable.repeat_none);
 			break;
@@ -153,35 +143,6 @@ public class Playbar extends LinearLayout {
 		default:
 			break;
 		}
-/*		if (PlaybarManager.isPlaymodeUpdated()) {
-			//show text
-			switch (PlaybarManager.getPlayMode()){
-//			case SINGLE_TRACK:
-//		    	Toast.makeText(this.context, "Playing single track", Toast.LENGTH_SHORT).show();
-//				break;
-//			case SINGLE_LESSON:
-//		    	Toast.makeText(this.context, "Playing single lesson", Toast.LENGTH_SHORT).show();
-//				break;
-			case ALL_LESSONS:
-		    	Toast.makeText(this.context, "Playing all lessons", Toast.LENGTH_SHORT).show();
-				break;
-			case REPEAT_TRACK:
-		    	Toast.makeText(this.context, "Repeating single track", Toast.LENGTH_SHORT).show();
-				break;
-			case REPEAT_LESSON:
-		    	Toast.makeText(this.context, "Repeating single lesson", Toast.LENGTH_SHORT).show();
-				break;
-			case REPEAT_ALL_LESSONS:
-		    	Toast.makeText(this.context, "Repeating all lessons", Toast.LENGTH_SHORT).show();
-				break;
-			case REPEAT_ALL_STARRED:
-		    	Toast.makeText(this.context, "Repeating starred lessons", Toast.LENGTH_SHORT).show();
-				break;
-			default:
-				break;
-			}
-
-		}*/
 		if(PlaybarManager.isPlaying()){
 			imagePlay.setImageResource(android.R.drawable.ic_media_pause);
 		}

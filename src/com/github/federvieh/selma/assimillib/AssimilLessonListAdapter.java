@@ -18,13 +18,11 @@ import com.github.federvieh.selma.R;
  *
  */
 public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> {
-//	private final Context context;
 	private final AssimilDatabase values;
 	private ListTypes lt;
 
 	public AssimilLessonListAdapter(Context context, AssimilDatabase values, ListTypes lt) {
 		super(context, R.layout.rowlayout, values);
-//		this.context = context;
 		this.values = values;
 		this.lt = lt;
 	}
