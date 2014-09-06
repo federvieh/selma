@@ -41,6 +41,11 @@ The app needs the following permissions for the following reasons:
 * Prevent phone from sleeping: When playing back the lessons, the phone will not go to sleep. Going to sleep would stop the playback immediately.
 
 ### Version history
+**Version 2.1.0** (latest version):
+* Added support for even more courses, e.g. "New Greek With Ease" (Thanks [Assimil Sprachverlag](http://www.assimilwelt.com/)!).
+* Improved start-up time after the first start
+* Added possibility to modify/correct the original texts
+
 **Version 2.0.1** (latest version):
 * Updated help to link to the introduction video
 * Updated link to homepage in error dialogs

@@ -1,4 +1,4 @@
-Selma 2.0.1, Copyright (C) 2014 Frank Oltmanns
+Selma 2.1.0, Copyright (C) 2014 Frank Oltmanns
 
 Selma comes with ABSOLUTELY NO WARRANTY; see license for details.
 
