@@ -17,7 +17,13 @@ In order to get more info on Assimil courses, please visit their [homepage](http
 After you have copied the MP3 files to your phone, Selma should automatically detect it. If not, please try turning off and on your phone. Then wait a few minutes before starting Selma. Android sometimes need some time to detect new MP3 files.
 
 If it still doesn't work, please send me a mail. You can do that from within the app or see my [contact page]({{ %site.url% }}/contact/).
-Until now Selma has only been tested with "Turkish with Ease" and Spanish. If you want to try to use the app with a different course, I would be happy to receive your feedback (positive or negative) and will try to make the app work for you.
+Until now Selma has only been tested with
+
+* Turkish with Ease
+* New Greek With Ease
+* Spanish
+
+If you want to try to use the app with a different course, I would be happy to receive your feedback (positive or negative) and will try to make the app work for you.
 
 ### How much does Selma cost?
 The app is free for everyone who already bought the Assimil MP3 pack and book. (The app of course also free for everyone else, it's just not of any use for anyone that doesn't have the MP3 pack.)

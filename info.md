@@ -13,11 +13,17 @@ Selma is not (yet) available in the Play Store. You can download the [latest ver
 **Important notice:** In order to install Selma you need to allow installation of apps that were not downloaded from Play Store. Go to "Settings" - "Security" and make sure that "Unknown Sources" is checked.
 {: .notice}
 
-Until now Selma has only been tested with "Turkish with Ease" and Spanish. If you want to try to use the app with a different course, I would be happy to receive your feedback (positive or negative) and will try to make the app work for you.
+Until now Selma has only been tested with a selected few Assimil courses (e.g. "Turkish with Ease", "New Greek with Ease" and Spanish). If you want to try to use the app with a different course, I would be happy to receive your feedback (positive or negative) and will try to make the app work for you.
 {: .notice}
 
 ### Prerequisites
-Selma is for you if you already chose to learn a new language using the Assimil method and own the book and MP3 pack. It is known to work with "Kolay Türkçe" (Turkish with Ease) and the Spanish course, but it might also work with the language of your choice. Don't hesitate to contact the author, if it does or does not work with the language of your choice. Selma needs a device running on Android 2.2 ("Froyo") or above. Please note that Selma comes with ABSOLUTELY NO WARRANTY (see the [license](https://github.com/federvieh/selma/blob/master/LICENSE) for details).
+Selma is for you if you already chose to learn a new language using the Assimil method and own the book and MP3 pack. It is known to work with:
+
+* "Kolay Türkçe" (Turkish With Ease)
+* New Greek With Ease
+* Spanish
+
+But it might also work with the language of your choice. Don't hesitate to contact the author, if it does or does not work with the language of your choice. Selma needs a device running on Android 2.2 ("Froyo") or above. Please note that Selma comes with ABSOLUTELY NO WARRANTY (see the [license](https://github.com/federvieh/selma/blob/master/LICENSE) for details).
 
 ### Permissions
 The app needs the following permissions for the following reasons:
@@ -30,25 +36,32 @@ The app needs the following permissions for the following reasons:
 
 ### Version history
 
-#### Version 2.0.1 (latest version)
+#### Version 2.1.0 (latest version)
+* Added support for even more courses, e.g. "New Greek With Ease" (Thanks [Assimil Sprachverlag](http://www.assimilwelt.com/)!).
+* Improved start-up time after the first start
+* Added possibility to modify/correct the original texts
+
+[Download](https://github.com/federvieh/selma/blob/v2.1.0/build/Selma.apk?raw=true)
+
+#### Version 2.0.1
 * Updated help to link to the introduction video
 * Updated link to homepage in error dialogs
 * Updated license to GPL v3.
 
-[Download](https://github.com/federvieh/selma/blob/409f5752d482f6cd08790abb7dca279936bd4627/build/Selma.apk?raw=true)
+[Download](https://github.com/federvieh/selma/blob/v2.0.1/build/Selma.apk?raw=true)
 
 #### Version 2.0.0
 Added support for showing/entering translations.
-[Download](https://github.com/federvieh/selma/blob/68e8348070eb756660790f9b0151dd9a0bac96dc/build/Selma.apk?raw=true)
+[Download](https://github.com/federvieh/selma/blob/v2.0.0/build/Selma.apk?raw=true)
 
 #### Version 1.1.0
 Added support for other languages than Turkish after user feedback (Thanks Marcin!).
-[Download](https://github.com/federvieh/selma/blob/e201d9502ae5029251e50a9e3ebe083bdfafd3c9/build/Selma.apk?raw=true)
+[Download](https://github.com/federvieh/selma/blob/v1.1.0/build/Selma.apk?raw=true)
 
 #### Version 1.0.2
 Fixed support for Android 4.4 (KitKat).
-[Download](https://github.com/federvieh/selma/blob/6373dda49ac8f61cbd29c2d666e79b92afecddc0/build/Selma.apk?raw=true)
+[Download](https://github.com/federvieh/selma/blob/v1.0.2/build/Selma.apk?raw=true)
 
 #### Version 1.0.1
 First official version of Selma.
-[Download](https://github.com/federvieh/selma/blob/67dd90a8a6a5272cb79ea82ae1fce4ed813b70d1/build/Selma.apk?raw=true)
+[Download](https://github.com/federvieh/selma/blob/v1.0.1/build/Selma.apk?raw=true)
