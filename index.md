@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: home
 tags: [assimil, android, selma, language, app]
 modified: 06-08-2013
 comments: true

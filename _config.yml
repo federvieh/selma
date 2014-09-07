@@ -2,7 +2,6 @@ title:            Selma
 description:      Easily learning a new language.
 # Your site's domain goes here. Leave localhost server or blank when working locally.
 url:              http://federvieh.github.io/selma
-#url:              http://192.168.178.29:4000
 disqus_shortname: selmaandroid
 copyright_owner:  Frank Oltmanns
 # Owner/author information
@@ -40,6 +39,8 @@ bing_verify:
 links:
   - title: Home
     url: /
+  - title: News
+    url: /news/
   - title: Info
     url: /info/
   - title: Credits
