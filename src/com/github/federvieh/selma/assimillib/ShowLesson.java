@@ -99,7 +99,8 @@ public class ShowLesson extends ActionBarActivity implements OnItemClickListener
     private void updateListType(){
 		PlaybarManager.setListType(lt);
 		Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
-		editor.putInt(LessonListActivity.LIST_MODE, lt.ordinal());
+		//FIXME: Restore function
+//		editor.putInt(LessonListFragment.LIST_MODE, lt.ordinal());
 		editor.commit();
 		Log.d("LT", "ShowLesson.updateListType(); lt="+lt.ordinal());
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;

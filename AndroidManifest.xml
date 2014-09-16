@@ -6,11 +6,12 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="19" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    
+        android:targetSdkVersion="20" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
@@ -18,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".assimillib.LessonListActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,15 +35,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".assimillib.LessonListActivity" />
         </activity>
-<!--        <activity
-            android:name=".assimillib.LessonListActivity"
-            android:label="@string/app_name"
-            android:parentActivityName="MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="MainActivity" />
-        </activity> -->
-        <service android:name="com.github.federvieh.selma.assimillib.LessonPlayer" />
-        </application>
+        <service android:name=".assimillib.LessonPlayer" />
+    </application>
 
 </manifest>

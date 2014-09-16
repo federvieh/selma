@@ -71,7 +71,8 @@ public class Playbar extends LinearLayout {
 			public void onClick(View v) {
 				PlaybarManager.increasePlayMode();
 				Editor editor = getContext().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
-				editor.putInt(LessonListActivity.PLAY_MODE, PlaybarManager.getPlayMode().ordinal());
+				//FIXME: Restore function
+//				editor.putInt(LessonListFragment.PLAY_MODE, PlaybarManager.getPlayMode().ordinal());
 				editor.commit();
 			}
 		});
