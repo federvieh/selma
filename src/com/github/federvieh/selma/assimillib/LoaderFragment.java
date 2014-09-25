@@ -3,9 +3,6 @@
  */
 package com.github.federvieh.selma.assimillib;
 
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -143,7 +140,7 @@ public class LoaderFragment extends Fragment {
 					//FIXME: Uninstall button!?
 			    }
 			}
-			else{
+			else{ //if(wasScanning)
 				mainActivity.onLoadingFinished(true);
 			}
 			//TODO: Go through the help "dialogs" if no lessons have been found

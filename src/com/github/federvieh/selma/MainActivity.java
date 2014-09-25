@@ -1,14 +1,15 @@
 package com.github.federvieh.selma;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,12 +19,14 @@ import android.widget.ListAdapter;
 
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLessonListAdapter;
+import com.github.federvieh.selma.assimillib.AssimilOnClickListener;
 import com.github.federvieh.selma.assimillib.ListTypes;
 import com.github.federvieh.selma.assimillib.LoaderFragment;
 import com.github.federvieh.selma.assimillib.LoaderFragment.LoaderFragmentCallbacks;
 
 public class MainActivity extends ActionBarActivity implements
-		NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderFragmentCallbacks {
+		NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderFragmentCallbacks,
+		PlaybarFragment.OnPlaybarInteractionListener{
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -47,12 +50,21 @@ public class MainActivity extends ActionBarActivity implements
 //		mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager()
 //				.findFragmentById(R.id.navigation_drawer);
 		mTitle = getTitle();
+        Intent intend = getIntent();
+        long lessonTemp = intend.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID,-1);
+        int trackNumber = intend.getIntExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, -1);
 
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		fragmentManager
-				.beginTransaction()
-				.replace(R.id.container,
-						new LoaderFragment(this)).commit();
+
+        if(lessonTemp>=0){
+        	onLoadingFinished(true);
+        	onLessonClicked(lessonTemp, trackNumber);
+        }
+        else{
+        	FragmentManager fragmentManager = getSupportFragmentManager();
+        	fragmentManager.beginTransaction()
+        	.replace(R.id.container,
+        			new LoaderFragment(this)).commit();
+        }
 	}
 
 	@Override
@@ -164,8 +176,10 @@ public class MainActivity extends ActionBarActivity implements
 			ListAdapter la = new AssimilLessonListAdapter(this, AssimilDatabase.getDatabase(this), ListTypes.LIST_TYPE_ALL_TRANSLATE);
 			lf.setListAdapter(la);
 			fragmentTransaction.replace(R.id.container, lf);
+			PlaybarFragment pf = PlaybarFragment.newInstance(null, null);
+			fragmentTransaction.add(R.id.playbarContainer, pf);
 			fragmentTransaction.commit();
-			View pb = findViewById(R.id.playbarPlaceholder);
+			View pb = findViewById(R.id.playbarContainer);
 			pb.setVisibility(View.VISIBLE);
 			// Set up the drawer.
 //			//FIXME: Navigation drawer
@@ -175,5 +189,20 @@ public class MainActivity extends ActionBarActivity implements
 		else{
 			//TODO: Go through intro information
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.github.federvieh.selma.PlaybarFragment.OnPlaybarInteractionListener#onLessonClicked(long, int)
+	 */
+	@Override
+	public void onLessonClicked(long id, int trackNumber) {
+		Log.d("LT", "Start lesson " + id + ", track " + trackNumber);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+		
+		ShowLessonFragment slf = ShowLessonFragment.newInstance(id, trackNumber);
+		fragmentTransaction.replace(R.id.container, slf);
+		fragmentTransaction.addToBackStack(null);
+		fragmentTransaction.commit();
 	}
 }

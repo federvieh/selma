@@ -3,6 +3,7 @@
  */
 package com.github.federvieh.selma.assimillib;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.federvieh.selma.R;
+import com.github.federvieh.selma.PlaybarFragment.OnPlaybarInteractionListener;
 
 /**
  * @author frank
@@ -20,11 +22,18 @@ import com.github.federvieh.selma.R;
 public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> {
 	private final AssimilDatabase values;
 	private ListTypes lt;
+	private OnPlaybarInteractionListener mListener;
 
-	public AssimilLessonListAdapter(Context context, AssimilDatabase values, ListTypes lt) {
-		super(context, R.layout.rowlayout, values);
+	public AssimilLessonListAdapter(Activity activity, AssimilDatabase values, ListTypes lt) {
+		super(activity, R.layout.rowlayout, values);
 		this.values = values;
 		this.lt = lt;
+		try {
+			mListener = (OnPlaybarInteractionListener) activity;
+		} catch (ClassCastException e) {
+			throw new ClassCastException(activity.toString()
+					+ " must implement OnPlaybarInteractionListener");
+		}
 	}
 
 	@Override
@@ -37,7 +46,7 @@ public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> 
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
 		AssimilLessonHeader current = values.get(position);
 		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getNumber());
-		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, context, position, lt);
+		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, mListener, position, lt);
 		textView.setOnClickListener(assimilOnClickListener);
 		// starred?
 		if (current.isStarred()) {

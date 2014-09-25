@@ -24,14 +24,12 @@
             android:layout_height="0dp"
             android:layout_weight="99" />
 
-        <TextView
-            android:id="@+id/playbarPlaceholder"
-            android:layout_width="wrap_content"
+        <FrameLayout
+            android:id="@+id/playbarContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="8dp"
-            android:visibility="gone"
-            android:text="This is just a placeholder that will be replaced witht the playbar fragment." />
+            android:visibility="gone"/>
     </LinearLayout>
 <!--
          android:layout_gravity="start" tells DrawerLayout to treat

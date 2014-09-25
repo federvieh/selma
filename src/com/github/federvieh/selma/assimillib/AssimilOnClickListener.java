@@ -3,12 +3,12 @@
  */
 package com.github.federvieh.selma.assimillib;
 
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+
+import com.github.federvieh.selma.PlaybarFragment.OnPlaybarInteractionListener;
 
 /**
  * @author frank
@@ -17,17 +17,20 @@ import android.widget.ImageView;
 public class AssimilOnClickListener implements OnClickListener {
 
 	public static final String EXTRA_LESSON_ID = "com.github.federvieh.selma.assimillib.EXTRA_LESSON_ID";
+	public static final String EXTRA_TRACK_INDEX = "com.github.federvieh.selma.assimillib.EXTRA_TRACK_INDEX";
 	private AssimilLessonHeader lesson;
+	private OnPlaybarInteractionListener listener;
 
 	/**
-	 * @param context 
+	 * @param mListener 
 	 * @param position 
 	 * @param lt 
 	 * @param current 
 	 * 
 	 */
-	public AssimilOnClickListener(AssimilLessonHeader lesson, Context context, int position, ListTypes lt) {
+	public AssimilOnClickListener(AssimilLessonHeader lesson, OnPlaybarInteractionListener listener, int position, ListTypes lt) {
 		this.lesson = lesson;
+		this.listener = listener;
 	}
 
 	/* (non-Javadoc)
@@ -49,10 +52,7 @@ public class AssimilOnClickListener implements OnClickListener {
 		}
 		else{
 			// Go to show lesson activity
-	    	Intent intent = new Intent(v.getContext(), ShowLesson.class);
-	    	intent.putExtra(EXTRA_LESSON_ID, lesson.getId());
-	    	v.getContext().startActivity(intent);
-
+			listener.onLessonClicked(lesson.getId(), -1);
 		}
 	}
 

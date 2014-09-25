@@ -19,8 +19,11 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.github.federvieh.selma.MainActivity;
 
 /**
  * @author frank
@@ -28,7 +31,7 @@ import android.widget.Toast;
  */
 public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener{
 	
-	enum PlayMode{
+	public enum PlayMode{
 //		SINGLE_TRACK,
 //		SINGLE_LESSON,
 		ALL_LESSONS,
@@ -42,7 +45,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	private static final String STOP = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.STOP";
 	private static final String NEXT_TRACK = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.NEXT_TRACK";
 	private static final String NEXT_LESSON = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.NEXT_LESSON";
+	private static final String EXTRA_IS_PLAYING = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.EXTRA_IS_PLAYING";
 	private static final int NOTIFICATION_ID = 0x21349843;
+	public static final String PLAY_UPDATE_INTENT = "PLAY_UPDATE_INTENT";
 
 	private static AssimilLesson currentLesson;
 	private static int currentTrack = -1;
@@ -54,6 +59,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	private static boolean doCont = false;
 	private static int contPos = 0;
 	private NotificationCompat.Builder notifyBuilder;
+	private static boolean playing;
+	private static PlayMode playMode = PlayMode.REPEAT_ALL_STARRED;
+	private static ListTypes lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
 	
 	
 	public LessonPlayer(){
@@ -99,7 +107,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		//send intent to service
 		currentLesson = lesson;
 		currentTrack = trackNo;
-		PlaybarManager.setCurrent(currentLesson, currentTrack);
+		//FIXME: Inform PlaybarFragement to update view content (lesson + track)
 		Intent service = new Intent(ctxt, LessonPlayer.class);
 		service.putExtra(PLAY, id);
 		ctxt.startService(service);
@@ -150,7 +158,13 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 			mediaPlayer.release();
 			mediaPlayer = null;
 		}
-		PlaybarManager.setPlaying(false);
+		playing = false;
+		Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
+		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
+		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber());
+		currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
+
 		AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		int result = audioManager.abandonAudioFocus(this);
 		if(result!=AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
@@ -222,10 +236,10 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	}
 	
 	private void playNextOrStop(boolean force){
-		PlayMode pm = PlaybarManager.getPlayMode();
+		PlayMode pm = getPlayMode();
 		if(force){
 			if(pm==PlayMode.REPEAT_TRACK){
-				ListTypes lt = PlaybarManager.getListType();
+				ListTypes lt = getListType();
 				if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
 					pm=PlayMode.REPEAT_ALL_LESSONS;
 				}
@@ -256,7 +270,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 				endOfLessonReached = true;
 			}
 			if(endOfLessonReached){
-				switch(PlaybarManager.getPlayMode()){
+				switch(getPlayMode()){
 /*				case SINGLE_LESSON:
 					stop();
 					break;*/
@@ -268,7 +282,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 				{
 					//find next lesson
 					AssimilDatabase ad = null;
-					switch(PlaybarManager.getListType()){
+					switch(getListType()){
 					case LIST_TYPE_ALL_NO_TRANSLATE:
 					case LIST_TYPE_ALL_TRANSLATE:
 						ad = AssimilDatabase.getDatabase(null);
@@ -290,7 +304,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 					}
 					else{
 						//last lesson reached
-						if(PlaybarManager.getPlayMode() == PlayMode.REPEAT_ALL_LESSONS){
+						if(getPlayMode() == PlayMode.REPEAT_ALL_LESSONS){
 							//start again at first lesson again
 							AssimilLesson lesson =
 									AssimilDatabase.getLesson(ad.get(0).getId(), this);
@@ -338,8 +352,16 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		}
 	}
 
+	//FIXME: Nowhere the ListType is set!
+	/**
+	 * @return
+	 */
+	public static ListTypes getListType() {
+		return lt;
+	}
+
 	private void playNextLesson(){
-		switch(PlaybarManager.getListType()){
+		switch(getListType()){
 //		case REPEAT_ALL_STARRED:
 		case LIST_TYPE_STARRED_NO_TRANSLATE:
 		case LIST_TYPE_STARRED_TRANSLATE:
@@ -421,26 +443,32 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 			mediaPlayer.seekTo(contPos);
 		}
 		mediaPlayer.start();
-		PlaybarManager.setPlaying(true);
+		playing = true;
+		Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
+		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
+		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber());
+		currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 /*		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
 		notifyBuilder
 		.setContentText("Playing: " + PlaybarManager.getLessonText() + " " + PlaybarManager.getTrackNumberText())
 	    .setContentIntent(pi);*/
-		PlaybarManager.setPlaying(true);
-		Intent resultIntent = new Intent(this, ShowLesson.class);
+		//FIXME: This must open the right Fragment once ShowLesson has been converted to Fragment.
+		Intent resultIntent = new Intent(this, MainActivity.class);//(this, ShowLesson.class);
 		resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
 
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack
-		stackBuilder.addParentStack(ShowLesson.class);
+		//FIXME:How is this done with Fragments!?
+		stackBuilder.addParentStack(MainActivity.class);//(ShowLesson.class);
 		// Adds the Intent to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
 		// Gets a PendingIntent containing the entire back stack
 		PendingIntent pi = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		notifyBuilder
-		.setContentText("Playing: " + PlaybarManager.getLessonText() + " " + PlaybarManager.getTrackNumberText())
+		.setContentText("Playing: " + getLessonTitle() + " " + getTrackNumberText())
 	    .setContentIntent(pi);
 
 		startForeground(NOTIFICATION_ID, notifyBuilder.getNotification());
@@ -471,4 +499,123 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 			break;
 		}
 	}
+
+	/**
+	 * @return The number (index) of the track that is currently being played.
+	 * 
+	 */
+	public static int getTrackNumber() {
+		return currentTrack;
+	}
+
+	/**
+	 * @return The lesson that is currently being played.
+	 */
+	public static AssimilLesson getLesson() {
+		return currentLesson;
+	}
+
+	/**
+	 * @return
+	 */
+	public static boolean isPlaying() {
+		return playing;
+	}
+	
+	public static PlayMode getPlayMode() {
+		return playMode;
+	}
+
+	/**
+	 * 
+	 */
+	public static void setPlayMode(PlayMode pm) {
+		playMode = pm;
+		//FIXME: Update PlaybarFragment: update(); 
+	}
+
+	public static void increasePlayMode() {
+		switch (playMode){
+//		case SINGLE_TRACK:
+//			playMode = PlayMode.SINGLE_LESSON;
+//			break;
+//		case SINGLE_LESSON:
+//			playMode = PlayMode.ALL_LESSONS;
+//			break;
+		case ALL_LESSONS:
+			playMode = PlayMode.REPEAT_TRACK;
+			break;
+		case REPEAT_TRACK:
+			playMode = PlayMode.REPEAT_LESSON;
+			break;
+		case REPEAT_LESSON:
+			if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt == ListTypes.LIST_TYPE_ALL_TRANSLATE)){
+				playMode = PlayMode.REPEAT_ALL_LESSONS;
+			}
+			else{
+				playMode = PlayMode.REPEAT_ALL_STARRED;
+			}
+			break;
+		case REPEAT_ALL_LESSONS:
+			playMode = PlayMode.ALL_LESSONS;
+			break;
+		case REPEAT_ALL_STARRED:
+//			playMode = PlayMode.SINGLE_TRACK;
+			playMode = PlayMode.ALL_LESSONS;
+			break;
+		default:
+//			playMode = PlayMode.SINGLE_TRACK;
+			playMode = PlayMode.REPEAT_LESSON;
+			break;
+		}
+	}
+
+	/**
+	 * @return the lesson
+	 */
+	public static String getLessonTitle() {
+		String rv = "...";
+		AssimilLesson lesson = getLesson();
+		if(lesson!=null){
+			rv = lesson.getNumber();
+		}
+		return rv;
+	}
+
+	/**
+	 * @return the number
+	 */
+	public static String getTrackNumberText() {
+		String rv = "...";
+		int trackNumber = getTrackNumber();
+		AssimilLesson lesson = getLesson();
+		if((trackNumber>=0)&&(lesson!=null)){
+			rv = lesson.getTextNumber(trackNumber);
+		}
+		return rv;
+	}
+
+
+	/**
+	 * @return
+	 */
+	public static boolean isPlayingTranslate() {
+		return (lt == ListTypes.LIST_TYPE_STARRED_TRANSLATE)||(lt == ListTypes.LIST_TYPE_ALL_TRANSLATE);
+	}
+
+	/**
+	 * @param lt
+	 */
+	public static void setListType(ListTypes lt){
+		LessonPlayer.lt = lt;
+	//FIXME: Do we need this?
+//	if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt == ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE)){
+//		playTranslate(false);
+//	}
+//	else{
+//		playTranslate(true);
+//	}
+//	checkPlaymode();
+	}
+
 }

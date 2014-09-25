@@ -114,11 +114,11 @@ public class AssimilLesson implements Serializable {
 			Log.w("LT", "Negative trackNo: "+trackNo);
 		}
 		else if((trackNo < lessonTextNum)||
-				((PlaybarManager.isPlayingTranslate())&&(trackNo<allAudioFiles.size()))){
+				((LessonPlayer.isPlayingTranslate())&&(trackNo<allAudioFiles.size()))){
 			return allAudioFiles.get(trackNo);
 		}
 		Log.d("LT", "Invalid trackNo: "+trackNo+"; lesson has "+lessonTextNum+
-				" lesson files and "+allAudioFiles.size()+" total files, translate is " + (PlaybarManager.isPlayingTranslate()?"ON":"OFF"));
+				" lesson files and "+allAudioFiles.size()+" total files, translate is " + (LessonPlayer.isPlayingTranslate()?"ON":"OFF"));
 		throw new IllegalArgumentException("Could not find track!");
 	}
 
