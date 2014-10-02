@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.github.federvieh.selma.R;
 
-/**
+/** Adapter for showing all the texts in a lesson.
  * @author frank
  *
  */
@@ -24,7 +24,7 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
 
 
 	public AssimilShowLessonListAdapter(Context context, AssimilLesson lesson, ListTypes lt, DisplayMode displayMode) {
-		super(context, R.layout.rowlayout, ((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt ==ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE))?lesson.getLessonList(displayMode):lesson.getTextList(displayMode));
+		super(context, R.layout.rowlayout, (lt == ListTypes.NO_TRANSLATE)?lesson.getLessonList(displayMode):lesson.getTextList(displayMode));
 		this.lesson = lesson;
 		this.displayMode = displayMode;
 	}

@@ -70,7 +70,7 @@ public class ShowLessonFragment extends ListFragment {
 
 		// FIXME: Where to get list type and display mode?
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
-		ListTypes lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
+		ListTypes lt = ListTypes.TRANSLATE;
 		DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
 

@@ -22,13 +22,9 @@ public class AssimilOnClickListener implements OnClickListener {
 	private OnPlaybarInteractionListener listener;
 
 	/**
-	 * @param mListener 
-	 * @param position 
-	 * @param lt 
-	 * @param current 
 	 * 
 	 */
-	public AssimilOnClickListener(AssimilLessonHeader lesson, OnPlaybarInteractionListener listener, int position, ListTypes lt) {
+	public AssimilOnClickListener(AssimilLessonHeader lesson, OnPlaybarInteractionListener listener, int position) {
 		this.lesson = lesson;
 		this.listener = listener;
 	}

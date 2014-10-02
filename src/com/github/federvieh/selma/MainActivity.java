@@ -170,10 +170,11 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void onLoadingFinished(boolean lessonsFound) {
 		if(lessonsFound){
+			//FIXME: Which lesson list (language+starred) to show must be stored as preference
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 			ListFragment lf = new ListFragment();
-			ListAdapter la = new AssimilLessonListAdapter(this, AssimilDatabase.getDatabase(this), ListTypes.LIST_TYPE_ALL_TRANSLATE);
+			ListAdapter la = new AssimilLessonListAdapter(this, AssimilDatabase.getCurrentLessons());
 			lf.setListAdapter(la);
 			fragmentTransaction.replace(R.id.container, lf);
 			PlaybarFragment pf = PlaybarFragment.newInstance(null, null);

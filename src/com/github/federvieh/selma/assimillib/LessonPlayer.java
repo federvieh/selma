@@ -4,6 +4,7 @@
 package com.github.federvieh.selma.assimillib;
 
 import java.io.File;
+import java.util.List;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -38,7 +39,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		REPEAT_TRACK,
 		REPEAT_LESSON,
 		REPEAT_ALL_LESSONS,
-		REPEAT_ALL_STARRED
+//		REPEAT_ALL_STARRED
 	}
 	
 	private static final String PLAY = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.PLAY";
@@ -60,8 +61,8 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	private static int contPos = 0;
 	private NotificationCompat.Builder notifyBuilder;
 	private static boolean playing;
-	private static PlayMode playMode = PlayMode.REPEAT_ALL_STARRED;
-	private static ListTypes lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
+	private static PlayMode playMode = PlayMode.REPEAT_ALL_LESSONS;
+	private static ListTypes lt = ListTypes.TRANSLATE;
 	
 	
 	public LessonPlayer(){
@@ -239,13 +240,14 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		PlayMode pm = getPlayMode();
 		if(force){
 			if(pm==PlayMode.REPEAT_TRACK){
-				ListTypes lt = getListType();
-				if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
+				//FIXME: Why do we change playmode!?
+//				ListTypes lt = getListType();
+//				if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
 					pm=PlayMode.REPEAT_ALL_LESSONS;
-				}
-				else{
-					pm=PlayMode.REPEAT_ALL_STARRED;
-				}
+//				}
+//				else{
+//					pm=PlayMode.REPEAT_ALL_STARRED;
+//				}
 			}
 		}
 		switch(pm){
@@ -260,7 +262,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		case REPEAT_ALL_LESSONS:
 		case REPEAT_LESSON:
 //		case SINGLE_LESSON:
-		case REPEAT_ALL_STARRED:
+//		case REPEAT_ALL_STARRED:
 			boolean endOfLessonReached = false;
 			try{
 				currentLesson.getPathByTrackNo(currentTrack+1);
@@ -281,25 +283,25 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 				case REPEAT_ALL_LESSONS:
 				{
 					//find next lesson
-					AssimilDatabase ad = null;
-					switch(getListType()){
-					case LIST_TYPE_ALL_NO_TRANSLATE:
-					case LIST_TYPE_ALL_TRANSLATE:
-						ad = AssimilDatabase.getDatabase(null);
-						break;
-					case LIST_TYPE_STARRED_NO_TRANSLATE:
-					case LIST_TYPE_STARRED_TRANSLATE:
-						ad = AssimilDatabase.getStarredOnly(null);
-						break;
-					}
-					int lessonIdx = ad.indexOf(currentLesson.getHeader());
+//					AssimilDatabase ad = null;
+//					switch(getListType()){
+//					case LIST_TYPE_ALL_NO_TRANSLATE:
+//					case LIST_TYPE_ALL_TRANSLATE:
+//						ad = AssimilDatabase.getDatabase(null);
+//						break;
+//					case LIST_TYPE_STARRED_NO_TRANSLATE:
+//					case LIST_TYPE_STARRED_TRANSLATE:
+//						ad = AssimilDatabase.getStarredOnly(null);
+//						break;
+//					}
+					int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
 					if(lessonIdx<0){
 						Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextOrStop_1). WTF? Stop playing.");
 						stop(false);
 					}
-					else if (lessonIdx+1 < ad.size()){
+					else if (lessonIdx+1 < AssimilDatabase.getCurrentLessons().size()){
 						AssimilLesson lesson =
-								AssimilDatabase.getLesson(ad.get(lessonIdx+1).getId(), this);
+								AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx+1).getId(), this);
 						play(lesson,0, false, this);
 					}
 					else{
@@ -307,7 +309,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 						if(getPlayMode() == PlayMode.REPEAT_ALL_LESSONS){
 							//start again at first lesson again
 							AssimilLesson lesson =
-									AssimilDatabase.getLesson(ad.get(0).getId(), this);
+									AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this);
 							play(lesson,0, false, this);
 						}
 						else{
@@ -316,34 +318,34 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 					}
 					break;
 				}
-				case REPEAT_ALL_STARRED:
-				{
-					//find next lesson
-					AssimilDatabase db = AssimilDatabase.getDatabase(null);
-					int lessonIdx = db.indexOf(currentLesson.getHeader());
-					if(lessonIdx<0){
-						Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextOrStop_2). WTF? Stop playing.");
-						stop(false);
-					}
-					else{
-						AssimilLesson nextLesson = currentLesson;
-						do{
-							lessonIdx++;
-							if(lessonIdx >= db.size()){
-								lessonIdx=0;
-							}
-							nextLesson = AssimilDatabase.getLesson(db.get(lessonIdx).getId(), this);
-						}
-						while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
-						if(nextLesson.isStarred()){
-							play(nextLesson, 0, false, this);
-						}
-						else{
-							stop(false);
-						}
-					}
-					break;
-				}
+//				case REPEAT_ALL_STARRED:
+//				{
+//					//find next lesson
+////					AssimilDatabase db = AssimilDatabase.getDatabase(null);
+//					int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
+//					if(lessonIdx<0){
+//						Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextOrStop_2). WTF? Stop playing.");
+//						stop(false);
+//					}
+//					else{
+//						AssimilLesson nextLesson = currentLesson;
+//						do{
+//							lessonIdx++;
+//							if(lessonIdx >= AssimilDatabase.getCurrentLessons().size()){
+//								lessonIdx=0;
+//							}
+//							nextLesson = AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx).getId(), this);
+//						}
+//						while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
+//						if(nextLesson.isStarred()){
+//							play(nextLesson, 0, false, this);
+//						}
+//						else{
+//							stop(false);
+//						}
+//					}
+//					break;
+//				}
 				default:
 					//Not possible
 					break;
@@ -361,64 +363,64 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	}
 
 	private void playNextLesson(){
-		switch(getListType()){
+//		switch(getListType()){
 //		case REPEAT_ALL_STARRED:
-		case LIST_TYPE_STARRED_NO_TRANSLATE:
-		case LIST_TYPE_STARRED_TRANSLATE:
-		{
-			//find next lesson
-			AssimilDatabase db = AssimilDatabase.getDatabase(null);
-			int lessonIdx = db.indexOf(currentLesson.getHeader());
-			if(lessonIdx<0){
-				Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_1). WTF? Stop playing.");
-				stop(false);
-			}
-			else{
-				AssimilLessonHeader nextLessonHeader = currentLesson.getHeader();
-				do{
-					lessonIdx++;
-					if(lessonIdx >= db.size()){
-						lessonIdx=0;
-					}
-					nextLessonHeader = db.get(lessonIdx);
-				}
-				while((!nextLessonHeader.isStarred()) &&
-						(!nextLessonHeader.equals(currentLesson.getHeader())));
-				AssimilLesson lesson;
-				if(nextLessonHeader.equals(currentLesson.getHeader())){
-					lesson = currentLesson;
-				}
-				else{
-					lesson = AssimilDatabase.getLesson(nextLessonHeader.getId(), this);
-				}
-				play(lesson, 0, false, this);
-			}
-			break;
-		}
+//		case LIST_TYPE_STARRED_NO_TRANSLATE:
+//		case LIST_TYPE_STARRED_TRANSLATE:
+//		{
+//			//find next lesson
+//			//AssimilDatabase db = AssimilDatabase.getDatabase(null);
+//			List<AssimilLessonHeader> currentLessons = AssimilDatabase.getCurrentLessons();
+//			int lessonIdx = currentLessons.indexOf(currentLesson.getHeader());
+//			if(lessonIdx<0){
+//				Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_1). WTF? Stop playing.");
+//				stop(false);
+//			}
+//			else{
+//				AssimilLessonHeader nextLessonHeader = currentLesson.getHeader();
+//				do{
+//					lessonIdx++;
+//					if(lessonIdx >= currentLessons.size()){
+//						lessonIdx=0;
+//					}
+//					nextLessonHeader = currentLessons.get(lessonIdx);
+//				}
+//				while((!nextLessonHeader.isStarred()) &&
+//						(!nextLessonHeader.equals(currentLesson.getHeader())));
+//				AssimilLesson lesson;
+//				if(nextLessonHeader.equals(currentLesson.getHeader())){
+//					lesson = currentLesson;
+//				}
+//				else{
+//					lesson = AssimilDatabase.getLesson(nextLessonHeader.getId(), this);
+//				}
+//				play(lesson, 0, false, this);
+//			}
+//			break;
+//		}
 //		case REPEAT_LESSON:
 //		case ALL_LESSONS:
 //		case REPEAT_ALL_LESSONS:
 //		case REPEAT_TRACK:
-		default:
+//		default:
 		{
 			//find next lesson
-			int lessonIdx = AssimilDatabase.getDatabase(null).indexOf(currentLesson.getHeader());
+			int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
 			if(lessonIdx<0){
 				Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_2). WTF? Stop playing.");
 				stop(false);
 			}
-			else if (lessonIdx+1 < AssimilDatabase.getDatabase(null).size()){
-
-				play(AssimilDatabase.getLesson(AssimilDatabase.getDatabase(null).get(lessonIdx+1).getId(), this), 0, false, this);
+			else if (lessonIdx+1 < AssimilDatabase.getCurrentLessons().size()){
+				play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx+1).getId(), this), 0, false, this);
 			}
 			else{
 				//last lesson reached
 				//start again at first lesson again
-				play(AssimilDatabase.getLesson(AssimilDatabase.getDatabase(null).get(0).getId(), this), 0, false, this);
+				play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this), 0, false, this);
 			}
-			break;
+//			break;
 		}
-		}
+//		}
 	}
 
 	/* (non-Javadoc)
@@ -549,20 +551,20 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 			playMode = PlayMode.REPEAT_LESSON;
 			break;
 		case REPEAT_LESSON:
-			if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt == ListTypes.LIST_TYPE_ALL_TRANSLATE)){
+//			if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt == ListTypes.LIST_TYPE_ALL_TRANSLATE)){
 				playMode = PlayMode.REPEAT_ALL_LESSONS;
-			}
-			else{
-				playMode = PlayMode.REPEAT_ALL_STARRED;
-			}
+//			}
+//			else{
+//				playMode = PlayMode.REPEAT_ALL_STARRED;
+//			}
 			break;
 		case REPEAT_ALL_LESSONS:
 			playMode = PlayMode.ALL_LESSONS;
 			break;
-		case REPEAT_ALL_STARRED:
-//			playMode = PlayMode.SINGLE_TRACK;
-			playMode = PlayMode.ALL_LESSONS;
-			break;
+//		case REPEAT_ALL_STARRED:
+////			playMode = PlayMode.SINGLE_TRACK;
+//			playMode = PlayMode.ALL_LESSONS;
+//			break;
 		default:
 //			playMode = PlayMode.SINGLE_TRACK;
 			playMode = PlayMode.REPEAT_LESSON;
@@ -600,7 +602,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	 * @return
 	 */
 	public static boolean isPlayingTranslate() {
-		return (lt == ListTypes.LIST_TYPE_STARRED_TRANSLATE)||(lt == ListTypes.LIST_TYPE_ALL_TRANSLATE);
+		return (lt == ListTypes.TRANSLATE);
 	}
 
 	/**

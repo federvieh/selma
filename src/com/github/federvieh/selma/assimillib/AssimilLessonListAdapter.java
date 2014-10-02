@@ -3,6 +3,8 @@
  */
 package com.github.federvieh.selma.assimillib;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -20,14 +22,12 @@ import com.github.federvieh.selma.PlaybarFragment.OnPlaybarInteractionListener;
  *
  */
 public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> {
-	private final AssimilDatabase values;
-	private ListTypes lt;
+	private final ArrayList<AssimilLessonHeader> values;
 	private OnPlaybarInteractionListener mListener;
 
-	public AssimilLessonListAdapter(Activity activity, AssimilDatabase values, ListTypes lt) {
+	public AssimilLessonListAdapter(Activity activity, ArrayList<AssimilLessonHeader> values) {
 		super(activity, R.layout.rowlayout, values);
 		this.values = values;
-		this.lt = lt;
 		try {
 			mListener = (OnPlaybarInteractionListener) activity;
 		} catch (ClassCastException e) {
@@ -46,7 +46,7 @@ public class AssimilLessonListAdapter extends ArrayAdapter<AssimilLessonHeader> 
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
 		AssimilLessonHeader current = values.get(position);
 		textView.setText(context.getResources().getText(R.string.lesson)+" "+current.getNumber());
-		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, mListener, position, lt);
+		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, mListener, position);
 		textView.setOnClickListener(assimilOnClickListener);
 		// starred?
 		if (current.isStarred()) {

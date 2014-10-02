@@ -113,8 +113,8 @@ public class LoaderFragment extends Fragment {
 
 				/* Update the texts and buttons. */
 				TextView textView = (TextView)getView().findViewById(R.id.wait_for_database_text);
-			    boolean lessonsFound = (AssimilDatabase.getDatabase(getActivity())!= null) &&
-			    		(AssimilDatabase.getDatabase(getActivity()).size()!=0);
+			    boolean lessonsFound = (AssimilDatabase.getDatabase(getActivity(), false)!= null) &&
+			    		(AssimilDatabase.getDatabase(getActivity(), false).getAllLessonHeaders().size()!=0);
 			    if(lessonsFound){
 			    	textView.setText(R.string.selma_description_scanning_finished);
 			    	textView.setTextColor(getResources().getColor(R.color.DarkGreen));
@@ -210,7 +210,7 @@ public class LoaderFragment extends Fragment {
 		protected ActivityState doInBackground(Boolean... forceScan) {
 			if(!forceScan[0]){
 				AssimilDatabase ad = AssimilDatabase.getDatabase(getActivity(), false);
-				if(ad.size()<=0){
+				if(ad.getAllLessonHeaders().size()<=0){
 					publishProgress(ActivityState.SCANNING_FOR_LESSONS);
 					wasScanning = true;
 					AssimilDatabase.getDatabase(getActivity(), true);

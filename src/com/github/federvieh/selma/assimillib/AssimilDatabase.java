@@ -5,6 +5,7 @@ package com.github.federvieh.selma.assimillib;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +15,7 @@ import android.content.SharedPreferences;
 //import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
@@ -25,9 +27,9 @@ import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
  * - AssimilDatabase no longer should no longer extend ArrayList!
  * - the language that shall be played/shown and if only starred or all lessons is only known to AssimilDatabase:
  *      - new methods:
- *        - void setLang(String lang):                Called from navigation fragment / main activity
- *        - void setStarredOnly(boolean starredOnly):    "    "    "            "        "     "
- *        - ArrayList<AssimilLessonHeader> getCurrentLessons(): called from everywhere (e.g. LessonList, ShowLessonList, LessonPlayer)
+ *        DONE - void setLang(String lang):                Called from navigation fragment / main activity
+ *        DONE - void setStarredOnly(boolean starredOnly):    "    "    "            "        "     "
+ *        DONE - ArrayList<AssimilLessonHeader> getCurrentLessons(): called from everywhere (e.g. LessonList, ShowLessonList, LessonPlayer)
  *      - change methods:
  *        - getDatabase(...) -> void initDatabase(...)
  *      - remove methods:
@@ -35,9 +37,11 @@ import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
  * @author frank
  *
  */
-public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
+public class AssimilDatabase {
 
 	private static AssimilDatabase assimilDatabase = null;
+	
+	private ArrayList<AssimilLessonHeader> allLessons = new ArrayList<AssimilLessonHeader>();
 	
 	public static void reset(){
 		assimilDatabase=null;
@@ -51,7 +55,7 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	/**
 	 * @return the assimildatabase
 	 */
-	public static synchronized AssimilDatabase getDatabase(Context caller) {
+	private static synchronized AssimilDatabase getDatabase(Context caller) {
 		return getDatabase(caller, false);
 	}
 
@@ -87,6 +91,16 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	private boolean initialized = false;
 	//private SharedPreferences settings = null; 
 	private HashMap<Long, AssimilLessonHeader> lessonMap;
+
+	private Object lock = new Object();
+
+	private boolean tainted = true;
+
+	private String currentLang;
+
+	private boolean starredOnly = false;
+
+	private ArrayList<AssimilLessonHeader> currentLessons;
 
 	private AssimilDatabase(){
 		Log.d("LT", "new database");
@@ -149,11 +163,11 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 	
 	private boolean init(Context caller){
 		lessonMap = new HashMap<Long, AssimilLessonHeader>();
-		this.clear();
+		allLessons.clear();//FIXME: Is this really needed or is lessonMap enough
 		AssimilLessonHeaderDataSource headerDS = new AssimilLessonHeaderDataSource(caller);
 		headerDS.open();
 		for(AssimilLessonHeader header: headerDS.getLessonHeaders(null)){
-			this.add(header);
+			allLessons.add(header);
 			lessonMap.put(header.getId(), header);
 		}
 		headerDS.close();
@@ -212,19 +226,6 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 		return initialized;
 	}
 
-	/**
-	 * @return
-	 */
-	public static AssimilDatabase getStarredOnly(Context caller) {
-		AssimilDatabase rv = new AssimilDatabase();
-		for (AssimilLessonHeader assimilLesson : getDatabase(caller)) {
-			if(assimilLesson.isStarred()){
-				rv.add(assimilLesson);
-			}
-		}
-		return rv;
-	}
-
 	/** Reads lesson from the database. This may be slow! 
 	 * TODO: Think about re-design to use callback (might be complicated in LessonPlayer).
 	 * 
@@ -239,6 +240,51 @@ public class AssimilDatabase extends ArrayList<AssimilLessonHeader>{
 		AssimilLesson lesson = ds.getLesson(header);
 		ds.close();
 		return lesson;
+	}
+
+	/**
+	 * @return
+	 */
+	public List<AssimilLessonHeader> getAllLessonHeaders() {
+		return allLessons;
+	}
+	
+	static void setLang(String lang){
+		AssimilDatabase ad = getDatabase(null);
+		synchronized(ad.lock){
+			ad.tainted  = true;
+			ad.currentLang = lang;
+		}
+	}
+	
+	static void setStarredOnly(boolean starredOnly){
+		AssimilDatabase ad = getDatabase(null);
+		synchronized(ad.lock ){
+			ad.tainted  = true;
+			ad.starredOnly  = starredOnly;
+		}
+	}
+
+	public static ArrayList<AssimilLessonHeader> getCurrentLessons(){
+		return getDatabase(null).getCurrentLessons_priv();
+	}
+
+	private ArrayList<AssimilLessonHeader> getCurrentLessons_priv(){
+		if(tainted){
+			ArrayList<AssimilLessonHeader> temp = new ArrayList<AssimilLessonHeader>();
+			synchronized(lock){
+				for(AssimilLessonHeader alh: allLessons){
+					if(currentLang==null || alh.getLang().equals(currentLang)){
+						if((!starredOnly)||(alh.isStarred())){
+							temp.add(alh);
+						}
+					}
+				}
+				currentLessons = temp;
+				tainted = false;
+			}
+		}
+		return currentLessons;
 	}
 
 }
