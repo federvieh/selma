@@ -4,7 +4,6 @@
 package com.github.federvieh.selma.assimillib;
 
 import java.io.File;
-import java.util.List;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -108,7 +107,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		//send intent to service
 		currentLesson = lesson;
 		currentTrack = trackNo;
-		//FIXME: Inform PlaybarFragement to update view content (lesson + track)
 		Intent service = new Intent(ctxt, LessonPlayer.class);
 		service.putExtra(PLAY, id);
 		ctxt.startService(service);
@@ -354,7 +352,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		}
 	}
 
-	//FIXME: Nowhere the ListType is set!
 	/**
 	 * @return
 	 */
@@ -610,14 +607,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	 */
 	public static void setListType(ListTypes lt){
 		LessonPlayer.lt = lt;
-	//FIXME: Do we need this?
-//	if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt == ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE)){
-//		playTranslate(false);
-//	}
-//	else{
-//		playTranslate(true);
-//	}
-//	checkPlaymode();
 	}
 
 }

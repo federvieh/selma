@@ -1,15 +1,22 @@
 package com.github.federvieh.selma;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SpinnerAdapter;
 
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLesson;
@@ -18,11 +25,14 @@ import com.github.federvieh.selma.assimillib.AssimilShowLessonListAdapter;
 import com.github.federvieh.selma.assimillib.DisplayMode;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
 import com.github.federvieh.selma.assimillib.ListTypes;
+import com.github.federvieh.selma.assimillib.OverlayManager;
 
 /**
  * A fragment representing a list of lesson tracks.
  */
 public class ShowLessonFragment extends ListFragment {
+
+	public static final String LIST_MODE = "LIST_MODE";
 
 	private static final String ARG_LESSON_ID = "param1";
 	private static final String ARG_TRACK_NUMBER = "param2";
@@ -41,13 +51,15 @@ public class ShowLessonFragment extends ListFragment {
 			  }
 		  }
 		};
+	private ShowLessonFragmentListener listener;
 
-	public static ShowLessonFragment newInstance(long lessonId, int trackNumber) {
+	public static ShowLessonFragment newInstance(long lessonId, int trackNumber, ShowLessonFragmentListener listener) {
 		ShowLessonFragment fragment = new ShowLessonFragment();
 		Bundle args = new Bundle();
 		args.putLong(ARG_LESSON_ID, lessonId);
 		args.putInt(ARG_TRACK_NUMBER, trackNumber);
 		fragment.setArguments(args);
+		fragment.listener = listener;
 		return fragment;
 	}
 
@@ -68,11 +80,15 @@ public class ShowLessonFragment extends ListFragment {
 			tracknumber = getArguments().getInt(ARG_TRACK_NUMBER);
 		}
 
-		// FIXME: Where to get list type and display mode?
-		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
-		ListTypes lt = ListTypes.TRANSLATE;
+		ListTypes lt = LessonPlayer.getListType();
+		// FIXME: Where to get display mode?
 		DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
+		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
+		
+		// needed to indicate that the back
+		// button in action bar is used
+	    setHasOptionsMenu(true); 
 
 		setListAdapter(assimilShowLessonListAdapter);
 	}
@@ -88,12 +104,38 @@ public class ShowLessonFragment extends ListFragment {
 
 	@Override
 	public void onResume() {
-	  super.onResume();
+		super.onResume();
 
-	  // Register mMessageReceiver to receive messages.
-	  LocalBroadcastManager.getInstance(getActivity()).registerReceiver(messageReceiver,
-	      new IntentFilter(LessonPlayer.PLAY_UPDATE_INTENT));
+		// Register mMessageReceiver to receive messages.
+		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(messageReceiver,
+				new IntentFilter(LessonPlayer.PLAY_UPDATE_INTENT));
+
+		listener.onResumedTitleUpdate(lesson.getNumber());
 	}
+
+	public void updateListType(ListTypes lt){
+    	LessonPlayer.setListType(lt);
+		Editor editor = getActivity().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+		editor.putInt(LIST_MODE, lt.ordinal());
+		editor.commit();
+		Log.d("LT", "ShowLesson.updateListType(); lt="+lt.ordinal());
+
+		// FIXME: Where to get display mode?
+		DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
+		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
+		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
+		setListAdapter(assimilShowLessonListAdapter);
+
+		//FIXME: Contextmenu
+//		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
+//		PlaybarManager.setPbInstance(playbar);
+//		PlaybarManager.setLessonInstance(this);
+//		PlaybarManager.setPbInstance(playbar);
+//		registerForContextMenu(playbar.findViewById(R.id.playmode));
+//		registerForContextMenu(listView);
+		
+		OverlayManager.showOverlayLessonContent(getActivity());
+    }
 
 	@Override
 	public void onPause() {
@@ -109,4 +151,15 @@ public class ShowLessonFragment extends ListFragment {
     	LessonPlayer.play(lesson, position, false, v.getContext());
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {   
+	    // Get item selected and deal with it
+	    switch (item.getItemId()) {
+	        case android.R.id.home:
+	            //called when the up affordance/carat in actionbar is pressed
+	            getActivity().onBackPressed();
+	            return true;
+	    }
+		return false;
+	}
 }

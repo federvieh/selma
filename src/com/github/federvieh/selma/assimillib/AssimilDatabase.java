@@ -5,7 +5,9 @@ package com.github.federvieh.selma.assimillib;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -163,7 +165,7 @@ public class AssimilDatabase {
 	
 	private boolean init(Context caller){
 		lessonMap = new HashMap<Long, AssimilLessonHeader>();
-		allLessons.clear();//FIXME: Is this really needed or is lessonMap enough
+		allLessons.clear();
 		AssimilLessonHeaderDataSource headerDS = new AssimilLessonHeaderDataSource(caller);
 		headerDS.open();
 		for(AssimilLessonHeader header: headerDS.getLessonHeaders(null)){
@@ -249,7 +251,7 @@ public class AssimilDatabase {
 		return allLessons;
 	}
 	
-	static void setLang(String lang){
+	public static void setLang(String lang){
 		AssimilDatabase ad = getDatabase(null);
 		synchronized(ad.lock){
 			ad.tainted  = true;
@@ -257,7 +259,7 @@ public class AssimilDatabase {
 		}
 	}
 	
-	static void setStarredOnly(boolean starredOnly){
+	public static void setStarredOnly(boolean starredOnly){
 		AssimilDatabase ad = getDatabase(null);
 		synchronized(ad.lock ){
 			ad.tainted  = true;
@@ -285,6 +287,38 @@ public class AssimilDatabase {
 			}
 		}
 		return currentLessons;
+	}
+
+	/**
+	 * @return
+	 */
+	public static ArrayList<String> getAllCourses() {
+		HashSet<String> temp = new HashSet<String>();
+		AssimilDatabase ad = AssimilDatabase.getDatabase(null);
+		for(AssimilLessonHeader lh : ad.allLessons){
+			temp.add(lh.getLang());
+		}
+		return new ArrayList<String>(temp);
+//		ArrayList<String> temp = new ArrayList<String>();
+//		temp.add("a");
+//		temp.add("b");
+//		temp.add("c");
+//		temp.add("d");
+//		temp.add("e");
+//		temp.add("f");
+//		temp.add("g");
+//		temp.add("h");
+//		temp.add("i");
+//		temp.add("j");
+//		temp.add("k");
+//		temp.add("l");
+//		temp.add("m");
+//		temp.add("n");
+//		temp.add("o");
+//		temp.add("p");
+//		temp.add("q");
+//		temp.add("r");
+//		return temp;
 	}
 
 }

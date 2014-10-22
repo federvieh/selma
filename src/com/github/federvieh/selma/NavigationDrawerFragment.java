@@ -1,26 +1,29 @@
 package com.github.federvieh.selma;
 
-import android.support.v7.app.ActionBarActivity;
+import java.util.ArrayList;
+
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.github.federvieh.selma.assimillib.AssimilDatabase;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -53,12 +56,18 @@ public class NavigationDrawerFragment extends Fragment {
 	private ActionBarDrawerToggle mDrawerToggle;
 
 	private DrawerLayout mDrawerLayout;
-	private ListView mDrawerListView;
+	private View mDrawerView;
 	private View mFragmentContainerView;
 
 	private int mCurrentSelectedPosition = 0;
 	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
+
+	private ListView mCourseListView;
+
+	private ArrayList<String> allCourses;
+
+	private boolean lastEnabled;
 
 	public NavigationDrawerFragment() {
 	}
@@ -80,8 +89,8 @@ public class NavigationDrawerFragment extends Fragment {
 			mFromSavedInstanceState = true;
 		}
 
-		// Select either the default item (0) or the last selected item.
-		selectItem(mCurrentSelectedPosition);
+		//FIXME: Select either the default item (0) or the last selected item.
+//		selectItem(mCurrentSelectedPosition);
 	}
 
 	@Override
@@ -95,24 +104,24 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		mDrawerListView = (ListView) inflater.inflate(
+		mDrawerView = inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
-		mDrawerListView
-				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
-						selectItem(position);
-					}
-				});
-		mDrawerListView.setAdapter(new ArrayAdapter<String>(getActionBar()
-				.getThemedContext(), android.R.layout.simple_list_item_1,
-				android.R.id.text1, new String[] {
-						getString(R.string.title_section1),
-						getString(R.string.title_section2),
-						getString(R.string.title_section3), }));
-		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-		return mDrawerListView;
+//		mDrawerView
+//				.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//					@Override
+//					public void onItemClick(AdapterView<?> parent, View view,
+//							int position, long id) {
+//						selectItem(position);
+//					}
+//				});
+		mCourseListView = (ListView)mDrawerView.findViewById(R.id.courseListView);
+		if((allCourses==null) && (AssimilDatabase.isAllocated())){
+			allCourses = AssimilDatabase.getAllCourses();
+			ListAdapter la = new CourseListAdapter(getActivity(), allCourses, this);
+			mCourseListView.setAdapter(la);
+//			mCourseListView.setItemChecked(mCurrentSelectedPosition, true);
+		}
+		return mDrawerView;
 	}
 
 	public boolean isDrawerOpen() {
@@ -138,6 +147,12 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		// set up the drawer's list view with items and click listener
+		if((AssimilDatabase.isAllocated())){
+			allCourses = AssimilDatabase.getAllCourses();
+			ListAdapter la = new CourseListAdapter(getActivity(), allCourses, this);
+			mCourseListView.setAdapter(la);
+//			mCourseListView.setItemChecked(mCurrentSelectedPosition, true);
+		}
 
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
@@ -163,6 +178,8 @@ public class NavigationDrawerFragment extends Fragment {
 				if (!isAdded()) {
 					return;
 				}
+				
+				((ShowLessonFragmentListener)getActivity()).onResumedTitleUpdate(null);
 
 				getActivity().supportInvalidateOptionsMenu(); // calls
 																// onPrepareOptionsMenu()
@@ -209,16 +226,16 @@ public class NavigationDrawerFragment extends Fragment {
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 	}
 
-	private void selectItem(int position) {
-		mCurrentSelectedPosition = position;
-		if (mDrawerListView != null) {
-			mDrawerListView.setItemChecked(position, true);
-		}
+	public void selectItem(String courseName, boolean starredOnly) {
+//		mCurrentSelectedPosition = position;
+//		if (mDrawerListView != null) {
+//			mDrawerListView.setItemChecked(position, true);
+//		}
 		if (mDrawerLayout != null) {
 			mDrawerLayout.closeDrawer(mFragmentContainerView);
 		}
 		if (mCallbacks != null) {
-			mCallbacks.onNavigationDrawerItemSelected(position);
+			mCallbacks.onLangItemSelected(courseName, starredOnly);
 		}
 	}
 
@@ -259,7 +276,7 @@ public class NavigationDrawerFragment extends Fragment {
 		// showGlobalContextActionBar, which controls the top-left area of the
 		// action bar.
 		if (mDrawerLayout != null && isDrawerOpen()) {
-			inflater.inflate(R.menu.global, menu);
+//			inflater.inflate(R.menu.global, menu);
 			showGlobalContextActionBar();
 		}
 		super.onCreateOptionsMenu(menu, inflater);
@@ -290,6 +307,7 @@ public class NavigationDrawerFragment extends Fragment {
 		actionBar.setDisplayShowTitleEnabled(true);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setTitle(R.string.app_name);
+		setDrawerIndicatorEnabled(true);
 	}
 
 	private ActionBar getActionBar() {
@@ -304,6 +322,14 @@ public class NavigationDrawerFragment extends Fragment {
 		/**
 		 * Called when an item in the navigation drawer is selected.
 		 */
-		void onNavigationDrawerItemSelected(int position);
+		void onLangItemSelected(String courseName, boolean starredOnly);
+	}
+
+	/**
+	 * 
+	 */
+	public void setDrawerIndicatorEnabled(boolean enabled) {
+		lastEnabled = enabled;
+		mDrawerToggle.setDrawerIndicatorEnabled(enabled);
 	}
 }
