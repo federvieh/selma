@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLesson;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
 import com.github.federvieh.selma.assimillib.OverlayManager;
@@ -134,7 +135,18 @@ public class PlaybarFragment extends Fragment {
 					LessonPlayer.stopPlaying(getActivity());
 				}
 				else{
-					LessonPlayer.play(LessonPlayer.getLesson(), LessonPlayer.getTrackNumber(), true, v.getContext());
+					if((LessonPlayer.getLesson()==null)||(LessonPlayer.getTrackNumber()<0)){
+						try{
+							long lessonId = AssimilDatabase.getCurrentLessons().get(0).getId();
+							LessonPlayer.play(AssimilDatabase.getLesson(lessonId, v.getContext()),0,true,v.getContext());
+						}
+						catch(IndexOutOfBoundsException e){
+							//Empty list (e.g. no starred lessons) -> ignore
+						}
+					}
+					else{
+						LessonPlayer.play(LessonPlayer.getLesson(), LessonPlayer.getTrackNumber(), true, v.getContext());
+					}
 					if((LessonPlayer.getLesson()!=null)&&(LessonPlayer.getTrackNumber()>=0)){
 						OverlayManager.showPlayOverlay(getActivity());
 					}

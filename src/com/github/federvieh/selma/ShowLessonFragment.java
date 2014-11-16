@@ -12,6 +12,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -34,8 +36,8 @@ public class ShowLessonFragment extends ListFragment {
 
 	public static final String LIST_MODE = "LIST_MODE";
 
-	private static final String ARG_LESSON_ID = "param1";
-	private static final String ARG_TRACK_NUMBER = "param2";
+	private static final String ARG_LESSON_ID = "ShowLessonFragment.ARG_LESSON_ID";
+	private static final String ARG_TRACK_NUMBER = "ShowLessonFragment.ARG_TRACK_NUMBER";
 
 	private AssimilLesson lesson;
 	private int tracknumber = -1;
@@ -52,6 +54,10 @@ public class ShowLessonFragment extends ListFragment {
 		  }
 		};
 	private ShowLessonFragmentListener listener;
+
+	//For now the display mode is not stored as a shared preference, so that
+	//after (re-)starting the app, always the original text is shown.
+	private static DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
 
 	public static ShowLessonFragment newInstance(long lessonId, int trackNumber, ShowLessonFragmentListener listener) {
 		ShowLessonFragment fragment = new ShowLessonFragment();
@@ -81,8 +87,6 @@ public class ShowLessonFragment extends ListFragment {
 		}
 
 		ListTypes lt = LessonPlayer.getListType();
-		// FIXME: Where to get display mode?
-		DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
 		
@@ -120,22 +124,22 @@ public class ShowLessonFragment extends ListFragment {
 		editor.commit();
 		Log.d("LT", "ShowLesson.updateListType(); lt="+lt.ordinal());
 
-		// FIXME: Where to get display mode?
-		DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
 		setListAdapter(assimilShowLessonListAdapter);
 
 		//FIXME: Contextmenu
-//		Playbar playbar = (Playbar) findViewById(R.id.playbar1);
-//		PlaybarManager.setPbInstance(playbar);
-//		PlaybarManager.setLessonInstance(this);
-//		PlaybarManager.setPbInstance(playbar);
 //		registerForContextMenu(playbar.findViewById(R.id.playmode));
 //		registerForContextMenu(listView);
 		
 		OverlayManager.showOverlayLessonContent(getActivity());
     }
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.text_view, menu);
+	    super.onCreateOptionsMenu(menu, inflater);
+	}
 
 	@Override
 	public void onPause() {
@@ -153,12 +157,24 @@ public class ShowLessonFragment extends ListFragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {   
-	    // Get item selected and deal with it
 	    switch (item.getItemId()) {
 	        case android.R.id.home:
 	            //called when the up affordance/carat in actionbar is pressed
 	            getActivity().onBackPressed();
 	            return true;
+	        case R.id.view_original_text:
+	            displayMode = DisplayMode.ORIGINAL_TEXT;
+	            updateListType(LessonPlayer.getListType());
+	            return true;
+	        case R.id.view_translation:
+	            displayMode  = DisplayMode.TRANSLATION;
+	            updateListType(LessonPlayer.getListType());
+	            return true;
+	        case R.id.view_literal:
+	            displayMode = DisplayMode.LITERAL;
+	            updateListType(LessonPlayer.getListType());
+	            return true;
+
 	    }
 		return false;
 	}

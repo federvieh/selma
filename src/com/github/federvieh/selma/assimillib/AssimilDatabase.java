@@ -321,4 +321,20 @@ public class AssimilDatabase {
 //		return temp;
 	}
 
+	/**
+	 * @return
+	 */
+	public static boolean isStarredOnly() {
+		AssimilDatabase ad = getDatabase(null);
+		return ad.starredOnly;
+	}
+
+	/**
+	 * @return
+	 */
+	public static String getLang() {
+		AssimilDatabase ad = getDatabase(null);
+		return ad.currentLang;
+	}
+
 }

@@ -155,6 +155,8 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void onLessonClicked(long id, int trackNumber) {
 		Log.d("LT", "Start lesson " + id + ", track " + trackNumber);
+		//The following call clears the call stack
+		onLangItemSelected(AssimilDatabase.getLang(), AssimilDatabase.isStarredOnly());
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 		
