@@ -45,16 +45,25 @@ public class ShowLessonFragment extends ListFragment {
 	private int tracknumber = -1;
 
 	private BroadcastReceiver messageReceiver = new BroadcastReceiver() {
-		  @Override
-		  public void onReceive(Context context, Intent intent) {
-			  long lessonId = intent.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID, -1);
-			  Log.d("LT", "ShowLessonFragment.messageReceiver.onReceive() got called with lessonId "+lessonId+". Current lesson's ID is "+lesson.getHeader().getId());
-			  if(lessonId == lesson.getHeader().getId()){
-				  //Might now be playing a new track, update the list in order to highlight the current track
-				  getListView().invalidateViews();
-			  }
-		  }
-		};
+		private long lastPlayedLessonId = -1; 
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			long lessonId = intent.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID, -1);
+			Log.d("LT", "ShowLessonFragment.messageReceiver.onReceive() got called with lessonId "+lessonId+
+					". Current lesson's ID is "+lesson.getHeader().getId()+". Last lesson ID is " + lastPlayedLessonId);
+			long curShownLessonId = lesson.getHeader().getId();
+			if(lessonId == curShownLessonId){
+				//Might now be playing a new track, update the list in order to highlight the current track
+				getListView().invalidateViews();
+			}
+			else if (lessonId != lastPlayedLessonId){
+				//Currently one item is shown in bold, but we are now playing a different
+				//lesson. So, the list has to be re-drawn.
+				getListView().invalidateViews();
+			}
+			lastPlayedLessonId = lessonId;
+		}
+	};
 	private ShowLessonFragmentListener listener;
 
 	//For now the display mode is not stored as a shared preference, so that
