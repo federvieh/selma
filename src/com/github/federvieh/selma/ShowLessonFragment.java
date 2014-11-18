@@ -1,24 +1,26 @@
 package com.github.federvieh.selma;
 
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SpinnerAdapter;
 
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLesson;
@@ -104,6 +106,81 @@ public class ShowLessonFragment extends ListFragment {
 			this.setSelection(tracknumber);
 			tracknumber = -1;
 		}
+		registerForContextMenu(getListView());
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater mi = new MenuInflater(v.getContext());
+		mi.inflate(R.menu.translate, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.add_translation:
+		case R.id.add_original_text:
+		case R.id.add_literal:
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+			final int pos = info.position;
+			final EditText translateEditText = new EditText(getActivity());
+			final Context ctxt = getActivity();
+			int title = R.string.change_translation;
+			DisplayMode dm = DisplayMode.TRANSLATION;
+			DialogInterface.OnClickListener ocl = new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					lesson.setTranslateText(pos, translateEditText.getText().toString(), ctxt);
+				}
+			};
+			if(item.getItemId() == R.id.add_literal){
+				title = R.string.change_literal;
+				dm = DisplayMode.LITERAL;
+				ocl = new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						lesson.setLiteralText(pos, translateEditText.getText().toString(), ctxt);
+					}
+				};
+			}
+			if(item.getItemId() == R.id.add_original_text){
+				title = R.string.change_original_text;
+				dm = DisplayMode.ORIGINAL_TEXT;
+				ocl = new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						lesson.setOriginalText(pos, translateEditText.getText().toString(), ctxt);
+					}
+				};
+			}
+		    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		    builder.setTitle(title);
+		    builder.setMessage(lesson.getTextList(DisplayMode.ORIGINAL_TEXT)[pos]);
+			translateEditText.setText(lesson.getTextList(dm)[pos]);
+		    builder.setView(translateEditText);
+		    builder.setPositiveButton(getText(R.string.ok), ocl);
+		    builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// Nothing to do
+				}
+			});
+		    AlertDialog dialog = builder.create();
+		    dialog.show();
+
+//			ListView listView = (ListView) findViewById(R.id.listViewLessons);
+//			Object o = listView.getAdapter().getItem(info.position);
+//			Log.d("LT", ""+o.getClass().getCanonicalName());
+//			Log.d("LT", ""+o.getClass().toString());
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
 	}
 
 	@Override
@@ -128,10 +205,6 @@ public class ShowLessonFragment extends ListFragment {
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
 		setListAdapter(assimilShowLessonListAdapter);
 
-		//FIXME: Contextmenu
-//		registerForContextMenu(playbar.findViewById(R.id.playmode));
-//		registerForContextMenu(listView);
-		
 		OverlayManager.showOverlayLessonContent(getActivity());
     }
 	

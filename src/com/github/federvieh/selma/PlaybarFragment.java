@@ -9,7 +9,12 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -19,6 +24,7 @@ import android.widget.TextView;
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLesson;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
+import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 import com.github.federvieh.selma.assimillib.OverlayManager;
 
 /**
@@ -96,8 +102,40 @@ public class PlaybarFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState){
 		super.onActivityCreated(savedInstanceState);
+		registerForContextMenu(playmode);
 		updateView();
 	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater mi = new MenuInflater(v.getContext());
+		mi.inflate(R.menu.repeat, menu);
+	}
+
+	@Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+		case R.id.action_repeat_all:
+			LessonPlayer.setPlayMode(PlayMode.REPEAT_ALL_LESSONS);
+			updateView();
+			return true;
+		case R.id.action_repeat_lesson:
+			LessonPlayer.setPlayMode(PlayMode.REPEAT_LESSON);
+			updateView();
+			return true;
+		case R.id.action_repeat_none:
+			LessonPlayer.setPlayMode(PlayMode.ALL_LESSONS);
+			updateView();
+			return true;
+		case R.id.action_repeat_track:
+			LessonPlayer.setPlayMode(PlayMode.REPEAT_TRACK);
+			updateView();
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+    }
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
