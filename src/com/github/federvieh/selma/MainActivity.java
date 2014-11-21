@@ -3,6 +3,9 @@ package com.github.federvieh.selma;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -30,6 +33,14 @@ public class MainActivity extends ActionBarActivity implements
 		NavigationDrawerFragment.NavigationDrawerCallbacks, LoaderFragmentCallbacks,
 		PlaybarFragment.OnPlaybarInteractionListener, ShowLessonFragmentListener{
 
+	public enum ActivityState{
+		DATABASE_LOADING,
+		INITIAL_SCANNING_FOR_LESSONS,
+		FORCED_SCANNING_FOR_LESSONS,
+		READY_FOR_PLAYBACK_NO_SCANNING,
+		READY_FOR_PLAYBACK_AFTER_SCANNING,
+	}
+
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
 	 * navigation drawer.
@@ -42,10 +53,18 @@ public class MainActivity extends ActionBarActivity implements
 	 */
 	private CharSequence mTitle;
 
+	private DatabaseInitTask dbInitTask;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//For some reason between the following two log calls, several seconds pass.
+		//Hence the screen is not updated while loading and rotating the device. This is why
+		//in the async task the screen rotation is locked.
+		//TODO: Get rid of locked screen while loading
+		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
 		setContentView(R.layout.activity_main);
+		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 
 		mTitle = getTitle();
         Intent intend = getIntent();
@@ -58,6 +77,12 @@ public class MainActivity extends ActionBarActivity implements
         	onLessonClicked(lessonTemp, trackNumber);
         }
         else{
+        	if(dbInitTask==null){
+        		dbInitTask = new DatabaseInitTask();
+        		//TODO: Implement forced reload, i.e. dbInitTask.execute(true)
+    			dbInitTask.execute(false);
+        	}
+    		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); calling Loader");
         	FragmentManager fragmentManager = getSupportFragmentManager();
         	fragmentManager.beginTransaction()
         	.replace(R.id.container,
@@ -216,4 +241,80 @@ public class MainActivity extends ActionBarActivity implements
 		}
 	}
 
+	private class DatabaseInitTask extends AsyncTask<Boolean, ActivityState, ActivityState> {
+	    /** The system calls this to perform work in the UI thread and delivers
+	      * the result from doInBackground() */
+	    protected void onPostExecute(ActivityState result) {
+        	FragmentManager fragmentManager = getSupportFragmentManager();
+    		final Fragment f = fragmentManager.findFragmentById(R.id.container);
+    		boolean hasLoaderFragment = (f!=null)&&(f.getClass().equals(LoaderFragment.class));
+    		if(hasLoaderFragment){
+    			((LoaderFragment)f).showWaiting(result);
+    		}
+    		else{
+        		Log.w("LT", this.getClass().getSimpleName()+".onPostExecute(); Loading finished with state "+
+        				result + ", but no LoaderFragment exists.");
+    		}
+    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+	    }
+
+		/* (non-Javadoc)
+		 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+		 */
+		@Override
+		protected ActivityState doInBackground(Boolean... forceScan) {
+			//TODO: If wasScanning, we could inform LoaderFragment, but if not, we could directly load the lesson list, shouldn't we? 
+			Log.w("LT", "Scanning started, force = "+forceScan[0]);
+			//TODO: Get rid of locked screen while loading
+			//The former commented calls are supposed to be "better" for locking screen orientation, 
+			//but I couldn't see the difference on the Nexus 5 and the latter calls are required on
+			//API level 8 devices. So, I keep this for now for all API levels and maybe change it later,
+			//when the difference is discovered.
+//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+//			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
+			int currentOrientation = getResources().getConfiguration().orientation;
+			if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			}
+			else {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
+			boolean wasScanning = false;
+			if(!forceScan[0]){
+				AssimilDatabase ad = AssimilDatabase.getDatabase(getApplicationContext(), false);
+				if(ad.getAllLessonHeaders().size()<=0){
+					publishProgress(ActivityState.INITIAL_SCANNING_FOR_LESSONS);
+					wasScanning = true;
+					AssimilDatabase.getDatabase(getApplicationContext(), true);
+				}
+				else{
+					//Lessons were already found. No need to re-scan.
+				}
+			}
+			else{
+				publishProgress(ActivityState.FORCED_SCANNING_FOR_LESSONS);
+				wasScanning = true;
+				AssimilDatabase.getDatabase(getApplicationContext(), true);
+			}
+			if(wasScanning){
+				return ActivityState.READY_FOR_PLAYBACK_AFTER_SCANNING;
+			}
+			return ActivityState.READY_FOR_PLAYBACK_NO_SCANNING;
+		}
+		
+		@Override
+		protected void onProgressUpdate(ActivityState...activityStates){
+        	FragmentManager fragmentManager = getSupportFragmentManager();
+    		final Fragment f = fragmentManager.findFragmentById(R.id.container);
+    		boolean hasLoaderFragment = (f!=null)&&(f.getClass().equals(LoaderFragment.class));
+    		if(hasLoaderFragment){
+    			((LoaderFragment)f).showWaiting(activityStates[0]);
+    		}
+    		else{
+        		Log.w("LT", this.getClass().getSimpleName()+".onProgressUpdate(); Loading progressed tos state "+
+        				activityStates[0] + ", but no LoaderFragment exists.");
+    		}
+		}
+	}
+	
 }
