@@ -25,6 +25,7 @@ import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLessonListAdapter;
 import com.github.federvieh.selma.assimillib.AssimilOnClickListener;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
+import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 import com.github.federvieh.selma.assimillib.ListTypes;
 import com.github.federvieh.selma.assimillib.LoaderFragment;
 import com.github.federvieh.selma.assimillib.LoaderFragment.LoaderFragmentCallbacks;
@@ -90,9 +91,12 @@ public class MainActivity extends ActionBarActivity implements
         }
 		SharedPreferences settings = getSharedPreferences("selma", Context.MODE_PRIVATE);
 		int i = settings.getInt(ShowLessonFragment.LIST_MODE, ListTypes.TRANSLATE.ordinal());
-		Log.d("LT", this.getClass().getSimpleName()+".onCreate(); i="+i);
 		ListTypes lt = ListTypes.values()[i];
 		LessonPlayer.setListType(lt);
+
+		i = settings.getInt(PlaybarFragment.PLAY_MODE, PlayMode.REPEAT_ALL_LESSONS.ordinal());
+		PlayMode pm = PlayMode.values()[i];
+		LessonPlayer.setPlayMode(pm);;
 	}
 
 	@Override

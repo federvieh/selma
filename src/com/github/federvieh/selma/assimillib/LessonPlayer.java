@@ -530,7 +530,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	 */
 	public static void setPlayMode(PlayMode pm) {
 		playMode = pm;
-		//FIXME: Update PlaybarFragment: update(); 
 	}
 
 	public static void increasePlayMode() {

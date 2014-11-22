@@ -61,7 +61,6 @@ public class LoaderFragment extends Fragment {
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		//FIXME: How to handle rotation?
 		super.onCreate(savedInstanceState);
 //		reset = false;
 //		Bundle arguments = this.getArguments();

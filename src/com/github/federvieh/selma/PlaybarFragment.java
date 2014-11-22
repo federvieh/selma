@@ -9,7 +9,6 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -51,6 +50,8 @@ public class PlaybarFragment extends Fragment {
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 	private static final String ARG_PARAM1 = "param1";
 	private static final String ARG_PARAM2 = "param2";
+	
+	public static final String PLAY_MODE = "PLAY_MODE";
 
 	// TODO: Rename and change types of parameters
 	private String mParam1;
@@ -115,26 +116,32 @@ public class PlaybarFragment extends Fragment {
 
 	@Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        boolean rv = false;
+		switch (item.getItemId()) {
 		case R.id.action_repeat_all:
 			LessonPlayer.setPlayMode(PlayMode.REPEAT_ALL_LESSONS);
-			updateView();
-			return true;
+			rv  = true;
+			break;
 		case R.id.action_repeat_lesson:
 			LessonPlayer.setPlayMode(PlayMode.REPEAT_LESSON);
-			updateView();
-			return true;
+			rv = true;
+			break;
 		case R.id.action_repeat_none:
 			LessonPlayer.setPlayMode(PlayMode.ALL_LESSONS);
-			updateView();
-			return true;
+			rv = true;
+			break;
 		case R.id.action_repeat_track:
 			LessonPlayer.setPlayMode(PlayMode.REPEAT_TRACK);
-			updateView();
-			return true;
+			rv = true;
+			break;
 		default:
 			return super.onContextItemSelected(item);
 		}
+		updateView();
+		Editor editor = getActivity().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+		editor.putInt(PLAY_MODE, LessonPlayer.getPlayMode().ordinal());
+		editor.commit();
+		return rv;
     }
 
 	@Override
@@ -158,10 +165,10 @@ public class PlaybarFragment extends Fragment {
 		playmode.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
-				increasePlayMode();
+				LessonPlayer.increasePlayMode();
+				update();
 				Editor editor = getActivity().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
-				//FIXME: Restore functionality
-//				editor.putInt(LessonListFragment.PLAY_MODE, PlaybarManager.getPlayMode().ordinal());
+				editor.putInt(PLAY_MODE, LessonPlayer.getPlayMode().ordinal());
 				editor.commit();
 			}
 		});
@@ -289,11 +296,6 @@ public class PlaybarFragment extends Fragment {
 //////////////////////////////////////////////////////////////////////////////
 /// FROM PlaybarManager //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-
-	public void increasePlayMode() {
-		LessonPlayer.increasePlayMode();
-		update();
-	}
 
 	/**
 	 * 
