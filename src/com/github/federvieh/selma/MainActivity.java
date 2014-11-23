@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -41,6 +42,9 @@ public class MainActivity extends ActionBarActivity implements
 		READY_FOR_PLAYBACK_NO_SCANNING,
 		READY_FOR_PLAYBACK_AFTER_SCANNING,
 	}
+
+	private static final String PREF_STARRED_ONLY = "PREF_STARRED_ONLY";
+	private static final String PREF_CURRENT_COURSE = "PREF_CURRENT_COURSE";
 
 	/**
 	 * Fragment managing the behaviors, interactions and presentation of the
@@ -103,6 +107,11 @@ public class MainActivity extends ActionBarActivity implements
 	public void onLangItemSelected(String courseName, boolean starredOnly) {
 		AssimilDatabase.setLang(courseName);
 		AssimilDatabase.setStarredOnly(starredOnly);
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		sp.edit().putBoolean(PREF_STARRED_ONLY, starredOnly).putString(PREF_CURRENT_COURSE,courseName)
+				.commit();
+
 		FragmentManager fragmentManager = getSupportFragmentManager();
 //		int popped = 0;
 		while(fragmentManager.popBackStackImmediate()){
@@ -152,7 +161,13 @@ public class MainActivity extends ActionBarActivity implements
 	@Override
 	public void onLoadingFinished(boolean lessonsFound) {
 		if(lessonsFound){
-			//FIXME: Which lesson list (language+starred) to show must be stored as preference
+			//Which lesson list (language+starred) to show is stored as preference
+			SharedPreferences sp = PreferenceManager
+					.getDefaultSharedPreferences(this);
+			String currCourse = sp.getString(PREF_CURRENT_COURSE, null);
+			boolean starredOnly = sp.getBoolean(PREF_STARRED_ONLY, false);
+			AssimilDatabase.setLang(currCourse);
+			AssimilDatabase.setStarredOnly(starredOnly);
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 			LessonListFragment lf = new LessonListFragment();
