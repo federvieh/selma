@@ -298,27 +298,12 @@ public class AssimilDatabase {
 		for(AssimilLessonHeader lh : ad.allLessons){
 			temp.add(lh.getLang());
 		}
-		return new ArrayList<String>(temp);
-//		ArrayList<String> temp = new ArrayList<String>();
-//		temp.add("a");
-//		temp.add("b");
-//		temp.add("c");
-//		temp.add("d");
-//		temp.add("e");
-//		temp.add("f");
-//		temp.add("g");
-//		temp.add("h");
-//		temp.add("i");
-//		temp.add("j");
-//		temp.add("k");
-//		temp.add("l");
-//		temp.add("m");
-//		temp.add("n");
-//		temp.add("o");
-//		temp.add("p");
-//		temp.add("q");
-//		temp.add("r");
-//		return temp;
+		ArrayList<String> rv = new ArrayList<String>();
+		if(temp.size()>1){   //If more than one course
+			rv.add(null);    //Add entry for "All courses"
+		}
+		rv.addAll(temp); //Add rest
+		return rv;
 	}
 
 	/**

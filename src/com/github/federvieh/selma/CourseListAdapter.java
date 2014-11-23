@@ -43,14 +43,19 @@ public class CourseListAdapter extends ArrayAdapter<String> {
 		View rowView = inflater.inflate(R.layout.course_navigation_item, parent, false);
 		TextView textView = (TextView) rowView.findViewById(R.id.courseName);
 		String current = allCourses.get(position);
-		textView.setText(current);
+		if(current!=null){
+			textView.setText(current);
+		}
+		else{
+			textView.setText(textView.getResources().getString(R.string.all_courses));
+		}
 		rowView.setClickable(false);
 		//Set OnClickListeners
 		View tvAll = rowView.findViewById(R.id.textViewAllLessons);
 		View tvStarred = rowView.findViewById(R.id.textViewStarredLessons);
 		tvAll.setOnClickListener(new CourseSelectOnClickListener(current, false, callback));
 		tvStarred.setOnClickListener(new CourseSelectOnClickListener(current, true, callback));
-		if(current.equals(AssimilDatabase.getLang())){
+		if(((current==null)&&(AssimilDatabase.getLang()==null))||((current!=null)&&(current.equals(AssimilDatabase.getLang())))){
 			if(AssimilDatabase.isStarredOnly()){
 				if(android.os.Build.VERSION.SDK_INT>=16){
 					tvAll.setBackground(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
