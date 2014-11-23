@@ -29,7 +29,6 @@
         android:paddingRight="16dp"
         android:layout_width="fill_parent"
         android:layout_height="48dp"
-        android:background="@android:drawable/list_selector_background"
         android:text="@string/all_lessons"
         android:gravity="center_vertical|start"
         android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -42,7 +41,6 @@
         android:paddingRight="16dp"
         android:layout_width="fill_parent"
         android:layout_height="48dp"
-        android:background="@android:drawable/list_selector_background"
         android:text="@string/starred_lessons"
         android:gravity="center_vertical|start"
         android:textAppearance="?android:attr/textAppearanceMedium" />

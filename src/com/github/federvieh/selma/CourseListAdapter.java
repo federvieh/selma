@@ -5,14 +5,15 @@ package com.github.federvieh.selma;
 
 import java.util.ArrayList;
 
-import com.github.federvieh.selma.NavigationDrawerFragment.NavigationDrawerCallbacks;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.github.federvieh.selma.assimillib.AssimilDatabase;
 
 /**
  * @author frank
@@ -32,6 +33,8 @@ public class CourseListAdapter extends ArrayAdapter<String> {
 		this.callback = navigationDrawerFragment;
 	}
 
+	@SuppressWarnings("deprecation")
+	@SuppressLint("NewApi")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Context context = parent.getContext();
@@ -43,8 +46,42 @@ public class CourseListAdapter extends ArrayAdapter<String> {
 		textView.setText(current);
 		rowView.setClickable(false);
 		//Set OnClickListeners
-		rowView.findViewById(R.id.textViewAllLessons).setOnClickListener(new CourseSelectOnClickListener(current, false, callback));
-		rowView.findViewById(R.id.textViewStarredLessons).setOnClickListener(new CourseSelectOnClickListener(current, true, callback));
+		View tvAll = rowView.findViewById(R.id.textViewAllLessons);
+		View tvStarred = rowView.findViewById(R.id.textViewStarredLessons);
+		tvAll.setOnClickListener(new CourseSelectOnClickListener(current, false, callback));
+		tvStarred.setOnClickListener(new CourseSelectOnClickListener(current, true, callback));
+		if(current.equals(AssimilDatabase.getLang())){
+			if(AssimilDatabase.isStarredOnly()){
+				if(android.os.Build.VERSION.SDK_INT>=16){
+					tvAll.setBackground(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+					tvStarred.setBackground(tvStarred.getResources().getDrawable(R.drawable.abc_list_selector_background_transition_holo_dark));
+				}
+				else{
+					tvAll.setBackgroundDrawable(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+					tvStarred.setBackgroundDrawable(tvStarred.getResources().getDrawable(R.drawable.abc_list_selector_background_transition_holo_dark));
+				}
+			}
+			else{
+				if(android.os.Build.VERSION.SDK_INT>=16){
+					tvStarred.setBackground(tvStarred.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+					tvAll.setBackground(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_background_transition_holo_dark));
+				}
+				else{
+					tvStarred.setBackgroundDrawable(tvStarred.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+					tvAll.setBackgroundDrawable(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_background_transition_holo_dark));
+				}
+			}
+		}
+		else{
+			if(android.os.Build.VERSION.SDK_INT>=16){
+				tvAll.setBackground(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+				tvStarred.setBackground(tvStarred.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+			}
+			else{
+				tvAll.setBackgroundDrawable(tvAll.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+				tvStarred.setBackgroundDrawable(tvStarred.getResources().getDrawable(R.drawable.abc_list_selector_holo_dark));
+			}
+		}
 
 		return rowView;
 	}

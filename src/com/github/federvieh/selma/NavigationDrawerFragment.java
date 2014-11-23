@@ -13,13 +13,13 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -69,6 +69,8 @@ public class NavigationDrawerFragment extends Fragment {
 
 	private boolean lastEnabled;
 
+	private CourseListAdapter mCourseListAdapter;
+
 	public NavigationDrawerFragment() {
 	}
 
@@ -104,6 +106,7 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		Log.d("LT", getClass().getSimpleName()+".onCreateView()");
 		mDrawerView = inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
 //		mDrawerView
@@ -117,11 +120,19 @@ public class NavigationDrawerFragment extends Fragment {
 		mCourseListView = (ListView)mDrawerView.findViewById(R.id.courseListView);
 		if((allCourses==null) && (AssimilDatabase.isAllocated())){
 			allCourses = AssimilDatabase.getAllCourses();
-			ListAdapter la = new CourseListAdapter(getActivity(), allCourses, this);
-			mCourseListView.setAdapter(la);
+			mCourseListAdapter = new CourseListAdapter(getActivity(), allCourses, this);
+			mCourseListView.setAdapter(mCourseListAdapter);
 //			mCourseListView.setItemChecked(mCurrentSelectedPosition, true);
 		}
 		return mDrawerView;
+	}
+
+	
+	/** Should be called whenever an item was selected, so that the navigation drawer is re-drawn.
+	 * 
+	 */
+	private void redraw(){
+		mCourseListAdapter.notifyDataSetChanged();
 	}
 
 	public boolean isDrawerOpen() {
@@ -149,8 +160,8 @@ public class NavigationDrawerFragment extends Fragment {
 		// set up the drawer's list view with items and click listener
 		if((AssimilDatabase.isAllocated())){
 			allCourses = AssimilDatabase.getAllCourses();
-			ListAdapter la = new CourseListAdapter(getActivity(), allCourses, this);
-			mCourseListView.setAdapter(la);
+			mCourseListAdapter = new CourseListAdapter(getActivity(), allCourses, this);
+			mCourseListView.setAdapter(mCourseListAdapter);
 //			mCourseListView.setItemChecked(mCurrentSelectedPosition, true);
 		}
 
@@ -237,6 +248,7 @@ public class NavigationDrawerFragment extends Fragment {
 		if (mCallbacks != null) {
 			mCallbacks.onLangItemSelected(courseName, starredOnly);
 		}
+		redraw();
 	}
 
 	@Override
