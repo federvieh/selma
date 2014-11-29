@@ -147,14 +147,11 @@ public class AssimilLesson implements Serializable {
 			osw.close();
 			fos.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not store translation on file system!", e);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not store translation on file system!", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not store translation on file system!", e);
 		}
 	}
 
@@ -183,14 +180,11 @@ public class AssimilLesson implements Serializable {
 			osw.close();
 			fos.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not store translation on file system!", e);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not store translation on file system!", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not store translation on file system!", e);
 		}
 	}
 
@@ -219,14 +213,11 @@ public class AssimilLesson implements Serializable {
 			osw.close();
 			fos.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not modified text on file system!", e);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not modified text on file system!", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("LT", "Could not modified text on file system!", e);
 		}
 	}
 
