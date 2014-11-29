@@ -449,19 +449,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
 		currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
-/*		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), MainActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-		notifyBuilder
-		.setContentText("Playing: " + PlaybarManager.getLessonText() + " " + PlaybarManager.getTrackNumberText())
-	    .setContentIntent(pi);*/
-		//FIXME: This must open the right Fragment once ShowLesson has been converted to Fragment.
 		Intent resultIntent = new Intent(this, MainActivity.class);//(this, ShowLesson.class);
 		resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
 
 		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 		// Adds the back stack
-		//FIXME:How is this done with Fragments!?
 		stackBuilder.addParentStack(MainActivity.class);//(ShowLesson.class);
 		// Adds the Intent to the top of the stack
 		stackBuilder.addNextIntent(resultIntent);
