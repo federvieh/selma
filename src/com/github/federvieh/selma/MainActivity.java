@@ -72,27 +72,33 @@ public class MainActivity extends ActionBarActivity implements
 		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 
 		mTitle = getTitle();
-        Intent intend = getIntent();
-        long lessonTemp = intend.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID,-1);
-        int trackNumber = intend.getIntExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, -1);
+		Intent intend = getIntent();
 
-
-        if(lessonTemp>=0){
-        	onLoadingFinished(true);
-        	onLessonClicked(lessonTemp, trackNumber);
-        }
-        else{
-        	if(dbInitTask==null){
-        		dbInitTask = new DatabaseInitTask();
-        		//TODO: Implement forced reload, i.e. dbInitTask.execute(true)
-    			dbInitTask.execute(false);
-        	}
-    		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); calling Loader");
-        	FragmentManager fragmentManager = getSupportFragmentManager();
-        	fragmentManager.beginTransaction()
-        	.replace(R.id.container,
-        			new LoaderFragment(this)).commit();
-        }
+		long lessonTemp = intend.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID,-1);
+		int trackNumber = intend.getIntExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, -1);
+		//First check, if this got called from an intend 
+		if(lessonTemp>=0){
+			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from intend");
+			onLoadingFinished(true);
+			onLessonClicked(lessonTemp, trackNumber);
+		}
+		else if (savedInstanceState!=null){//Not called by intend, so just rotation!?
+			//FIXME: Seems like the stack gets messed up when rotating 
+			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from savedInstance");
+		}
+		else{
+			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called without intend or savedInstance");
+			if(dbInitTask==null){
+				dbInitTask = new DatabaseInitTask();
+				//TODO: Implement forced reload, i.e. dbInitTask.execute(true)
+				dbInitTask.execute(false);
+			}
+			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); calling Loader");
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+			.replace(R.id.container,
+					new LoaderFragment(this)).commit();
+		}
 		SharedPreferences settings = getSharedPreferences("selma", Context.MODE_PRIVATE);
 		int i = settings.getInt(ShowLessonFragment.LIST_MODE, ListTypes.TRANSLATE.ordinal());
 		ListTypes lt = ListTypes.values()[i];
@@ -100,11 +106,13 @@ public class MainActivity extends ActionBarActivity implements
 
 		i = settings.getInt(PlaybarFragment.PLAY_MODE, PlayMode.REPEAT_ALL_LESSONS.ordinal());
 		PlayMode pm = PlayMode.values()[i];
-		LessonPlayer.setPlayMode(pm);;
+		LessonPlayer.setPlayMode(pm);
 	}
-
+	
 	@Override
 	public void onLangItemSelected(String courseName, boolean starredOnly) {
+		Log.i("LT", this.getClass().getSimpleName()+".onLangItemSelected(); coursename="
+				+ courseName + ", starredOnly="+starredOnly);
 		AssimilDatabase.setLang(courseName);
 		AssimilDatabase.setStarredOnly(starredOnly);
 		SharedPreferences sp = PreferenceManager
@@ -160,6 +168,8 @@ public class MainActivity extends ActionBarActivity implements
 	 */
 	@Override
 	public void onLoadingFinished(boolean lessonsFound) {
+		Log.i("LT", this.getClass().getSimpleName()+".onLoadingFinished(); lessonsFound="
+				+ lessonsFound);
 		if(lessonsFound){
 			//Which lesson list (language+starred) to show is stored as preference
 			SharedPreferences sp = PreferenceManager
@@ -171,9 +181,6 @@ public class MainActivity extends ActionBarActivity implements
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 			LessonListFragment lf = new LessonListFragment();
-			lf.setListener(this);
-			ListAdapter la = new AssimilLessonListAdapter(this, AssimilDatabase.getCurrentLessons());
-			lf.setListAdapter(la);
 			fragmentTransaction.replace(R.id.container, lf);
 			PlaybarFragment pf = PlaybarFragment.newInstance(null, null);
 			fragmentTransaction.add(R.id.playbarContainer, pf);
@@ -220,6 +227,11 @@ public class MainActivity extends ActionBarActivity implements
 		}
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setTitle(mTitle);
+		if(mNavigationDrawerFragment==null){
+			mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+			mNavigationDrawerFragment.setUp(R.id.navigation_drawer,
+					(DrawerLayout) findViewById(R.id.drawer_layout));
+		}
 		final Fragment f = getSupportFragmentManager().findFragmentById(R.id.container);
 		boolean hasShowLessonFragment = (f.getClass().equals(ShowLessonFragment.class));
 		if(hasShowLessonFragment){

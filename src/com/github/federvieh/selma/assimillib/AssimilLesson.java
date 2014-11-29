@@ -248,8 +248,8 @@ public class AssimilLesson implements Serializable {
 	 */
 	public void addText(String textId, String text, String texttrans,
 			String textlit, int id, String audioPath) {
-		Log.d("LT", "addText(" + textId + ", " + text + ", " + texttrans +
-				", " + textlit + ", " + id + ", " + audioPath + ")");
+//		Log.d("LT", "addText(" + textId + ", " + text + ", " + texttrans +
+//				", " + textlit + ", " + id + ", " + audioPath + ")");
 		this.allTexts.add(text);
 		this.allTextsTranslate.add(texttrans);
 		this.allTextsTranslateSimple.add(textlit);

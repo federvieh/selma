@@ -62,6 +62,7 @@ public class LoaderFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
 //		reset = false;
 //		Bundle arguments = this.getArguments();
 //		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); arguments="+arguments);

@@ -1,5 +1,6 @@
 package com.github.federvieh.selma;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -90,6 +91,7 @@ public class ShowLessonFragment extends ListFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
 
 		if (getArguments() != null) {
 			long lessonId = getArguments().getLong(ARG_LESSON_ID);
@@ -116,6 +118,15 @@ public class ShowLessonFragment extends ListFragment {
 			tracknumber = -1;
 		}
 		registerForContextMenu(getListView());
+	}
+	
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onAttach(android.app.Activity)
+	 */
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		listener = (ShowLessonFragmentListener) activity;
 	}
 
 	@Override
@@ -200,7 +211,8 @@ public class ShowLessonFragment extends ListFragment {
 		LocalBroadcastManager.getInstance(getActivity()).registerReceiver(messageReceiver,
 				new IntentFilter(LessonPlayer.PLAY_UPDATE_INTENT));
 
-		listener.onResumedTitleUpdate(lesson.getNumber());
+		String number = lesson.getNumber();
+		listener.onResumedTitleUpdate(number);
 	}
 
 	public void updateListType(ListTypes lt){

@@ -67,8 +67,6 @@ public class NavigationDrawerFragment extends Fragment {
 
 	private ArrayList<String> allCourses;
 
-	private boolean lastEnabled;
-
 	private CourseListAdapter mCourseListAdapter;
 
 	public NavigationDrawerFragment() {
@@ -77,6 +75,7 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
 
 		// Read in the flag indicating whether or not the user has demonstrated
 		// awareness of the
@@ -341,7 +340,6 @@ public class NavigationDrawerFragment extends Fragment {
 	 * 
 	 */
 	public void setDrawerIndicatorEnabled(boolean enabled) {
-		lastEnabled = enabled;
 		mDrawerToggle.setDrawerIndicatorEnabled(enabled);
 	}
 }

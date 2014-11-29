@@ -3,8 +3,14 @@
  */
 package com.github.federvieh.selma;
 
+import com.github.federvieh.selma.assimillib.AssimilDatabase;
+import com.github.federvieh.selma.assimillib.AssimilLessonListAdapter;
+
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
+import android.widget.ListAdapter;
 
 /**
  * @author frank
@@ -13,12 +19,22 @@ import android.support.v4.app.ListFragment;
 public class LessonListFragment extends ListFragment {
 	private ShowLessonFragmentListener listener;
 
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onCreate(android.os.Bundle)
+	 */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
+	}
+
 	@Override
 	public void onResume() {
-	  super.onResume();
+		super.onResume();
+		ListAdapter la = new AssimilLessonListAdapter(getActivity(), AssimilDatabase.getCurrentLessons());
+		this.setListAdapter(la);
 
-	  // Register mMessageReceiver to receive messages.
-	  listener.onResumedTitleUpdate("Selma");
+		listener.onResumedTitleUpdate("Selma");
 	}
 	
 	/* (non-Javadoc)
@@ -26,14 +42,7 @@ public class LessonListFragment extends ListFragment {
 	 */
 	@Override
 	public void onAttach(Activity activity) {
-		// TODO Auto-generated method stub
 		super.onAttach(activity);
-	}
-
-	/**
-	 * @param mainActivity
-	 */
-	public void setListener(ShowLessonFragmentListener listener) {
-		this.listener = listener;
+		this.listener = (ShowLessonFragmentListener) activity;
 	}
 }
