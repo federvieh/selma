@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
@@ -160,7 +161,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		playing = false;
 		Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
 		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
-		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber());
+		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
 		currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 
@@ -445,7 +446,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		playing = true;
 		Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
 		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
-		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber());
+		currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
 		currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 /*		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
@@ -467,7 +468,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		// Gets a PendingIntent containing the entire back stack
 		PendingIntent pi = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 		notifyBuilder
-		.setContentText("Playing: " + getLessonTitle() + " " + getTrackNumberText())
+		.setContentText("Playing: " + getLessonTitle(getApplicationContext()) + " " + getTrackNumberText(getApplicationContext()))
 	    .setContentIntent(pi);
 
 		startForeground(NOTIFICATION_ID, notifyBuilder.getNotification());
@@ -503,14 +504,28 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	 * @return The number (index) of the track that is currently being played.
 	 * 
 	 */
-	public static int getTrackNumber() {
+	public static int getTrackNumber(Context ctxt) {
+		if(currentTrack < 0){
+			//On start read current lesson from SharedPreferences
+			SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
+			currentTrack = settings.getInt(AssimilDatabase.LAST_TRACK_PLAYED, -1);
+		}
 		return currentTrack;
 	}
 
 	/**
 	 * @return The lesson that is currently being played.
 	 */
-	public static AssimilLesson getLesson() {
+	public static AssimilLesson getLesson(Context ctxt) {
+		if(currentLesson == null){
+			//On start read current lesson from SharedPreferences
+			SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
+			long lessonId = settings.getLong(AssimilDatabase.LAST_LESSON_PLAYED, -1);
+			if(lessonId > 0){
+				currentLesson = AssimilDatabase.getLesson(lessonId, ctxt);
+			}
+		}
+
 		return currentLesson;
 	}
 
@@ -571,9 +586,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	/**
 	 * @return the lesson
 	 */
-	public static String getLessonTitle() {
+	public static String getLessonTitle(Context ctxt) {
 		String rv = "...";
-		AssimilLesson lesson = getLesson();
+		AssimilLesson lesson = getLesson(ctxt);
 		if(lesson!=null){
 			rv = lesson.getNumber();
 		}
@@ -583,10 +598,10 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	/**
 	 * @return the number
 	 */
-	public static String getTrackNumberText() {
+	public static String getTrackNumberText(Context ctxt) {
 		String rv = "...";
-		int trackNumber = getTrackNumber();
-		AssimilLesson lesson = getLesson();
+		int trackNumber = getTrackNumber(ctxt);
+		AssimilLesson lesson = getLesson(ctxt);
 		if((trackNumber>=0)&&(lesson!=null)){
 			rv = lesson.getTextNumber(trackNumber);
 		}

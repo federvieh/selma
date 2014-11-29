@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,25 +16,13 @@ import android.content.SharedPreferences;
 //import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Log;
 
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
 import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
 
-/** TODO:
- * - change list type to only support translate/no_translate
- * - AssimilDatabase no longer should no longer extend ArrayList!
- * - the language that shall be played/shown and if only starred or all lessons is only known to AssimilDatabase:
- *      - new methods:
- *        DONE - void setLang(String lang):                Called from navigation fragment / main activity
- *        DONE - void setStarredOnly(boolean starredOnly):    "    "    "            "        "     "
- *        DONE - ArrayList<AssimilLessonHeader> getCurrentLessons(): called from everywhere (e.g. LessonList, ShowLessonList, LessonPlayer)
- *      - change methods:
- *        - getDatabase(...) -> void initDatabase(...)
- *      - remove methods:
- *        - getStarredOnly()
+/** 
  * @author frank
  *
  */
@@ -87,7 +74,6 @@ public class AssimilDatabase {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3578723726780150820L;
 	public static final String LAST_LESSON_PLAYED = "LAST_LESSON_PLAYED";
 	public static final String LAST_TRACK_PLAYED = "LAST_TRACK_PLAYED";
 	private boolean initialized = false;
@@ -136,7 +122,6 @@ public class AssimilDatabase {
         	//title = S00-TITLE-İki genç
         	//album = ASSIMIL Turkish With Ease - L001
         	do{
-        		//TODO: Do something if different languages are installed (maybe let the user choose, which one to handle?)
         		String fullTitle = cursor.getString(titleColumn);
         		String fullAlbum = cursor.getString(albumColumn);
         		String language = cursor.getString(artistColumn);//fullAlbum.substring(fullAlbum.indexOf(" ")+1,fullAlbum.indexOf(" - L"));
@@ -174,53 +159,6 @@ public class AssimilDatabase {
 		}
 		headerDS.close();
         initialized  = true;
-//        //FIXME: This must be moved to somewhere else (player service?)
-//        SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
-//        long lastPlayedLesson = -1;
-//        try{
-//        	lastPlayedLesson = settings.getLong(LAST_LESSON_PLAYED, this.get(0).getId());
-//        }
-//        catch(IndexOutOfBoundsException e){
-//        	Log.d("LT", "No headers found in database.");
-//        }
-//        AssimilDatabase ad;
-//        switch(PlaybarManager.getListType()){
-//        case LIST_TYPE_STARRED_NO_TRANSLATE:
-//        case LIST_TYPE_STARRED_TRANSLATE:
-//        	ad = getStarredOnly(caller);
-//        	break;
-//        case LIST_TYPE_ALL_NO_TRANSLATE:
-//        case LIST_TYPE_ALL_TRANSLATE:
-//        default:
-//        	ad = this;
-//        	break;
-//        }
-//        AssimilLessonDataSource lessonDS = new AssimilLessonDataSource(caller);
-//        AssimilLessonHeader header = lessonMap.get(Long.valueOf(lastPlayedLesson));
-//        AssimilLesson al = null;
-//        int lastPlayedTrack;
-//    	lessonDS.open();
-//        if(header!=null){
-//        	al = lessonDS.getLesson(header);
-//        	lastPlayedTrack = settings.getInt(LAST_TRACK_PLAYED, 0);
-//        }
-//        else {
-//        	try{
-//        		header = ad.get(0);
-//        		al = lessonDS.getLesson(header);
-//        		lastPlayedTrack = 0;
-//        	}
-//        	catch(IndexOutOfBoundsException e){
-//        		//This may happen when starting
-//        		// * the first time with a valid database
-//        		// * playmode "starred only"
-//        		// * no starred items
-//        		al = null;
-//        		lastPlayedTrack = -1;
-//        	}
-//        }
-//    	lessonDS.close();
-//        PlaybarManager.setCurrent(al, lastPlayedTrack);
         return true;
 	}
 

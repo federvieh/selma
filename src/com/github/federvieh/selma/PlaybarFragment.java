@@ -151,10 +151,10 @@ public class PlaybarFragment extends Fragment {
 		view.findViewById(R.id.titleTrackSection).setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
-				AssimilLesson al = LessonPlayer.getLesson();
+				AssimilLesson al = LessonPlayer.getLesson(getActivity());
 				if(al!=null){
 					//Show current lesson
-					mListener.onLessonClicked(al.getHeader().getId(), LessonPlayer.getTrackNumber());
+					mListener.onLessonClicked(al.getHeader().getId(), LessonPlayer.getTrackNumber(getActivity()));
 				}
 			}
 		});
@@ -180,7 +180,7 @@ public class PlaybarFragment extends Fragment {
 					LessonPlayer.stopPlaying(getActivity());
 				}
 				else{
-					if((LessonPlayer.getLesson()==null)||(LessonPlayer.getTrackNumber()<0)){
+					if((LessonPlayer.getLesson(getActivity())==null)||(LessonPlayer.getTrackNumber(getActivity())<0)){
 						try{
 							long lessonId = AssimilDatabase.getCurrentLessons().get(0).getId();
 							LessonPlayer.play(AssimilDatabase.getLesson(lessonId, v.getContext()),0,true,v.getContext());
@@ -190,9 +190,9 @@ public class PlaybarFragment extends Fragment {
 						}
 					}
 					else{
-						LessonPlayer.play(LessonPlayer.getLesson(), LessonPlayer.getTrackNumber(), true, v.getContext());
+						LessonPlayer.play(LessonPlayer.getLesson(getActivity()), LessonPlayer.getTrackNumber(getActivity()), true, v.getContext());
 					}
-					if((LessonPlayer.getLesson()!=null)&&(LessonPlayer.getTrackNumber()>=0)){
+					if((LessonPlayer.getLesson(getActivity())!=null)&&(LessonPlayer.getTrackNumber(getActivity())>=0)){
 						OverlayManager.showPlayOverlay(getActivity());
 					}
 				}
@@ -264,8 +264,8 @@ public class PlaybarFragment extends Fragment {
 	 * 
 	 */
 	private void updateView() {
-		textViewLesson.setText(LessonPlayer.getLessonTitle());
-		textViewTrack.setText(LessonPlayer.getTrackNumberText());
+		textViewLesson.setText(LessonPlayer.getLessonTitle(getActivity()));
+		textViewTrack.setText(LessonPlayer.getTrackNumberText(getActivity()));
 		switch (LessonPlayer.getPlayMode()){
 		case ALL_LESSONS:
 	    	playmode.setImageResource(R.drawable.repeat_none);

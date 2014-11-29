@@ -83,7 +83,6 @@ public class MainActivity extends ActionBarActivity implements
 			onLessonClicked(lessonTemp, trackNumber);
 		}
 		else if (savedInstanceState!=null){//Not called by intend, so just rotation!?
-			//FIXME: Seems like the stack gets messed up when rotating 
 			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from savedInstance");
 		}
 		else{
