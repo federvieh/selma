@@ -239,14 +239,8 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		PlayMode pm = getPlayMode();
 		if(force){
 			if(pm==PlayMode.REPEAT_TRACK){
-				//FIXME: Why do we change playmode!?
-//				ListTypes lt = getListType();
-//				if((lt==ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)){
-					pm=PlayMode.REPEAT_ALL_LESSONS;
-//				}
-//				else{
-//					pm=PlayMode.REPEAT_ALL_STARRED;
-//				}
+				//If clicking on next while in repeating track mode, the user still expects to go to the next track
+				pm=PlayMode.REPEAT_ALL_LESSONS;
 			}
 		}
 		switch(pm){
