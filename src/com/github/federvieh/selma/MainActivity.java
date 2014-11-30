@@ -162,9 +162,6 @@ public class MainActivity extends ActionBarActivity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -187,7 +184,7 @@ public class MainActivity extends ActionBarActivity implements
 			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 			LessonListFragment lf = new LessonListFragment();
 			fragmentTransaction.replace(R.id.container, lf);
-			PlaybarFragment pf = PlaybarFragment.newInstance(null, null);
+			PlaybarFragment pf = PlaybarFragment.newInstance();
 			fragmentTransaction.add(R.id.playbarContainer, pf);
 			fragmentTransaction.commit();
 			View pb = findViewById(R.id.playbarContainer);
