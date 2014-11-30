@@ -201,7 +201,7 @@ public class MainActivity extends ActionBarActivity implements
 					(DrawerLayout) findViewById(R.id.drawer_layout));
 		}
 		else{
-			//TODO: Go through intro information
+			//Nothing to do, is handled in LoaderFragment
 		}
 	}
 

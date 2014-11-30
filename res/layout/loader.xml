@@ -25,6 +25,15 @@
             android:padding="8dp"
             android:text="@string/selma_description_while_scanning" />
 
+        <EditText
+            android:id="@+id/isbnEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:inputType="number"
+            android:maxLines="1"
+            android:singleLine="true" />
+
         <android.support.v7.widget.Space
             android:id="@+id/space_top"
             android:layout_width="wrap_content"

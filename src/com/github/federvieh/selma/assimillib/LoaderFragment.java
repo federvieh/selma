@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.github.federvieh.selma.MainActivity.ActivityState;
@@ -133,6 +134,15 @@ public class LoaderFragment extends Fragment {
 			break;
 		case 5:
 			showNoFiles05();
+			break;
+		case 6:
+			showNoFiles06();
+			break;
+		case 7:
+			showNoFiles07();
+			break;
+		case 10:
+			showNoFiles10();
 			break;
 		default:
 			showWaiting(currentState);
@@ -368,7 +378,7 @@ public class LoaderFragment extends Fragment {
 		});
 	}
 
-	/**
+	/** Show the fifth dialog: GooglePlay / Quit / Continue
 	 * 
 	 */
 	protected void showNoFiles05() {
@@ -388,7 +398,7 @@ public class LoaderFragment extends Fragment {
 			public void onClick(View v) {
 				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 				fragmentManager.beginTransaction()
-				.replace(R.id.container, new LoaderFragment(mainActivity, 5))
+				.replace(R.id.container, new LoaderFragment(mainActivity, 6))
 				.addToBackStack(null)
 				.commit();
 			}
@@ -408,6 +418,108 @@ public class LoaderFragment extends Fragment {
 				startActivity(intent);
 			}
 		});
+	}
+
+	/** Show the sixth dialog: No / Quit / Yes
+	 * 
+	 */
+	protected void showNoFiles06() {
+		progressIndicator.setVisibility(View.GONE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_6_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setText(R.string.yes);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.container, new LoaderFragment(mainActivity, 7))
+				.addToBackStack(null)
+				.commit();
+			}
+		});
+		middleBtn.setVisibility(View.VISIBLE);
+		middleBtn.setEnabled(true);
+		middleBtn.setText(R.string.quit);
+		middleBtn.setOnClickListener(quitListener);
+		leftBtn.setVisibility(View.VISIBLE);
+		leftBtn.setEnabled(true);
+		leftBtn.setText(R.string.no);
+		leftBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.container, new LoaderFragment(mainActivity, 10))
+				.addToBackStack(null)
+				.commit();
+			}
+		});
+	}
+
+	/** Show dialog 7a: Quit / SendEmail
+	 * 
+	 */
+	protected void showNoFiles07() {
+		progressIndicator.setVisibility(View.GONE);
+		final EditText isbnEditText = (EditText) getView().findViewById(R.id.isbnEditText);
+		isbnEditText.setVisibility(View.VISIBLE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_7a_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setText(R.string.email_chooser);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+						"mailto","frank.oltmanns+selma@gmail.com", null));
+				emailIntent.putExtra(Intent.EXTRA_SUBJECT, getResources().getText(R.string.email_no_files_subject));
+				emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+						getResources().getText(R.string.email_no_files_text1)+isbnEditText.getText().toString()+getResources().getText(R.string.email_no_files_text2));
+				startActivity(Intent.createChooser(emailIntent, getResources().getText(R.string.email_chooser)));
+			}
+		});
+		middleBtn.setVisibility(View.GONE);
+		leftBtn.setVisibility(View.VISIBLE);
+		leftBtn.setEnabled(true);
+		leftBtn.setText(R.string.quit);
+		leftBtn.setOnClickListener(quitListener);
+	}
+
+	/** Show dialog 7b: Quit
+	 * 
+	 */
+	protected void showNoFiles10() {
+		progressIndicator.setVisibility(View.GONE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_7b_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setText(R.string.quit);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(quitListener);
+		middleBtn.setVisibility(View.GONE);
+		leftBtn.setVisibility(View.GONE);
 	}
 
 	/**
