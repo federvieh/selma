@@ -54,6 +54,12 @@ public class AssimilDatabase {
 	 */
 	public static synchronized AssimilDatabase getDatabase(Context caller, boolean forceScan) {
 		if(forceScan){
+			if(AssimilSQLiteHelper.deleteDatabase(caller)){
+				Log.i("LT", "Database deleted");
+			}
+			else{
+				Log.w("LT", "Database could not be deleted!");
+			}
 			assimilDatabase = new AssimilDatabase();
 			assimilDatabase.scanForLessons(caller);
 			assimilDatabase.init(caller);

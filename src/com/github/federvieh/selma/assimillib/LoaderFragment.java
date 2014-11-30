@@ -26,7 +26,7 @@ import com.github.federvieh.selma.R;
  *
  */
 public class LoaderFragment extends Fragment {
-	private static final String FORCE_RESET = "com.github.federvieh.selma.assimillib.FORCE_RESET";
+	public static final String FORCE_RESET = "com.github.federvieh.selma.assimillib.FORCE_RESET";
 	private static final String INFO_DIALOG_ID = "INFO_DIALOG_ID";
 
 	//TODO: Attribute mainActivity should be moved from static to reload on rotation
@@ -116,8 +116,11 @@ public class LoaderFragment extends Fragment {
 		leftBtn = (Button) getView().findViewById(R.id.button_uninstall);
 		middleBtn = (Button) getView().findViewById(R.id.button_middle);
 		switch(infoDialogId){
+		case 0:
+			showFinished01(true);
+			break;
 		case 1:
-			showFinished01();
+			showFinished01(false);
 			break;
 		case 2:
 			showNoFiles02();
@@ -171,16 +174,29 @@ public class LoaderFragment extends Fragment {
 			.commit();
 			break;
 		}
+		case READY_FOR_PLAYBACK_AFTER_FORCED_SCANNING:
+		{
+			FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+			.replace(R.id.container, new LoaderFragment(mainActivity, 0))
+			.commit();
+			break;
+		}
 		case READY_FOR_PLAYBACK_NO_SCANNING:
 			mainActivity.onLoadingFinished(true);
+			break;
+		default:
 			break;
 		}
 	}
 
-	protected void showFinished01(){
+	protected void showFinished01(boolean forcedScanning){
 		//Show continue button to start LessonListFragment (if lessons have been found)
 		continueBtn.setEnabled(true);
 		//Disable progress indicators
+		if(forcedScanning){
+			textViewDescription1.setVisibility(View.GONE);
+		}
 		getView().findViewById(R.id.wait_for_database_progress).setVisibility(View.GONE);
 		getView().findViewById(R.id.selma_description2).setVisibility(View.GONE);
 
@@ -347,7 +363,6 @@ public class LoaderFragment extends Fragment {
 						.getLaunchIntentForPackage( getActivity().getPackageName() );
 				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				i.putExtra(FORCE_RESET, true);
-				//FIXME: Implement FORCE RESET in main activity!
 				startActivity(i);
 			}
 		});

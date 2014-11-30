@@ -258,6 +258,10 @@ public class AssimilSQLiteHelper extends SQLiteOpenHelper {
         }
         files.clear();
 	}
+	
+	public static boolean deleteDatabase(Context ctxt){
+		return ctxt.deleteDatabase(ASSIMIL_DATABASE_NAME);
+	}
 	/** Find translation on SD card of the given MP3 file.
 	 * @param pathStr path to the MP3 file
 	 * @return rv[0] contains translation, rv[1] contains literal translation,

@@ -41,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements
 		FORCED_SCANNING_FOR_LESSONS,
 		READY_FOR_PLAYBACK_NO_SCANNING,
 		READY_FOR_PLAYBACK_AFTER_SCANNING,
+		READY_FOR_PLAYBACK_AFTER_FORCED_SCANNING,
 	}
 
 	private static final String PREF_STARRED_ONLY = "PREF_STARRED_ONLY";
@@ -76,9 +77,10 @@ public class MainActivity extends ActionBarActivity implements
 
 		long lessonTemp = intend.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID,-1);
 		int trackNumber = intend.getIntExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, -1);
+		boolean forceReload = intend.getBooleanExtra(LoaderFragment.FORCE_RESET, false);
 		//First check, if this got called from an intend 
 		if(lessonTemp>=0){
-			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from intend");
+			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from intend with lesson id");
 			onLoadingFinished(true);
 			onLessonClicked(lessonTemp, trackNumber);
 		}
@@ -86,11 +88,15 @@ public class MainActivity extends ActionBarActivity implements
 			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from savedInstance");
 		}
 		else{
-			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called without intend or savedInstance");
-			if(dbInitTask==null){
+			if(forceReload){
+				Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from intend with force reload");
+			}
+			else{
+				Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called without intend or savedInstance");
+			}
+			if((dbInitTask==null) || forceReload){
 				dbInitTask = new DatabaseInitTask();
-				//TODO: Implement forced reload, i.e. dbInitTask.execute(true)
-				dbInitTask.execute(false);
+				dbInitTask.execute(forceReload);
 			}
 			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); calling Loader");
 			FragmentManager fragmentManager = getSupportFragmentManager();
@@ -324,10 +330,16 @@ public class MainActivity extends ActionBarActivity implements
 			else{
 				publishProgress(ActivityState.FORCED_SCANNING_FOR_LESSONS);
 				wasScanning = true;
+				AssimilDatabase.reset();
 				AssimilDatabase.getDatabase(getApplicationContext(), true);
 			}
 			if(wasScanning){
-				return ActivityState.READY_FOR_PLAYBACK_AFTER_SCANNING;
+				if(!forceScan[0]){
+					return ActivityState.READY_FOR_PLAYBACK_AFTER_SCANNING;
+				}
+				else{
+					return ActivityState.READY_FOR_PLAYBACK_AFTER_FORCED_SCANNING;
+				}
 			}
 			return ActivityState.READY_FOR_PLAYBACK_NO_SCANNING;
 		}
