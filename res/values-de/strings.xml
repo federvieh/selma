@@ -13,7 +13,11 @@
     <string name="play_all_lessons_short">Alle</string>
     <string name="title_activity_show_lesson">Zeige Lektion</string>
     <string name="lesson">Lektion</string>
-    <string name="warning_no_starred">Sie haben noch keine Favoriten ausgewählt&#8230; Wenn Sie oben \"Alle Lektionen\" auswählen, können Sie durch Markieren einzelner Lektionen mit dem Stern, Ihre Favoriten festlegen.</string>
+    <string name="warning_no_starred">Sie haben noch keine Favoriten ausgewählt&#8230; Wenn Sie im Navigationsmenü \"Alle Lektionen\" auswählen, können Sie durch Markieren einzelner Lektionen mit dem Stern, Ihre Favoriten festlegen.</string>
+    <string name="selma_description">Herzlich Willkommen bei Selma!\n\nSelma ist eine Android App, die es Ihnen ermöglicht, Lektionen von den MP3 CDs von Assimil Sprachkursen auf einfache Art wiederzugeben.\n\nWichtiger Hinweis: Die MP3-Dateien, die für diese App benötigt werden, werden nicht mitgeliefert. Es ist erforderlich, dass sie einen Kurs (Buch und MP3-CD) separat erwerben und die MP3-Dateien von der CD auf dieses Gerät übertragen. Die App kann ohne diese Dateien nicht verwendet werden.</string>
+    <string name="selma_description_while_scanning">Selma sucht auf Ihrem Gerät nun nach Lektionen.</string>
+    <string name="selma_description_no_content_found">Es wurdem keine Assimil-Audiodateien auf Ihrem Gerät gefunden.\n\nFalls Sie keinen Assimil Sprachkurs besitzen, können Sie diese App de-installieren, indem Sie auf \"De-installieren\" klicken. Um mehr Informationen zu erhalten, klicken Sie bitte auf \"Fortfahren\".</string>
+    <string name="selma_description_scanning_finished">Selma hat Lektionen auf Ihrem Gerät gefunden. Sie können nun mit dem Lernen beginnen, indem Sie auf \"Fortsetzen\" klicken. Viel Spaß!</string>
     <string name="waiting_for_database">Bitte warten Sie&#8230; die Lektionen werden geladen&#8230;</string>
     <string name="refreshing_database">Bitte warten Sie&#8230; Lektionen werden gesucht&#8230;</string>
     <string name="no_content_found">Leider konnten keine Assimil-Dateien auf Ihrem Gerät gefunden werden. Bitte klicken Sie hier und wir werden Sie durch ein paar Dialoge führen, die bei der Einrichtung von Selma helfen.</string>
@@ -26,7 +30,6 @@
     <string name="email_no_files_text2">\n\nAlle Dateien werden in der Google Play Music App angezeigt, werden jedoch nicht von \"Selma\" erkannt. Kannst Du mir bitte helfen? Ich bin bereit einige Fragen zu beantworten.\n\nVielen Dank und freundliche Grüße,\n</string>
     <string name="email_chooser">Email senden&#8230;</string>
     
-    <string name="assimil_info">Vielen Dank für Ihr Interesse an Selma!\n\nSelma ist eine Android App, die es Ihnen ermöglicht, Lektionen von den MP3 CDs von Assimil Sprachkursen auf einfache Art wiederzugeben.\n\nWichtiger Hinweis: Die MP3-Dateien, die für diese App benötigt werden, werden nicht mitgeliefert. Es ist erforderlich, dass sie einen Kurs (Buch und MP3-CD) separat erwerben und die MP3-Dateien von der CD auf dieses Gerät übertragen. Die App kann ohne diese Dateien nicht verwendet werden.\n\nFalls Sie keinen Assimil Sprachkurs besitzen, können Sie diese App de-installieren, indem Sie auf \"De-installieren\" klicken. Um mehr Informationen zu erhalten, klicken Sie bitte auf \"Fortfahren\".</string>
     <string name="uninstall">De-Installieren</string>
     <string name="continueDlg">Fortfahren</string>
     <string name="no_files_title">Keine Dateien gefunden</string>
@@ -44,10 +47,9 @@
     <string name="no_files_dialog_7a_msg">Der Kurs wird in \"Google Play Music\" angezeigt, aber nicht hier. Scheinbar unterstützt Selma Ihren Assimil-Kurs noch nicht. Bitte tippen Sie die auf der Packung der MP3-CD angegebene ISBN-Nummer ein und klicken Sie auf \"Email senden&#8230;\". Wir werden versuchen (wenn Sie uns dabei unterstützen), dass Selma auch mit Ihrem Kurs funktioniert.\n\nISBN:</string>
     <string name="no_files_dialog_7b_msg">Selma verwendet die gleichen Mechansimen wie \"Google Play Music\". Wenn die Dateien dort nicht angezeigt werden, so ist es auch für Selma nicht möglich diese Dateien zu finden. Wenn Sie nicht wissen, wie Sie dafür sorgen können, dass \"Google Play Music\" die Dateien anzeigt, gibt es leider nicht viel, was wir tun können, um Sie zu unterstützen. Dies tut uns sehr leid! Bitte ziehen Sie einen Freund oder die Hilfe des Internets zu Rate wie die MP3s in \"Google Play Music\" angezeigt werden können.</string>
     
-    <string-array name="playback_option_list">
-        <item>Alle Lektionen</item>
-        <item>Nur Favoriten</item>
-    </string-array>
+    <string name="all_courses">Alle Kurse</string>
+    <string name="all_lessons">Alle Lektionen</string>
+    <string name="starred_lessons">Nur Favoriten</string>
     <string-array name="exercise_option_list">
         <item>Übungen zeigen</item>
         <item>Ohne Übungen</item>
@@ -75,4 +77,7 @@
     <string name="change_original_text">Originaltext eingeben</string>
     <string name="change_translation">Übersetzung eingeben</string>
     <string name="change_literal">Wörtliche Übersetzung eingeben</string>
+
+    <string name="navigation_drawer_open">Navigationsmenü öffnen</string>
+    <string name="navigation_drawer_close">Navigationsmenü schließen</string>
 </resources>
