@@ -42,6 +42,7 @@ public class LessonListFragment extends ListFragment {
 		this.setListAdapter(la);
 
 		listener.onResumedTitleUpdate("Selma");
+		setEmptyText(getText(R.string.warning_no_starred));
 	}
 	
 	/* (non-Javadoc)
