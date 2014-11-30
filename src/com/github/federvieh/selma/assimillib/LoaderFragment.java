@@ -3,8 +3,13 @@
  */
 package com.github.federvieh.selma.assimillib;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +26,27 @@ import com.github.federvieh.selma.R;
  *
  */
 public class LoaderFragment extends Fragment {
-//	private static final String FORCE_RESET = "com.github.federvieh.selma.assimillib.FORCE_RESET";
-//	private boolean reset;
-	//Attribute callback has to be static in order to rotate the device while loading
+	private static final String FORCE_RESET = "com.github.federvieh.selma.assimillib.FORCE_RESET";
+	private static final String INFO_DIALOG_ID = "INFO_DIALOG_ID";
+
+	//TODO: Attribute mainActivity should be moved from static to reload on rotation
 	private static LoaderFragmentCallbacks mainActivity;
 	private ActivityState currentState = ActivityState.DATABASE_LOADING;
+	private Button continueBtn;
+	private Button leftBtn;
+	private Button middleBtn;
+	private OnClickListener quitListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			System.exit(Activity.RESULT_OK);
+		}
+	};
+	private TextView textViewDescription1;
+	private TextView textViewWaitForDB;
+	private TextView textViewDescription2;
+	private View progressIndicator;
+	private int infoDialogId = -1;
 
 	/**
 	 * @param mainActivity
@@ -43,35 +64,42 @@ public class LoaderFragment extends Fragment {
 		}
 	}
 
+	/**
+	 * @param activity
+	 * @param i
+	 */
+	public LoaderFragment(LoaderFragmentCallbacks mainActivity, int infoDialogId) {
+		super();
+		LoaderFragment.mainActivity = mainActivity;
+		this.infoDialogId = infoDialogId;
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState){
-		//TODO:From ArticleFragment (example code). What should this Fragment do instead?
-        // If activity recreated (such as from screen rotate), restore
-        // the previous article selection set by onSaveInstanceState().
-        // This is primarily necessary when in the two-pane layout.
-//        if (savedInstanceState != null) {
-//            mCurrentPosition = savedInstanceState.getInt(ARG_POSITION);
-//        }
-
         // Inflate the layout for this fragment
 		Log.w("LT", this.getClass().getSimpleName()+".onCreateView(); container="+container);
         return inflater.inflate(R.layout.loader, container, false);
+	}
+
+	/* (non-Javadoc)
+	 * @see android.support.v4.app.Fragment#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(INFO_DIALOG_ID, infoDialogId);
 	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
-//		reset = false;
-//		Bundle arguments = this.getArguments();
-//		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); arguments="+arguments);
-//		if (arguments != null){
-//			reset = arguments.getBoolean(FORCE_RESET, false);
-//		}
-//		if(reset){
-//			AssimilDatabase.reset();
-//		}
+
+		if(savedInstanceState!=null){
+			this.infoDialogId = savedInstanceState.getInt(INFO_DIALOG_ID, -1);
+			Log.d("LT", this.getClass().getSimpleName()+",onCreate(): infoDialogId="+infoDialogId);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -80,14 +108,33 @@ public class LoaderFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-//		if(!AssimilDatabase.isAllocated()){
-//			showWaiting(ActivityState.DATABASE_LOADING);
-//			new DatabaseInitTask().execute(reset);
-//		}
-//		else{
-//			showWaiting(ActivityState.READY_FOR_PLAYBACK);
-//		}
-		showWaiting(currentState);
+		textViewDescription1 = (TextView)getView().findViewById(R.id.selma_description1);
+		textViewDescription2 = (TextView)getView().findViewById(R.id.selma_description2);
+	    textViewWaitForDB = (TextView)getView().findViewById(R.id.wait_for_database_text);
+	    progressIndicator = getView().findViewById(R.id.wait_for_database_progress);
+		continueBtn = (Button) getView().findViewById(R.id.button_go_to_main);
+		leftBtn = (Button) getView().findViewById(R.id.button_uninstall);
+		middleBtn = (Button) getView().findViewById(R.id.button_middle);
+		switch(infoDialogId){
+		case 1:
+			showFinished01();
+			break;
+		case 2:
+			showNoFiles02();
+			break;
+		case 3:
+			showNoFiles03();
+			break;
+		case 4:
+			showNoFiles04();
+			break;
+		case 5:
+			showNoFiles05();
+			break;
+		default:
+			showWaiting(currentState);
+			break;
+		}
 	}
 	
 	/**
@@ -118,96 +165,234 @@ public class LoaderFragment extends Fragment {
 		}
 		case READY_FOR_PLAYBACK_AFTER_SCANNING:
 		{
-			//Show continue button to start LessonListFragment (if lessons have been found)
-	//		if(wasScanning){
-			Button continueBtn = (Button) getView().findViewById(R.id.button_go_to_main);
-			continueBtn.setEnabled(true);
-			//Disable progress indicators
-			getView().findViewById(R.id.wait_for_database_progress).setVisibility(View.GONE);
-			getView().findViewById(R.id.selma_description2).setVisibility(View.GONE);
-
-			/* Update the texts and buttons. */
-			TextView textView = (TextView)getView().findViewById(R.id.wait_for_database_text);
-			boolean lessonsFound = (AssimilDatabase.getDatabase(getActivity(), false)!= null) &&
-					(AssimilDatabase.getDatabase(getActivity(), false).getAllLessonHeaders().size()!=0);
-			if(lessonsFound){
-				textView.setText(R.string.selma_description_scanning_finished);
-				textView.setTextColor(getResources().getColor(R.color.DarkGreen));
-				continueBtn.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						mainActivity.onLoadingFinished(true);
-					}
-				});
-			}
-			else{
-				textView.setText(R.string.selma_description_no_content_found);
-				textView.setTextColor(getResources().getColor(R.color.Red));
-				continueBtn.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						// TODO Go through the intro information
-						mainActivity.onLoadingFinished(false);
-					}
-				});
-				//FIXME: Uninstall button!?
-			}
+			FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+			.replace(R.id.container, new LoaderFragment(mainActivity, 1))
+			.commit();
+			break;
 		}
 		case READY_FOR_PLAYBACK_NO_SCANNING:
 			mainActivity.onLoadingFinished(true);
+			break;
 		}
-			//TODO: Go through the help "dialogs" if no lessons have been found
-			//TODO: Must the below go into the LessonListFragment!?
-//			setContentView(R.layout.activity_lesson_list);
-//			setTitle("");
-//			SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.playback_option_list,
-//					android.R.layout.simple_spinner_dropdown_item);
-//			ActionBar.OnNavigationListener mOnNavigationListener = new ActionBar.OnNavigationListener() {
-//				@Override
-//				public boolean onNavigationItemSelected(int position, long itemId) {
-//					switch(lt){
-//					case LIST_TYPE_ALL_NO_TRANSLATE:
-//					case LIST_TYPE_STARRED_NO_TRANSLATE:
-//						if(position==0){
-//							lt = ListTypes.LIST_TYPE_ALL_NO_TRANSLATE;
-//						}
-//						else{
-//							lt = ListTypes.LIST_TYPE_STARRED_NO_TRANSLATE;
-//						}
-//						break;
-//					case LIST_TYPE_STARRED_TRANSLATE:
-//					case LIST_TYPE_ALL_TRANSLATE:
-//						if(position==0){
-//							lt = ListTypes.LIST_TYPE_ALL_TRANSLATE;
-//						}
-//						else{
-//							lt = ListTypes.LIST_TYPE_STARRED_TRANSLATE;
-//						}
-//						break;
-//					}
-//					Log.d("LT", this.getClass().getSimpleName()+".onNavigationItemSelected(); lt="+lt);
-//					PlaybarManager.setListType(lt);
-//					updateListType();
-//					return true;
-//				}
-//			};
-//			getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-//			getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, mOnNavigationListener);
-//			getSupportActionBar().setTitle("");
-//			int navItem = 0;
-//			switch(lt){
-//			case LIST_TYPE_ALL_NO_TRANSLATE:
-//			case LIST_TYPE_ALL_TRANSLATE:
-//				navItem = 0;
-//				break;
-//			case LIST_TYPE_STARRED_NO_TRANSLATE:
-//			case LIST_TYPE_STARRED_TRANSLATE:
-//				navItem = 1;
-//				break;
-//			}
-//			getSupportActionBar().setSelectedNavigationItem(navItem);
+	}
+
+	protected void showFinished01(){
+		//Show continue button to start LessonListFragment (if lessons have been found)
+		continueBtn.setEnabled(true);
+		//Disable progress indicators
+		getView().findViewById(R.id.wait_for_database_progress).setVisibility(View.GONE);
+		getView().findViewById(R.id.selma_description2).setVisibility(View.GONE);
+
+		/* Update the texts and buttons. */
+		TextView textView = (TextView)getView().findViewById(R.id.wait_for_database_text);
+		boolean lessonsFound = (AssimilDatabase.getDatabase(getActivity(), false)!= null) &&
+				(AssimilDatabase.getDatabase(getActivity(), false).getAllLessonHeaders().size()!=0);
+		if(lessonsFound){
+			leftBtn.setVisibility(View.GONE);
+			textView.setText(R.string.selma_description_scanning_finished);
+			textView.setTextColor(getResources().getColor(R.color.DarkGreen));
+			continueBtn.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					mainActivity.onLoadingFinished(true);
+				}
+			});
+		}
+		else{
+			leftBtn.setEnabled(true);
+			textView.setText(R.string.selma_description_no_content_found);
+			textView.setTextColor(getResources().getColor(R.color.Red));
+			continueBtn.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+					fragmentManager.beginTransaction()
+					.replace(R.id.container, new LoaderFragment(mainActivity, 2))
+					.addToBackStack(null)
+					.commit();
+//					showNoFiles02();
+				}
+			});
+			middleBtn.setVisibility(View.VISIBLE);
+			middleBtn.setEnabled(true);
+			middleBtn.setText(R.string.quit);
+			middleBtn.setOnClickListener(quitListener );
+			leftBtn.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					Uri packageUri = Uri.parse("package:"+getActivity().getApplicationInfo().packageName);
+					Intent uninstallIntent =
+							new Intent(Intent.ACTION_DELETE, packageUri);
+					startActivity(uninstallIntent);
+				}
+			});
+		}
+
+	}
+	/** Show the second dialog: Website / Quit / Continue
+	 * 
+	 */
+	protected void showNoFiles02() {
+		progressIndicator.setVisibility(View.GONE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_2_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.container, new LoaderFragment(mainActivity, 3))
+				.addToBackStack(null)
+				.commit();
+			}
+		});
+		middleBtn.setVisibility(View.VISIBLE);
+		middleBtn.setEnabled(true);
+		middleBtn.setText(R.string.quit);
+		middleBtn.setOnClickListener(quitListener );
+		leftBtn.setVisibility(View.VISIBLE);
+		leftBtn.setEnabled(true);
+		leftBtn.setText(R.string.open_web_site);
+		leftBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://federvieh.github.io/selma"));
+				startActivity(browserIntent);
+			}
+		});
+	}
+
+	/** Show the third dialog: Quit / Continue
+	 * 
+	 */
+	protected void showNoFiles03() {
+		progressIndicator.setVisibility(View.GONE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_3_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.container, new LoaderFragment(mainActivity, 4))
+				.addToBackStack(null)
+				.commit();
+			}
+		});
+		middleBtn.setVisibility(View.GONE);
+		leftBtn.setVisibility(View.VISIBLE);
+		leftBtn.setEnabled(true);
+		leftBtn.setText(R.string.quit);
+		leftBtn.setOnClickListener(quitListener);
+	}
+
+	/** Show the forth dialog: Re-try / Quit / Continue
+	 * 
+	 */
+	protected void showNoFiles04() {
+		progressIndicator.setVisibility(View.GONE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_4_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.container, new LoaderFragment(mainActivity, 5))
+				.addToBackStack(null)
+				.commit();
+			}
+		});
+		middleBtn.setVisibility(View.VISIBLE);
+		middleBtn.setEnabled(true);
+		middleBtn.setText(R.string.quit);
+		middleBtn.setOnClickListener(quitListener);
+		leftBtn.setVisibility(View.VISIBLE);
+		leftBtn.setEnabled(true);
+		leftBtn.setText(R.string.retry);
+		leftBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = getActivity().getPackageManager()
+						.getLaunchIntentForPackage( getActivity().getPackageName() );
+				i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				i.putExtra(FORCE_RESET, true);
+				//FIXME: Implement FORCE RESET in main activity!
+				startActivity(i);
+			}
+		});
+	}
+
+	/**
+	 * 
+	 */
+	protected void showNoFiles05() {
+		progressIndicator.setVisibility(View.GONE);
+
+		//Set-up textviews
+		textViewWaitForDB.setVisibility(View.GONE);
+		textViewDescription2.setVisibility(View.GONE);
+		textViewDescription1.setText(R.string.no_files_dialog_5_msg);
+
+		//Set-up buttons
+		continueBtn.setVisibility(View.VISIBLE);
+		continueBtn.setEnabled(true);
+		continueBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+				fragmentManager.beginTransaction()
+				.replace(R.id.container, new LoaderFragment(mainActivity, 5))
+				.addToBackStack(null)
+				.commit();
+			}
+		});
+		middleBtn.setVisibility(View.VISIBLE);
+		middleBtn.setEnabled(true);
+		middleBtn.setText(R.string.quit);
+		middleBtn.setOnClickListener(quitListener);
+		leftBtn.setVisibility(View.VISIBLE);
+		leftBtn.setEnabled(true);
+		leftBtn.setText(R.string.open);
+		leftBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(MediaStore.INTENT_ACTION_MUSIC_PLAYER);
+				startActivity(intent);
+			}
+		});
 	}
 
 	/**

@@ -1,77 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/selma_description1"
-        android:padding="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:text="@string/selma_description"/>
-    
-    <TextView
-        android:id="@+id/selma_description2"
-        android:padding="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:text="@string/selma_description_while_scanning"/>
-
-    <android.support.v7.widget.Space
-        android:id="@+id/space_top"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="100" />
-
-    <ProgressBar
-        android:id="@+id/wait_for_database_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:indeterminate="true"/>
-
-    <TextView
-        android:id="@+id/wait_for_database_text"
-        android:padding="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/waiting_for_database"/>
-    
-    <android.support.v7.widget.Space
-        android:id="@+id/space_bottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="100" />
+    android:layout_height="fill_parent"
+    android:fillViewport="true" >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/button_uninstall"
+        <TextView
+            android:id="@+id/selma_description1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:layout_weight="1"
-            android:text="@string/uninstall" />
+            android:layout_gravity="start"
+            android:padding="8dp"
+            android:text="@string/selma_description" />
+
+        <TextView
+            android:id="@+id/selma_description2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:padding="8dp"
+            android:text="@string/selma_description_while_scanning" />
 
         <android.support.v7.widget.Space
-            android:id="@+id/space_buttons"
+            android:id="@+id/space_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="100" />
 
-        <Button
-            android:id="@+id/button_go_to_main"
+        <ProgressBar
+            android:id="@+id/wait_for_database_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:layout_weight="1"
-            android:text="@string/continueDlg" />
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/wait_for_database_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="8dp"
+            android:text="@string/waiting_for_database" />
+
+        <android.support.v7.widget.Space
+            android:id="@+id/space_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="100" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button_uninstall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/uninstall" />
+
+            <android.support.v7.widget.Space
+                android:id="@+id/space_buttons1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button_middle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/continueDlg"
+                android:visibility="gone" />
+
+            <android.support.v7.widget.Space
+                android:id="@+id/space_buttons2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button_go_to_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/continueDlg" />
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
