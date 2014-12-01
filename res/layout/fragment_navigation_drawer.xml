@@ -26,8 +26,9 @@
         android:paddingEnd="16dp"
         android:paddingRight="16dp"
         android:layout_width="match_parent"
+        android:gravity="center_vertical"
         android:layout_height="48dp"
-        android:background="@android:drawable/list_selector_background"
+        android:background="@drawable/abc_list_selector_holo_dark"
         android:text="@string/action_show_tips" />
 
     <TextView
@@ -38,8 +39,9 @@
         android:paddingEnd="16dp"
         android:paddingRight="16dp"
         android:layout_width="match_parent"
+        android:gravity="center_vertical"
         android:layout_height="48dp"
-        android:background="@android:drawable/list_selector_background"
+        android:background="@drawable/abc_list_selector_holo_dark"
         android:text="@string/action_license" />
 
 </LinearLayout>

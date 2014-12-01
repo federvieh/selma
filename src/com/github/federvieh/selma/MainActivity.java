@@ -26,6 +26,7 @@ import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLessonListAdapter;
 import com.github.federvieh.selma.assimillib.AssimilOnClickListener;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
+import com.github.federvieh.selma.assimillib.OverlayManager;
 import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
 import com.github.federvieh.selma.assimillib.ListTypes;
 import com.github.federvieh.selma.assimillib.LoaderFragment;
@@ -161,7 +162,7 @@ public class MainActivity extends ActionBarActivity implements
 		// Handle action bar item clicks here. The action bar will
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
+		//int id = item.getItemId();
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -236,6 +237,7 @@ public class MainActivity extends ActionBarActivity implements
 		}
 		final Fragment f = getSupportFragmentManager().findFragmentById(R.id.container);
 		boolean hasShowLessonFragment = (f.getClass().equals(ShowLessonFragment.class));
+		boolean hasLessonListFragment = (f.getClass().equals(LessonListFragment.class));
 		if(hasShowLessonFragment){
 			SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.exercise_option_list,
 					android.R.layout.simple_spinner_dropdown_item);
@@ -267,10 +269,15 @@ public class MainActivity extends ActionBarActivity implements
 			}
 			actionBar.setSelectedNavigationItem(navItem);
 			mNavigationDrawerFragment.setDrawerIndicatorEnabled(false);
+
+			OverlayManager.showOverlayLessonContent(this);
 		}
 		else{
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 			mNavigationDrawerFragment.setDrawerIndicatorEnabled(true);
+			if(hasLessonListFragment){
+				OverlayManager.showOverlayLessonList(this);
+			}
 		}
 	}
 

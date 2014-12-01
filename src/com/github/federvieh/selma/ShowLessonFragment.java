@@ -30,7 +30,6 @@ import com.github.federvieh.selma.assimillib.AssimilShowLessonListAdapter;
 import com.github.federvieh.selma.assimillib.DisplayMode;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
 import com.github.federvieh.selma.assimillib.ListTypes;
-import com.github.federvieh.selma.assimillib.OverlayManager;
 
 /**
  * A fragment representing a list of lesson tracks.
@@ -225,8 +224,6 @@ public class ShowLessonFragment extends ListFragment {
 		AssimilShowLessonListAdapter assimilShowLessonListAdapter;
 		assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
 		setListAdapter(assimilShowLessonListAdapter);
-
-		OverlayManager.showOverlayLessonContent(getActivity());
     }
 	
 	@Override

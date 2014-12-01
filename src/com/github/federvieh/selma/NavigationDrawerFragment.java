@@ -1,12 +1,17 @@
 package com.github.federvieh.selma;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
@@ -19,10 +24,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
+import com.github.federvieh.selma.assimillib.OverlayManager;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -59,7 +67,7 @@ public class NavigationDrawerFragment extends Fragment {
 	private View mFragmentContainerView;
 
 	private int mCurrentSelectedPosition = 0;
-	private boolean mFromSavedInstanceState;
+//	private boolean mFromSavedInstanceState;
 //	private boolean mUserLearnedDrawer;
 
 	private ListView mCourseListView;
@@ -86,7 +94,7 @@ public class NavigationDrawerFragment extends Fragment {
 		if (savedInstanceState != null) {
 			mCurrentSelectedPosition = savedInstanceState
 					.getInt(STATE_SELECTED_POSITION);
-			mFromSavedInstanceState = true;
+//			mFromSavedInstanceState = true;
 		}
 	}
 
@@ -119,10 +127,105 @@ public class NavigationDrawerFragment extends Fragment {
 			mCourseListView.setAdapter(mCourseListAdapter);
 //			mCourseListView.setItemChecked(mCurrentSelectedPosition, true);
 		}
+		View showTips = mDrawerView.findViewById(R.id.textViewNavTips);
+		OnClickListener oclTips = new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				OverlayManager.resetOverlays();
+				mDrawerLayout.closeDrawer(mFragmentContainerView);
+			}
+		};
+		showTips.setOnClickListener(oclTips);
+
+		View showLicense = mDrawerView.findViewById(R.id.textViewNavLicense);
+		OnClickListener oclLicense = new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				showLicense();
+				mDrawerLayout.closeDrawer(mFragmentContainerView);
+			}
+		};
+		showLicense.setOnClickListener(oclLicense);
+
 		return mDrawerView;
 	}
 
 	
+	/**
+	 * 
+	 */
+	protected void showLicense() {
+		// 1. Instantiate an AlertDialog.Builder with its constructor
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+		builder.setMessage(readRawTextFile(getActivity(), R.raw.license))
+		       .setTitle(R.string.action_license);
+
+		builder.setPositiveButton(R.string.show_license, new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int id) {
+//	        	   Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.gnu.org/licenses/gpl-2.0-standalone.html"));
+//	        	   startActivity(browserIntent);
+	        	   openGPL();
+	           }
+	       });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	/**
+	 * 
+	 */
+	protected void openGPL() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	    // Get the layout inflater
+	    LayoutInflater inflater = getActivity().getLayoutInflater();
+
+	    // Inflate and set the layout for the dialog
+	    // Pass null as the parent view because its going in the dialog layout
+	    View layoutView = inflater.inflate(R.layout.license_view, null);
+	    builder.setView(layoutView);
+	    TextView textView = (TextView)layoutView.findViewById(R.id.textViewLicense);
+	    textView.setText(readRawTextFile(getActivity(), R.raw.gpl30));
+		textView.setHorizontallyScrolling(true);
+
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User closed the dialog
+            }
+        });
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	private static String readRawTextFile(Context ctx, int resId)
+	{
+	    InputStream inputStream = ctx.getResources().openRawResource(resId);
+
+	    InputStreamReader inputreader = new InputStreamReader(inputStream);
+	    BufferedReader buffreader = new BufferedReader(inputreader);
+	    String line;
+	    StringBuilder text = new StringBuilder();
+
+	    try {
+	        while (( line = buffreader.readLine()) != null) {
+	            text.append(line);
+	            text.append('\n');
+	        }
+	    } catch (IOException e) {
+	        return null;
+	    }
+	    return text.toString();
+	}
+
 	/** Should be called whenever an item was selected, so that the navigation drawer is re-drawn.
 	 * 
 	 */
