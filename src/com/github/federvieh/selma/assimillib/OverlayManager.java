@@ -87,7 +87,7 @@ public class OverlayManager {
 					Context ctxt = dialog.getContext();
 					switch(hintDisplayed){
 					case 1:
-						dialog.setContentView(R.layout.overlay_view_top_spinner);
+						dialog.setContentView(R.layout.overlay_view_top_left);
 						layout = (LinearLayout) dialog.findViewById(R.id.overlayLayout);
 						layout.setOnClickListener(this);
 						break;

@@ -16,6 +16,7 @@ import android.widget.ListAdapter;
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLessonListAdapter;
 import com.github.federvieh.selma.assimillib.LoaderFragment;
+import com.github.federvieh.selma.assimillib.OverlayManager;
 
 /**
  * @author frank
@@ -33,6 +34,7 @@ public class LessonListFragment extends ListFragment {
 		Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
 
 		setHasOptionsMenu(true); 
+		OverlayManager.showOverlayLessonList(getActivity());
 	}
 
 	@Override

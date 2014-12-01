@@ -61,7 +61,7 @@
     <string name="repeat_all">Alle Lektionen wiederholen</string>
 
     <string name="how_to_star">Sie können auf die Sternsymbole klicken, um die Lektionen als Favoriten zu markieren, auf die Sie sich zur Zeit am meisten konzentrieren.</string>
-    <string name="how_to_choose_displayed_lessons">Klicken Sie hier, um entweder alle Lektionen oder nur Ihre Favoriten anzuzeigen.</string>
+    <string name="how_to_choose_displayed_lessons">Klicken Sie hier, um das Navigationsmenü zu öffnen und entweder alle Lektionen oder nur Ihre Favoriten anzuzeigen. Falls Sie mehrere Kurse installiert haben, können Sie hier ebenfalls den Kurs auswählen.</string>
     <string name="how_to_exercises">Klicken Sie hier, um entweder nur die Lektionstexte oder auch die Übungstexte (Übersetzungsübungen) anzuzeigen.\n\nScrollen Sie nach unten, um die Übungen zu sehen.</string>
     <string name="how_to_translations">Mit Hilfe des Menüs können Sie zwischen Originaltext, Übersetzung und wörtlicher Übersetzung umschalten.\n\nÜbersetzungen und wörtliche Übersetzungen müssen jedoch von Ihnen selbst eingegeben werden.\n\nUm einen Text zu übersetzen, halten Sie diesen lange gedrückt.</string>
     <string name="how_to_playbar_buttons">Verwenden Sie diese Knöpfe für die Wiedergabe:\n\nLinker Knopf ändert den Wiederholungsmodus (lange drücken, um alle Optionen zu sehen).\n\nDer zweite Knopf startet und pausiert die Wiedergabe.\n\nDer dritte Knopf springt zum nächsten Text (nur während der Wiedergabe).\n\nDer letzte Knopf springt zur nächten Lektion (nur während der Wiedergabe).</string>

@@ -60,7 +60,7 @@
     <string name="repeat_lesson">Repeat current lesson</string>
     <string name="repeat_all">Repeat all lessons</string>
     <string name="how_to_star">You can click on the stars to mark the lessons that you are currently focusing on.</string>
-    <string name="how_to_choose_displayed_lessons">Click here to choose if you want to see all lessons or only the ones you starred.</string>
+    <string name="how_to_choose_displayed_lessons">Click here to open the navigation drawer and choose if you want to see all lessons or only the ones you starred. If you have installed several courses, you can also choose which course to show.</string>
     <string name="how_to_exercises">Click here to choose if you want to see only the lesson texts or also the exercises (translate) of the lesson.\n\nScroll down to see the exercises.</string>
     <string name="how_to_translations">You can switch between showing the original text, a translation and a literal translation by using the menu.\n\nTranslation and literal translation have to be provided by you.\n\nTo translate a text, long click on it.</string>
     <string name="how_to_playbar_buttons">Use these buttons for playback:\n\nLeft button changes repeat mode (long press to see all options).\n\nUse the second button to start or pause playback.\n\nPress the third button to jump to next text (only during playback).\n\nLast button jumps to next lesson (only during playback).</string>
