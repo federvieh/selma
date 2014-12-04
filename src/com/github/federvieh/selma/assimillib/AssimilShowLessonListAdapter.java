@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.federvieh.selma.R;
+import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper.TextType;
 
 /** Adapter for showing all the texts in a lesson.
  * @author frank
@@ -39,23 +40,23 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
 		TextView textView = (TextView) rowView.findViewById(R.id.label);
 		ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
 		String current = lesson.getTextList(displayMode)[position];
+		TextType textType = lesson.getTextTypeList()[position];
 		textView.setText(current);
-		if((position>1)&&(position<lesson.getLessonList(displayMode).length)){
-			textView.setTextSize(16);
+		switch(textType){
+		case TRANSLATE_HEADING:
 			textView.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
-		}
-		else if(position>lesson.getLessonList(displayMode).length){
-			textView.setTextSize(16);
-			textView.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
-			//textView.setTextColor(context.getResources().getColor((lt==ListTypes.LIST_TYPE_ALL_TRANSLATE)?R.color.holo_blue_dark:R.color.holo_green_dark));
-		}
-		else if(position==lesson.getLessonList(displayMode).length){
+			//FALLTHROUGH
+		case LESSONNUMBER:
+		case HEADING:
 			textView.setTextSize(18);
 			textView.setTypeface(null, Typeface.ITALIC);
-		}
-		else{
-			textView.setTextSize(18);
-			textView.setTypeface(null, Typeface.ITALIC);
+			break;
+		case TRANSLATE:
+			textView.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
+			//FALLTHROUGH
+		case NORMAL:
+			textView.setTextSize(16);
+			break;
 		}
 		if((LessonPlayer.getTrackNumber(getContext())==position)&&(LessonPlayer.getLesson(getContext()).getHeader().equals(lesson.getHeader()))){
 			textView.setTypeface(null, Typeface.BOLD|((textView.getTypeface()!=null)?textView.getTypeface().getStyle():0));

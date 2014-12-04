@@ -20,13 +20,10 @@ import android.util.Log;
  * 
  *
  */
-public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
-	/* Prefixes as used in the Assimil lesson MP3 files.
-	 * 
-	 */
-	public static final String TITLE_PREFIX = "S00-TITLE-";
-	private static final int PREFIX_LENGTH = "S01-".length();
-
+public class AssimilPcSQLiteHelper extends SelmaSQLiteHelper {
+	
+	private static final int PREFIX_LENGTH = "l000_".length();
+	
 	/* This stores the file list of all directories that contain mp3 files in order
 	 * to speed up searching for translations
 	 */
@@ -34,7 +31,7 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
 
 	private Context caller;
 
-	public AssimilSQLiteHelper(Context context){
+	public AssimilPcSQLiteHelper(Context context){
 		super(context, null);
 		this.caller = context;
 	}
@@ -44,7 +41,8 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
 	 */
 	@Override
 	public void createIfNotExists(String number, String language,
-			String fullAlbum, SharedPreferences settings) {
+			String fullAlbumNotUsedInAssimilPc, SharedPreferences settings) {
+		// TODO Auto-generated method stub
         ContentResolver contentResolver = caller.getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { android.provider.MediaStore.Audio.Media.TITLE,
@@ -52,10 +50,9 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
         		android.provider.MediaStore.Audio.Media._ID,
         		android.provider.MediaStore.Audio.Media.DATA
         };
-        String findLessonTexts = android.provider.MediaStore.Audio.Media.ALBUM+" = '"+fullAlbum+"' AND ("+
-        		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'N%-%' OR "+ //NUMBER
-        		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'S%' OR "+   //Text
-        		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'T%')";      //Translate
+        String findLessonTexts =
+        		android.provider.MediaStore.Audio.Media.TITLE+" REGEXP 'l"+number+"_[0-9][0-9a]' OR "+ //e.g. l001_01
+        		android.provider.MediaStore.Audio.Media.TITLE+" REGEXP 'e"+number+"_[0-9][0-9]'";      //e.g. e001_01
         Cursor cursor = contentResolver.query(uri, projection, findLessonTexts, null, android.provider.MediaStore.Audio.Media.TITLE);
         if(cursor == null){
         	//TODO: query failed
@@ -66,25 +63,25 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
         	return;
         }
         else{
-//			AssimilSQLiteHelper dbHelper = new AssimilSQLiteHelper(caller);
-			SQLiteDatabase db = this.getWritableDatabase();
+			AssimilPcSQLiteHelper dbHelper = this;
+			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			//Find the lesson in the lesson table
-			String[] columns = {AssimilSQLiteHelper.TABLE_LESSONS_ID};
-			Cursor cursorAlbum = db.query(AssimilSQLiteHelper.TABLE_LESSONS, columns,
-					AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + number + "'" +
-							" AND " + AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
+			String[] columns = {AssimilPcSQLiteHelper.TABLE_LESSONS_ID};
+			Cursor cursorAlbum = db.query(AssimilPcSQLiteHelper.TABLE_LESSONS, columns,
+					AssimilPcSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= 'L" + number + "'" +
+							" AND " + AssimilPcSQLiteHelper.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
 							null, null, null, null);
 			if(!cursorAlbum.moveToFirst()){
 				//No result, i.e. we need to create a new entry for this album
-				Log.d("LT", "Creating new lesson for " + fullAlbum);
+				Log.d("LT", "Creating new lesson for " + number);
 				ContentValues valuesLessonTable = new ContentValues();
-				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME, language);
-				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME, number);
-				valuesLessonTable.put(AssimilSQLiteHelper.TABLE_LESSONS_STARRED, 0);
-				db.insert(AssimilSQLiteHelper.TABLE_LESSONS, null, valuesLessonTable);
-				cursorAlbum = db.query(AssimilSQLiteHelper.TABLE_LESSONS, columns,
-						AssimilSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= '" + number + "'" +
-								" AND " + AssimilSQLiteHelper.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
+				valuesLessonTable.put(AssimilPcSQLiteHelper.TABLE_LESSONS_COURSENAME, language);
+				valuesLessonTable.put(AssimilPcSQLiteHelper.TABLE_LESSONS_LESSONNAME, "L"+number);
+				valuesLessonTable.put(AssimilPcSQLiteHelper.TABLE_LESSONS_STARRED, 0);
+				db.insert(AssimilPcSQLiteHelper.TABLE_LESSONS, null, valuesLessonTable);
+				cursorAlbum = db.query(AssimilPcSQLiteHelper.TABLE_LESSONS, columns,
+						AssimilPcSQLiteHelper.TABLE_LESSONS_LESSONNAME + "= 'L" + number + "'" +
+								" AND " + AssimilPcSQLiteHelper.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
 								null, null, null, null);
 			}
 			if(!cursorAlbum.moveToFirst()){
@@ -97,7 +94,7 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
 				Log.wtf("LT", "Query for lesson header returned " + cursorAlbum.getCount() + ", but expected is 1!");
 				return;
 			}
-			long albumId = cursorAlbum.getLong(cursorAlbum.getColumnIndex(AssimilSQLiteHelper.TABLE_LESSONS_ID));
+			long albumId = cursorAlbum.getLong(cursorAlbum.getColumnIndex(AssimilPcSQLiteHelper.TABLE_LESSONS_ID));
 
         	int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
         	int idColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
@@ -112,30 +109,25 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
         		String text = null;
         		String textNumber = null;
         		TextType textType;
-        		if(fullTitle.startsWith(TITLE_PREFIX)){
-        			text = fullTitle.substring(TITLE_PREFIX.length());
-        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
-        			textType = TextType.HEADING;
+        		if(fullTitle.equals("l"+number+"_0a")){
+        			text = fullTitle;
+        			textNumber = "N"+fullTitle.substring(PREFIX_LENGTH);
+        			textType = TextType.LESSONNUMBER;
         		}
-        		else if(fullTitle.matches("S[0-9][0-9]-.*")){
-        			text = fullTitle.substring(PREFIX_LENGTH);
-        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
-        			textType = TextType.NORMAL;
-        		}
-        		else if(fullTitle.matches("T[0-9][0-9]-.*")){
-        			text = fullTitle.substring(PREFIX_LENGTH);
-        			textNumber = fullTitle.substring(0, PREFIX_LENGTH-1);
-        			if(textNumber.equals("T00")){
-        				textType = TextType.TRANSLATE_HEADING;
+        		else if(fullTitle.matches("l"+number+"_[0-9][0-9]")){
+        			text = fullTitle;//.substring(PREFIX_LENGTH);
+        			textNumber = "S"+fullTitle.substring(PREFIX_LENGTH);
+        			if(fullTitle.equals("l"+number+"_00")){
+        				textType = TextType.HEADING;
         			}
         			else{
-        				textType = TextType.TRANSLATE;
+        				textType = TextType.NORMAL;
         			}
         		}
-        		else if(fullTitle.matches("N[0-9]*-.*")){
-        			text = fullTitle.substring(fullTitle.indexOf("-")+1);
-        			textNumber = fullTitle.substring(0, fullTitle.indexOf("-"));
-        			textType = TextType.LESSONNUMBER;
+        		else if(fullTitle.matches("e"+number+"_[0-9][0-9]")){
+        			text = fullTitle;//.substring(PREFIX_LENGTH);
+        			textNumber = "T"+fullTitle.substring(PREFIX_LENGTH);
+        			textType = TextType.TRANSLATE;
         		}
         		else{
         			//Something's wrong!
@@ -152,7 +144,7 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
     							+ TABLE_LESSONTEXTS_LESSONID + " = " + albumId, null, null, null, null);
     			if(cursorLessontext.moveToFirst()){
     				//No result, i.e. we don't need to create a new entry for this text
-    				Log.d("LT", "Text " + textNumber + " for lesson \"" + fullAlbum + "\" already exists. Skipping...");
+    				Log.d("LT", "Text " + textNumber + " for lesson \"" + number + "\" already exists. Skipping...");
     			}
     			else{
     				String[] translations = findTexts(path);
@@ -165,13 +157,13 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
     				}
     				values.put(TABLE_LESSONTEXTS_TEXT,      text);
     				if(translations[0] != null){
-    					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, translations[0]);
+    					values.put(AssimilPcSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, translations[0]);
     				}
     				if(translations[1] != null){
-    					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, translations[1]);
+    					values.put(AssimilPcSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, translations[1]);
     				}
-    				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);
-    				db.insert(AssimilSQLiteHelper.TABLE_LESSONTEXTS, null, values);
+    				values.put(AssimilPcSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);
+    				db.insert(AssimilPcSQLiteHelper.TABLE_LESSONTEXTS, null, values);
     			}
         	} while (cursor.moveToNext());
         	cursor.close();

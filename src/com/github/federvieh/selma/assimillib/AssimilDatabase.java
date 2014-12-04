@@ -20,13 +20,20 @@ import android.util.Log;
 
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
+import com.github.federvieh.selma.assimillib.dao.AssimilPcSQLiteHelper;
 import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
+import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper;
 
 /** 
  * @author frank
  *
  */
 public class AssimilDatabase {
+	
+	public enum LessonType{
+		ASSIMIL_MP3_PACK,
+		ASSIMIL_PC,
+	}
 
 	private static AssimilDatabase assimilDatabase = null;
 	
@@ -54,7 +61,8 @@ public class AssimilDatabase {
 	 */
 	public static synchronized AssimilDatabase getDatabase(Context caller, boolean forceScan) {
 		if(forceScan){
-			if(AssimilSQLiteHelper.deleteDatabase(caller)){
+			SelmaSQLiteHelper sqlHelper = new AssimilSQLiteHelper(caller);//For now all lessons are stored in the same database, so only one call to "deleteDatabase" is needed.
+			if(sqlHelper.deleteDatabase()){
 				Log.i("LT", "Database deleted");
 			}
 			else{
@@ -108,8 +116,9 @@ public class AssimilDatabase {
         		android.provider.MediaStore.Audio.Media._ID,
         		android.provider.MediaStore.Audio.Media.ARTIST
         };
-        String findLessons = android.provider.MediaStore.Audio.Media.ALBUM+" LIKE '%ASSIMIL%' AND "+
-        		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'S00-TITLE-%'";
+        String findLessons = "(" + android.provider.MediaStore.Audio.Media.ALBUM+" LIKE '%ASSIMIL%' AND "+
+        		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'S00-TITLE-%') OR ("+
+        		android.provider.MediaStore.Audio.Media.TITLE+" REGEXP 'l[0-9][0-9][0-9]_0a')";
         
         Cursor cursor = contentResolver.query(uri, projection, findLessons, null, android.provider.MediaStore.Audio.Media.ALBUM);
         if(cursor == null){
@@ -127,6 +136,8 @@ public class AssimilDatabase {
         	SharedPreferences settings = caller.getSharedPreferences("selma", Context.MODE_PRIVATE);
         	//title = S00-TITLE-İki genç
         	//album = ASSIMIL Turkish With Ease - L001
+        	AssimilSQLiteHelper assimilSqlHelper = new AssimilSQLiteHelper(caller);
+        	AssimilPcSQLiteHelper assimilPcSqlHelper = new AssimilPcSQLiteHelper(caller);
         	do{
         		String fullTitle = cursor.getString(titleColumn);
         		String fullAlbum = cursor.getString(albumColumn);
@@ -135,19 +146,33 @@ public class AssimilDatabase {
         		Log.i("LT", "lang =   '"+language+"'");
         		Log.i("LT", "album  = '"+fullAlbum+"'");
         		Log.i("LT", "==============================================");
-        		Pattern p = Pattern.compile("L[0-9]+");
-        		Matcher m = p.matcher(fullAlbum);
-        		String number = null; //fullAlbum.substring(fullAlbum.lastIndexOf("L"));
-        		if(m.find()){
-        			number = m.group();
+        		Pattern patternAssimilPcMp3 = Pattern.compile("l([0-9][0-9][0-9])_0a");
+        		Matcher matcherAssimilPcMp3 = patternAssimilPcMp3.matcher(fullTitle);
+        		if(matcherAssimilPcMp3.find()){
+        			String number = null;
+            		Matcher matcherAssimilPcMp3Lesson = patternAssimilPcMp3.matcher(fullTitle);
+        			if(matcherAssimilPcMp3Lesson.find()){
+        				number = matcherAssimilPcMp3Lesson.group(1);
+        			}
+        			else{
+        				Log.w("LT", "Could not find lesson number");
+        				continue;
+        			}
+        			assimilPcSqlHelper.createIfNotExists(number, language, fullAlbum, settings);
         		}
         		else{
-        			Log.w("LT", "Could not find lesson number");
-            		continue;
+        			Pattern patternAssimilLesson = Pattern.compile("L[0-9]+");
+        			Matcher m = patternAssimilLesson.matcher(fullAlbum);
+        			String number = null; //fullAlbum.substring(fullAlbum.lastIndexOf("L"));
+        			if(m.find()){
+        				number = m.group();
+        			}
+        			else{
+        				Log.w("LT", "Could not find lesson number");
+        				continue;
+        			}
+        			assimilSqlHelper.createIfNotExists(number, language, fullAlbum, settings);
         		}
-//        		AssimilLesson assimilLesson = new AssimilLesson(number, language, fullAlbum, caller, settings);
-        		AssimilSQLiteHelper.createIfNotExists(number, language, fullAlbum, caller, settings);
-//        		this.add(assimilLesson);
         	} while (cursor.moveToNext());
             cursor.close();
             return true;
@@ -157,7 +182,8 @@ public class AssimilDatabase {
 	private boolean init(Context caller){
 		lessonMap = new HashMap<Long, AssimilLessonHeader>();
 		allLessons.clear();
-		AssimilLessonHeaderDataSource headerDS = new AssimilLessonHeaderDataSource(caller);
+		LessonType type = LessonType.ASSIMIL_MP3_PACK; //When reading data it's actually not needed to choose a lesson type
+		AssimilLessonHeaderDataSource headerDS = new AssimilLessonHeaderDataSource(type, caller);
 		headerDS.open();
 		for(AssimilLessonHeader header: headerDS.getLessonHeaders(null)){
 			allLessons.add(header);
@@ -181,7 +207,16 @@ public class AssimilDatabase {
 	 */
 	public static AssimilLesson getLesson(long lessonId, Context ctxt) {
 		AssimilLessonHeader header = getDatabase(ctxt).lessonMap.get(Long.valueOf(lessonId));
-		AssimilLessonDataSource ds =  new AssimilLessonDataSource(ctxt);
+		SelmaSQLiteHelper helper = null;
+		switch(header.getType()){
+		case ASSIMIL_MP3_PACK:
+			helper = new AssimilSQLiteHelper(ctxt);
+			break;
+		case ASSIMIL_PC:
+			helper = new AssimilPcSQLiteHelper(ctxt);
+			break;
+		}
+		AssimilLessonDataSource ds =  new AssimilLessonDataSource(helper);
 		ds.open();
 		AssimilLesson lesson = ds.getLesson(header);
 		ds.close();

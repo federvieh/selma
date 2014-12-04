@@ -5,6 +5,7 @@ package com.github.federvieh.selma.assimillib;
 
 import android.content.Context;
 
+import com.github.federvieh.selma.assimillib.AssimilDatabase.LessonType;
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonHeaderDataSource;
 
 /**
@@ -16,17 +17,19 @@ public class AssimilLessonHeader {
 	private String lang;
 	private boolean starred = false;
 	private String number;
+	private LessonType lessonType;
 
 	/**
 	 * @param id
 	 * @param name
 	 * @param starred
 	 */
-	public AssimilLessonHeader(long id, String lang, String number, boolean starred) {
+	public AssimilLessonHeader(long id, String lang, String number, boolean starred, LessonType lt) {
 		this.id = id;
 		this.starred = starred;
 		this.number = number;
 		this.lang = lang;
+		this.lessonType = lt;
 	}
 
 	public long getId(){
@@ -60,7 +63,7 @@ public class AssimilLessonHeader {
 	 */
 	public void unstar(Context ctxt) {
 		starred = false;
-		AssimilLessonHeaderDataSource ds = new AssimilLessonHeaderDataSource(ctxt);
+		AssimilLessonHeaderDataSource ds = new AssimilLessonHeaderDataSource(lessonType, ctxt);
 		ds.open();
 		ds.unstar(this.id);
 		ds.close();
@@ -72,7 +75,7 @@ public class AssimilLessonHeader {
 	 */
 	public void star(Context ctxt) {
 		starred = true;
-		AssimilLessonHeaderDataSource ds = new AssimilLessonHeaderDataSource(ctxt);
+		AssimilLessonHeaderDataSource ds = new AssimilLessonHeaderDataSource(lessonType, ctxt);
 		ds.open();
 		ds.star(this.id);
 		ds.close();
@@ -90,5 +93,12 @@ public class AssimilLessonHeader {
 	 */
 	public String getLang() {
 		return lang;
+	}
+
+	/**
+	 * @return
+	 */
+	public LessonType getType() {
+		return this.lessonType;
 	}
 }

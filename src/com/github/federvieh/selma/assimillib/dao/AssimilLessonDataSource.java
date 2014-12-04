@@ -12,19 +12,20 @@ import android.database.sqlite.SQLiteDatabase;
 import com.github.federvieh.selma.R;
 import com.github.federvieh.selma.assimillib.AssimilLesson;
 import com.github.federvieh.selma.assimillib.AssimilLessonHeader;
+import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper.TextType;
 
 /**
  * @author frank
  *
  */
 public class AssimilLessonDataSource {
-	private AssimilSQLiteHelper dbHelper;
+	private SelmaSQLiteHelper dbHelper;
 	private SQLiteDatabase database;
 	private Context ctxt;
 
-	public AssimilLessonDataSource(Context ctxt){
-		dbHelper = new AssimilSQLiteHelper(ctxt);
-		this.ctxt = ctxt;
+	public AssimilLessonDataSource(SelmaSQLiteHelper helper){
+		dbHelper = helper;
+		this.ctxt = helper.getContext();
 	}
 
 	public void open() throws SQLException {
@@ -40,18 +41,18 @@ public class AssimilLessonDataSource {
 		AssimilLesson rv = new AssimilLesson(header);
 
 		String[] returnColumns = {
-				AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTID,
-				AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXT,
-//				AssimilSQLiteHelper.TABLE_LESSONTEXTS_LANG,
-				AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS,
-				AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT,
-				AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID,
-				AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTID,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXT,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_ID,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH,
+				SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTTYPE,
 				};
-		String selection = AssimilSQLiteHelper.TABLE_LESSONTEXTS_LESSONID + "=" +
+		String selection = SelmaSQLiteHelper.TABLE_LESSONTEXTS_LESSONID + "=" +
 				header.getId();
-		String orderBy = AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTID;
-		Cursor cursor = database.query(AssimilSQLiteHelper.TABLE_LESSONTEXTS,
+		String orderBy = SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTID;
+		Cursor cursor = database.query(SelmaSQLiteHelper.TABLE_LESSONTEXTS,
 				returnColumns , selection, null, null, null, 
 				orderBy);
 
@@ -67,7 +68,6 @@ public class AssimilLessonDataSource {
 	private void addCursorToLesson(Cursor cursor, AssimilLesson lesson) {
 		String textId = cursor.getString(0);
 		String text = cursor.getString(1);
-//		int lang = cursor.getInt(2);
 		String texttrans = cursor.getString(2);
 		if(texttrans==null){
 			texttrans = ctxt.getResources().getText(R.string.not_yet_translated).toString();
@@ -78,7 +78,8 @@ public class AssimilLessonDataSource {
 		}
 		int id = cursor.getInt(4);
 		String audioPath = cursor.getString(5);
-		lesson.addText(textId, text, texttrans, textlit, id, audioPath);
+		int textType = cursor.getInt(6);
+		lesson.addText(textId, text, texttrans, textlit, id, audioPath, TextType.values()[textType]);
 	}
 
 	/**
@@ -86,10 +87,10 @@ public class AssimilLessonDataSource {
 	 * @param newTrans
 	 */
 	public void updateTranslation(int id, String newTrans) {
-		String whereClause = AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
+		String whereClause = SelmaSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
 		ContentValues values = new ContentValues();
-		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, newTrans);
-		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
+		values.put(SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, newTrans);
+		database.update(SelmaSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
 	}
 
 	/**
@@ -97,10 +98,10 @@ public class AssimilLessonDataSource {
 	 * @param newLit
 	 */
 	public void updateTranslationLit(Integer id, String newLit) {
-		String whereClause = AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
+		String whereClause = SelmaSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
 		ContentValues values = new ContentValues();
-		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, newLit);
-		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
+		values.put(SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, newLit);
+		database.update(SelmaSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
 	}
 
 	/**
@@ -108,9 +109,9 @@ public class AssimilLessonDataSource {
 	 * @param newText
 	 */
 	public void updateOriginalText(Integer id, String newText) {
-		String whereClause = AssimilSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
+		String whereClause = SelmaSQLiteHelper.TABLE_LESSONTEXTS_ID + " = " + id;
 		ContentValues values = new ContentValues();
-		values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXT, newText);
-		database.update(AssimilSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
+		values.put(SelmaSQLiteHelper.TABLE_LESSONTEXTS_TEXT, newText);
+		database.update(SelmaSQLiteHelper.TABLE_LESSONTEXTS, values , whereClause, null);
 	}
 }

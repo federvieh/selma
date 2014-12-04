@@ -15,6 +15,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
+import com.github.federvieh.selma.assimillib.dao.AssimilPcSQLiteHelper;
+import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
+import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper;
+import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper.TextType;
 
 /**
  * @author frank
@@ -33,6 +37,7 @@ public class AssimilLesson implements Serializable {
 	private ArrayList<String> allTracknumbers = new ArrayList<String>();
 	private ArrayList<String> allAudioFiles = new ArrayList<String>();
 	private ArrayList<Integer> allIds = new ArrayList<Integer>();
+	private ArrayList<TextType> allTextTypes = new ArrayList<TextType>();
 	private int lessonTextNum = 0;
 
 	private AssimilLessonHeader header;
@@ -130,7 +135,16 @@ public class AssimilLesson implements Serializable {
 	public void setTranslateText(int pos, String newTrans, Context ctxt) {
 		allTextsTranslate.remove(pos);
 		allTextsTranslate.add(pos, newTrans);
-		AssimilLessonDataSource ds = new AssimilLessonDataSource(ctxt);
+		SelmaSQLiteHelper helper = null;
+		switch(header.getType()){
+		case ASSIMIL_MP3_PACK:
+			helper = new AssimilSQLiteHelper(ctxt);
+			break;
+		case ASSIMIL_PC:
+			helper = new AssimilPcSQLiteHelper(ctxt);
+			break;
+		}
+		AssimilLessonDataSource ds = new AssimilLessonDataSource(helper);
 		ds.open();
 		ds.updateTranslation(allIds.get(pos), newTrans);
 		ds.close();
@@ -163,7 +177,16 @@ public class AssimilLesson implements Serializable {
 	public void setLiteralText(int pos, String newLit, Context ctxt) {
 		allTextsTranslateSimple.remove(pos);
 		allTextsTranslateSimple.add(pos, newLit);
-		AssimilLessonDataSource ds = new AssimilLessonDataSource(ctxt);
+		SelmaSQLiteHelper helper = null;
+		switch(header.getType()){
+		case ASSIMIL_MP3_PACK:
+			helper = new AssimilSQLiteHelper(ctxt);
+			break;
+		case ASSIMIL_PC:
+			helper = new AssimilPcSQLiteHelper(ctxt);
+			break;
+		}
+		AssimilLessonDataSource ds = new AssimilLessonDataSource(helper);
 		ds.open();
 		ds.updateTranslationLit(allIds.get(pos), newLit);
 		ds.close();
@@ -196,7 +219,16 @@ public class AssimilLesson implements Serializable {
 	public void setOriginalText(int pos, String newText, Context ctxt) {
 		allTexts.remove(pos);
 		allTexts.add(pos, newText);
-		AssimilLessonDataSource ds = new AssimilLessonDataSource(ctxt);
+		SelmaSQLiteHelper helper = null;
+		switch(header.getType()){
+		case ASSIMIL_MP3_PACK:
+			helper = new AssimilSQLiteHelper(ctxt);
+			break;
+		case ASSIMIL_PC:
+			helper = new AssimilPcSQLiteHelper(ctxt);
+			break;
+		}
+		AssimilLessonDataSource ds = new AssimilLessonDataSource(helper);
 		ds.open();
 		ds.updateOriginalText(allIds.get(pos), newText);
 		ds.close();
@@ -236,9 +268,10 @@ public class AssimilLesson implements Serializable {
 	 * @param textlit the literal translation of the text
 	 * @param id the database ID
 	 * @param audioPath The audio file
+	 * @param textType 
 	 */
 	public void addText(String textId, String text, String texttrans,
-			String textlit, int id, String audioPath) {
+			String textlit, int id, String audioPath, TextType textType) {
 //		Log.d("LT", "addText(" + textId + ", " + text + ", " + texttrans +
 //				", " + textlit + ", " + id + ", " + audioPath + ")");
 		this.allTexts.add(text);
@@ -247,11 +280,25 @@ public class AssimilLesson implements Serializable {
 		this.allTracknumbers.add(textId);
 		this.allAudioFiles.add(audioPath);
 		this.allIds.add(id);
-		if((textId.matches("N[0-9]+"))||
-				(textId.matches("S[0-9][0-9]"))){
+		this.allTextTypes.add(textType);
+		switch(textType){
+		case HEADING:
+		case LESSONNUMBER:
+		case NORMAL:
 			lessonTextNum++;
-			Log.d("LT", "is lesson text");
+//			Log.d("LT", "is lesson text");
+			break;
+		case TRANSLATE:
+		case TRANSLATE_HEADING:
+			break;
 		}
+	}
+
+	/**
+	 * @return
+	 */
+	public TextType[] getTextTypeList() {
+		return allTextTypes.toArray(new TextType[0]);
 	}
 
 
