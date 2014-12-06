@@ -10,6 +10,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -26,8 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.OverlayManager;
@@ -160,7 +162,21 @@ public class NavigationDrawerFragment extends Fragment {
 		// 1. Instantiate an AlertDialog.Builder with its constructor
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-		builder.setMessage(readRawTextFile(getActivity(), R.raw.license))
+		PackageInfo pInfo = null;
+		try {
+			pInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
+		} catch (NameNotFoundException e) {
+			Log.e("LT", "Could not get package version", e);
+		}
+		StringBuffer licenseText = new StringBuffer(readRawTextFile(getActivity(), R.raw.license_part1));
+		if(pInfo!=null){
+			licenseText.append(pInfo.versionName);
+		}
+		else{
+			licenseText.append("<unknown version>");
+		}
+		licenseText.append(readRawTextFile(getActivity(), R.raw.license_part2));
+		builder.setMessage(licenseText)
 		       .setTitle(R.string.action_license);
 
 		builder.setPositiveButton(R.string.show_license, new DialogInterface.OnClickListener() {
@@ -192,9 +208,8 @@ public class NavigationDrawerFragment extends Fragment {
 	    // Pass null as the parent view because its going in the dialog layout
 	    View layoutView = inflater.inflate(R.layout.license_view, null);
 	    builder.setView(layoutView);
-	    TextView textView = (TextView)layoutView.findViewById(R.id.textViewLicense);
-	    textView.setText(readRawTextFile(getActivity(), R.raw.gpl30));
-		textView.setHorizontallyScrolling(true);
+	    WebView webView = (WebView)layoutView.findViewById(R.id.webViewLicense);
+	    webView.loadUrl("file:///android_res/raw/gpl_3.0_standalone.html");
 
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -216,9 +231,13 @@ public class NavigationDrawerFragment extends Fragment {
 	    StringBuilder text = new StringBuilder();
 
 	    try {
+	    	int lineNbr = 0;
 	        while (( line = buffreader.readLine()) != null) {
+	        	if(lineNbr>0){
+		            text.append('\n');
+	        	}
 	            text.append(line);
-	            text.append('\n');
+	            lineNbr++;
 	        }
 	    } catch (IOException e) {
 	        return null;
