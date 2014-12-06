@@ -70,8 +70,6 @@ public class MainActivity extends ActionBarActivity implements
 		//in the async task the screen rotation is locked.
 		//TODO: Get rid of locked screen while loading
 		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
-		setContentView(R.layout.activity_main);
-		Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 
 		mTitle = getTitle();
 		Intent intend = getIntent();
@@ -81,11 +79,15 @@ public class MainActivity extends ActionBarActivity implements
 		boolean forceReload = intend.getBooleanExtra(LoaderFragment.FORCE_RESET, false);
 		//First check, if this got called from an intend 
 		if(lessonTemp>=0){
+			setContentView(R.layout.activity_main);
+			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from intend with lesson id");
 			onLoadingFinished(true);
 			onLessonClicked(lessonTemp, trackNumber);
 		}
 		else if (savedInstanceState!=null){//Not called by intend, so just rotation!?
+			setContentView(R.layout.activity_main);
+			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from savedInstance");
 		}
 		else{
@@ -95,6 +97,8 @@ public class MainActivity extends ActionBarActivity implements
 			else{
 				Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called without intend or savedInstance");
 			}
+			setContentView(R.layout.activity_loader);
+			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 			if((dbInitTask==null) || forceReload){
 				dbInitTask = new DatabaseInitTask();
 				dbInitTask.execute(forceReload);
@@ -174,6 +178,9 @@ public class MainActivity extends ActionBarActivity implements
 		Log.i("LT", this.getClass().getSimpleName()+".onLoadingFinished(); lessonsFound="
 				+ lessonsFound);
 		if(lessonsFound){
+			setContentView(R.layout.activity_main);
+			Log.w("LT", this.getClass().getSimpleName()+".onLoadingFinished(); contentView was set");
+
 			//Which lesson list (language+starred) to show is stored as preference
 			SharedPreferences sp = PreferenceManager
 					.getDefaultSharedPreferences(this);
