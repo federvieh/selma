@@ -77,18 +77,20 @@ public class MainActivity extends ActionBarActivity implements
 		long lessonTemp = intend.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID,-1);
 		int trackNumber = intend.getIntExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, -1);
 		boolean forceReload = intend.getBooleanExtra(LoaderFragment.FORCE_RESET, false);
-		//First check, if this got called from an intend 
-		if(lessonTemp>=0){
+		//First check, if this got called from savedInstance (e.g. rotation).
+		//Note that this check must be before checking for intend, because the
+		//intend will also be visible after rotation.
+		if (savedInstanceState!=null){//Not called by intend, so just rotation!?
+			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from savedInstance");
 			setContentView(R.layout.activity_main);
 			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
+		}
+		else if(lessonTemp>=0){
+			//This is called by onLoadingFinished(), so we don't call it here: setContentView(R.layout.activity_main);
+			//Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
 			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from intend with lesson id");
 			onLoadingFinished(true);
 			onLessonClicked(lessonTemp, trackNumber);
-		}
-		else if (savedInstanceState!=null){//Not called by intend, so just rotation!?
-			setContentView(R.layout.activity_main);
-			Log.w("LT", this.getClass().getSimpleName()+".onCreate(); contentView was set");
-			Log.i("LT", this.getClass().getSimpleName()+".onCreate(); Got called from savedInstance");
 		}
 		else{
 			if(forceReload){

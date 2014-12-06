@@ -69,7 +69,7 @@ public class LessonListFragment extends ListFragment {
         case R.id.action_scan:
 			Intent i = getActivity().getPackageManager()
 			.getLaunchIntentForPackage( getActivity().getPackageName() );
-			i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 			i.putExtra(LoaderFragment.FORCE_RESET, true);
 			startActivity(i);
             return true;
