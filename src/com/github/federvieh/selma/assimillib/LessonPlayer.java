@@ -25,6 +25,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.github.federvieh.selma.MainActivity;
+import com.github.federvieh.selma.R;
 
 /**
  * @author frank
@@ -70,9 +71,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		Log.i("LT","Created a new LessonPlayer for the "+numberOfInstances+"th time.");
 		
 		notifyBuilder = new NotificationCompat.Builder(this)
-		    .setContentTitle("Language Trainer")
+		    .setContentTitle("Selma")
 		    .setContentText("Paused.")
-		    .setSmallIcon(android.R.drawable.btn_radio)
+		    .setSmallIcon(R.drawable.technogirl_vector)
 		    .setOngoing(true);
 	}
 	
@@ -169,15 +170,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		int result = audioManager.abandonAudioFocus(this);
 		if(result!=AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
 			Log.w("LT", "Releasing audio focus failed! Result: "+result);
-		}
-		try{
-			Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
-			editor.putLong(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getHeader().getId());
-			editor.putInt(AssimilDatabase.LAST_TRACK_PLAYED, currentTrack);
-			editor.commit();
-		}
-		catch(NullPointerException e){
-			//Might happen when in "starred only" mode but current last played lesson is not starred.
 		}
 
 	}
@@ -458,6 +450,15 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 	    .setContentIntent(pi);
 
 		startForeground(NOTIFICATION_ID, notifyBuilder.getNotification());
+		try{
+			Editor editor = getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+			editor.putLong(AssimilDatabase.LAST_LESSON_PLAYED, currentLesson.getHeader().getId());
+			editor.putInt(AssimilDatabase.LAST_TRACK_PLAYED, currentTrack);
+			editor.commit();
+		}
+		catch(NullPointerException e){
+			//Might happen when in "starred only" mode but current last played lesson is not starred.
+		}
 	}
 
 	/* (non-Javadoc)
