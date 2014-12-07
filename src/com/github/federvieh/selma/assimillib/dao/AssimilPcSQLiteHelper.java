@@ -51,8 +51,7 @@ public class AssimilPcSQLiteHelper extends SelmaSQLiteHelper {
         		android.provider.MediaStore.Audio.Media.DATA
         };
         String findLessonTexts =
-        		android.provider.MediaStore.Audio.Media.TITLE+" REGEXP 'l"+number+"_[0-9][0-9a]' OR "+ //e.g. l001_01
-        		android.provider.MediaStore.Audio.Media.TITLE+" REGEXP 'e"+number+"_[0-9][0-9]'";      //e.g. e001_01
+        		android.provider.MediaStore.Audio.Media.TITLE+" GLOB '[el]"+number+"_[0-9][0-9a]'"; //e.g. l001_01 or e001_01
         Cursor cursor = contentResolver.query(uri, projection, findLessonTexts, null, android.provider.MediaStore.Audio.Media.TITLE);
         if(cursor == null){
         	//TODO: query failed
