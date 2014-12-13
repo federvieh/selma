@@ -36,7 +36,13 @@ The app needs the following permissions for the following reasons:
 
 ### Version history
 
-#### Version 2.1.0 (latest version)
+#### Version 2.2.0 (latest version)
+* Added support for files from the Assimil PC software.
+* Improved way of handling several courses on the same device
+
+[Download](https://github.com/federvieh/selma/blob/v2.2.0/build/Selma.apk?raw=true)
+
+#### Version 2.1.0
 * Added support for even more courses, e.g. "New Greek With Ease" (Thanks [Assimil Sprachverlag](http://www.assimilwelt.com/)!).
 * Improved start-up time after the first start
 * Added possibility to modify/correct the original texts

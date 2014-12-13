@@ -1,21 +1,24 @@
 ---
 layout: home
 tags: [assimil, android, selma, language, app]
-modified: 06-08-2013
+modified: 2014-12-13
 comments: true
 image:
   feature: black.png
 ---
 Selma
 =====
-Selma is an Android app that helps you in learning a new language using the Assimil language training courses' MP3 CDs.
+Selma is an Android app that helps you in learning a new language using the Assimil language training courses' MP3 CDs or the MP3s from the Assimil PC software.
 
-**Important notice:** The MP3 files that are needed for using this app are not contained. You need to buy the course (book and MP3 CD) separately and transfer the MP3s from the CD onto your android device. The app cannot be used without.
+**Important notice:** The MP3 files that are needed for using this app are not contained. You need to buy an Assimil course (book and MP3 CD, or book and software) separately and transfer the MP3s onto your android device. The app cannot be used without.
+{: .notice}
+
+**Important notice:** Currently, you will gain the best experience by using the MP3 CD instead of the MP3s from the PC software. This is due to the fact that the files from the Assimil PC software do not contain the lesson texts in written form. This means that Selma can playback the files but not show the lesson text. Playing back the lessons from the Audion CDs is also not supported. Please see the FAQ for details.
 {: .notice}
 
 ### How to use Selma
 <iframe width="560" height="315" src="//www.youtube.com/embed/Zcs657QejaY" frameborder="0" allowfullscreen></iframe>
-If you have not already done this, start by copying your Assimil MP3 pack to your Android device.
+If you have not already done this, start by copying your Assimil MP3s to your Android device.
 
 In Selma it is possible to mark lessons as favourites using the star icon. This allows you to focus on the lessons you are currently trying to memorise. I normally have three or four "starred" lessons which I listen to over and over.
 
