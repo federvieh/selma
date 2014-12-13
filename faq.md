@@ -16,8 +16,8 @@ In order to get more info on Assimil courses, please visit their [homepage](http
 ### Should I use the MPs from the MP3 pack or from the PC software?
 If you have the choice, it is recommended to use the files from the MP3 pack. The PC software is probably great (I've never used it), but the best experience with Selma is gained by using the MP3 packs. These MP3 packs contain the lessons texts in written form, so that you will see the spoken text on your phone while listening. A picture says more than a thousand words:
 <figure class="half">
-	<img src="/images/Screenshot_turkish.png" alt="Screenshot Turkish files from MP3 pack" class="inline"/>
-	<img src="/images/Screenshot_russian.png" alt="Screenshot Russian files from PC software" class="inline"/>
+	<img src="images/Screenshot_turkish.png" alt="Screenshot Turkish files from MP3 pack" class="inline"/>
+	<img src="images/Screenshot_russian.png" alt="Screenshot Russian files from PC software" class="inline"/>
 </figure>
 On the left you see Selma showing a lesson with files from the "Assimil Turkish With Ease" MP3 pack, on the right you see Selma showing a lesson with files from the "Assimil Russian" PC software.
 
