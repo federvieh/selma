@@ -1,47 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="@color/White"
+    android:fillViewport="true"
     tools:context="com.github.federvieh.selma.NavigationDrawerFragment" >
-
-    <ListView
-        android:id="@+id/courseListView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="98"
-        android:divider="@null"
-        android:dividerHeight="0dp"
-        android:listSelector="@android:color/transparent" >
+        android:weightSum="100"
+        android:orientation="vertical">
 
-    </ListView>
+        <!-- NOTE: Not using a ListView, because ListViews cannot be used inside ScrollViews-->
+        <LinearLayout
+            android:id="@+id/courseListView"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="98"
+            android:orientation="vertical"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:listSelector="@android:color/transparent" >
 
-    <TextView
-        android:id="@+id/textViewNavTips"
-        android:layout_weight="1"
-        android:paddingStart="16dp"
-        android:paddingLeft="16dp"
-        android:paddingEnd="16dp"
-        android:paddingRight="16dp"
-        android:layout_width="match_parent"
-        android:gravity="center_vertical"
-        android:layout_height="48dp"
-        android:background="@drawable/abc_list_selector_holo_dark"
-        android:text="@string/action_show_tips" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewNavLicense"
-        android:layout_weight="1"
-        android:paddingStart="16dp"
-        android:paddingLeft="16dp"
-        android:paddingEnd="16dp"
-        android:paddingRight="16dp"
-        android:layout_width="match_parent"
-        android:gravity="center_vertical"
-        android:layout_height="48dp"
-        android:background="@drawable/abc_list_selector_holo_dark"
-        android:text="@string/action_license" />
+        <TextView
+            android:id="@+id/textViewNavTips"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:paddingEnd="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_height="48dp"
+            android:background="@drawable/abc_list_selector_holo_dark"
+            android:text="@string/action_show_tips" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/textViewNavLicense"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:paddingEnd="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_height="48dp"
+            android:background="@drawable/abc_list_selector_holo_dark"
+            android:text="@string/action_license" />
+    </LinearLayout>
+</ScrollView>
