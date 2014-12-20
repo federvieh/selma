@@ -6,7 +6,6 @@
 
     <TextView
         android:id="@+id/courseName"
-        android:paddingStart="16dp"
         android:paddingLeft="16dp"
         android:paddingEnd="16dp"
         android:paddingRight="16dp"
@@ -23,7 +22,6 @@
 
     <TextView
         android:id="@+id/textViewAllLessons"
-        android:paddingStart="16dp"
         android:paddingLeft="16dp"
         android:paddingEnd="16dp"
         android:paddingRight="16dp"
@@ -35,7 +33,6 @@
 
     <TextView
         android:id="@+id/textViewStarredLessons"
-        android:paddingStart="16dp"
         android:paddingLeft="16dp"
         android:paddingEnd="16dp"
         android:paddingRight="16dp"

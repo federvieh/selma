@@ -10,7 +10,7 @@
 	    android:layout_width="100dp"
 	    android:background="@drawable/border"
     	android:layout_marginLeft="0dp"
-	    android:layout_height="@dimen/abc_action_bar_default_height" />
+	    android:layout_height="@dimen/abc_action_bar_default_height_material" />
 
     <ImageView
     	android:layout_width="wrap_content"
