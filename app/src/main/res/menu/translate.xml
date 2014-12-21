@@ -3,7 +3,6 @@
     <item android:id="@+id/add_original_text" android:orderInCategory="100" android:title="@string/change_original_text"></item>
     <item android:id="@+id/add_translation" android:orderInCategory="100" android:title="@string/change_translation"></item>
     <item android:id="@+id/add_literal" android:orderInCategory="100" android:title="@string/change_literal"></item>
-    <item android:id="@+id/add_to_flashcard" android:orderInCategory="100" android:title="@string/add_to_flashcard"></item>
 
 
 </menu>

@@ -195,43 +195,6 @@ public class ShowLessonFragment extends ListFragment {
                 dialog.show();
                 return true;
             }
-            case R.id.add_to_flashcard: {
-                Intent intent = new Intent();
-                intent.setAction("org.openintents.action.CREATE_FLASHCARD");
-                intent.putExtra("SOURCE_LANGUAGE", lesson.getHeader().getLang());
-                intent.putExtra("TARGET_LANGUAGE", getResources().getConfiguration().locale);//For now let's assume the user translates into the phone language
-                intent.putExtra("SOURCE_TEXT", lesson.getTextList(DisplayMode.ORIGINAL_TEXT)[pos]);
-                intent.putExtra("TARGET_TEXT", lesson.getTextList(DisplayMode.TRANSLATION)[pos]);
-                try {
-                    startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(getText(R.string.note));
-                    builder.setMessage(getText(R.string.no_flashcard_app));
-                    builder.setPositiveButton(getText(R.string.install), new OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.ichi2.anki")));
-                            } catch (android.content.ActivityNotFoundException anfe) {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.ichi2.anki")));
-                            }
-                        }
-                    });
-                    builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //Nothing to do
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-
-                }
-                return true;
-            }
             default:
                 return super.onContextItemSelected(item);
         }
@@ -300,7 +263,46 @@ public class ShowLessonFragment extends ListFragment {
                 displayMode = DisplayMode.LITERAL;
                 updateListType(LessonPlayer.getListType());
                 return true;
+            case R.id.add_to_flashcard: {
+                int nbrTexts = lesson.getTextList(DisplayMode.ORIGINAL_TEXT).length;
+                for (int i=0; i < nbrTexts; i++) {
+                    Intent intent = new Intent();
+                    intent.setAction("org.openintents.action.CREATE_FLASHCARD");
+                    intent.putExtra("SOURCE_LANGUAGE", lesson.getHeader().getLang());
+                    intent.putExtra("TARGET_LANGUAGE", getResources().getConfiguration().locale);//For now let's assume the user translates into the phone language
+                    intent.putExtra("SOURCE_TEXT", lesson.getTextList(DisplayMode.ORIGINAL_TEXT)[i]);
+                    intent.putExtra("TARGET_TEXT", lesson.getTextList(DisplayMode.TRANSLATION)[i]);
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle(getText(R.string.note));
+                        builder.setMessage(getText(R.string.no_flashcard_app));
+                        builder.setPositiveButton(getText(R.string.install), new OnClickListener() {
 
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.ichi2.anki")));
+                                } catch (android.content.ActivityNotFoundException anfe) {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.ichi2.anki")));
+                                }
+                            }
+                        });
+                        builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Nothing to do
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                        break;
+                    }
+                }
+                return true;
+            }
         }
         return false;
     }
