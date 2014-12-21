@@ -73,7 +73,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		notifyBuilder = new NotificationCompat.Builder(this)
 		    .setContentTitle("Selma")
 		    .setContentText("Paused.")
-		    .setSmallIcon(R.drawable.technogirl_vector)
+		    .setSmallIcon(android.R.drawable.ic_media_play)
 		    .setOngoing(true);
 	}
 	

@@ -76,7 +76,11 @@
     <string name="change_original_text">Enter original text</string>
     <string name="change_translation">Enter translation</string>
     <string name="change_literal">Enter literal translation</string>
+    <string name="add_to_flashcard">Add to flashcard</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="note">Note</string>
+    <string name="no_flashcard_app">No compatible flashcard app is installed on your device. Do you want to install the flashcard app \"AnkiDroid\"?</string>
+    <string name="install">Install</string>
 </resources>
