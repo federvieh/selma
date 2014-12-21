@@ -249,7 +249,7 @@ public class MainActivity extends ActionBarActivity implements
 		boolean hasLessonListFragment = (f.getClass().equals(LessonListFragment.class));
 		if(hasShowLessonFragment){
 			SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.exercise_option_list,
-					android.R.layout.simple_spinner_dropdown_item);
+					R.layout.spinner_dropdown_item);
 			ActionBar.OnNavigationListener mOnNavigationListener = new ActionBar.OnNavigationListener() {
 				@Override
 				public boolean onNavigationItemSelected(int position, long itemId) {
