@@ -263,6 +263,14 @@ public class ShowLessonFragment extends ListFragment {
                 displayMode = DisplayMode.LITERAL;
                 updateListType(LessonPlayer.getListType());
                 return true;
+            case R.id.view_original_translation:
+                displayMode = DisplayMode.ORIGINAL_TRANSLATION;
+                updateListType(LessonPlayer.getListType());
+                return true;
+            case R.id.view_original_literal:
+                displayMode = DisplayMode.ORIGINAL_LITERAL;
+                updateListType(LessonPlayer.getListType());
+                return true;
             case R.id.add_to_flashcard: {
                 int nbrTexts = lesson.getTextList(DisplayMode.ORIGINAL_TEXT).length;
                 for (int i=0; i < nbrTexts; i++) {

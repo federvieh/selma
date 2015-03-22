@@ -72,6 +72,8 @@
     <string name="view_original_text">View original</string>
     <string name="view_translation">View translation</string>
     <string name="view_literal">View literal translation</string>
+    <string name="view_original_translation">View original &amp; translation</string>
+    <string name="view_original_literal">View original &amp; literal</string>
     <string name="not_yet_translated">(Not translated yet)</string>
     <string name="change_original_text">Enter original text</string>
     <string name="change_translation">Enter translation</string>
