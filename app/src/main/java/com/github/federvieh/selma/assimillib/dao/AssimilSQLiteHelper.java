@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.util.Log;
+import com.github.federvieh.selma.anki.AnkiInterface;
 
 /**
  * @author frank
@@ -45,7 +46,7 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
 	@Override
 	public void createIfNotExists(String number, String language,
 			String fullAlbum, SharedPreferences settings) {
-        ContentResolver contentResolver = caller.getContentResolver();
+        ContentResolver contentResolver = getContext().getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = { android.provider.MediaStore.Audio.Media.TITLE,
         		android.provider.MediaStore.Audio.Media.ALBUM,
@@ -156,18 +157,28 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
     			}
     			else{
     				String[] translations = findTexts(path);
+                    String[] ankitexts = AnkiInterface.getTexts(getContext(), language, number, textNumber);
     				ContentValues values = new ContentValues();
     				values.put(TABLE_LESSONTEXTS_LESSONID,  albumId);
     				values.put(TABLE_LESSONTEXTS_TEXTID,    textNumber);
     				values.put(TABLE_LESSONTEXTS_TEXTTYPE,  textType.ordinal());
-    				if(translations[2] != null){
+                    if(ankitexts[2] != null){
+                        text = ankitexts[2];
+                    }
+    				else if(translations[2] != null){
     					text = translations[2];
     				}
     				values.put(TABLE_LESSONTEXTS_TEXT,      text);
-    				if(translations[0] != null){
+                    if(ankitexts[0] != null){
+                        values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, ankitexts[0]);
+                    }
+    				else if(translations[0] != null){
     					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTTRANS, translations[0]);
     				}
-    				if(translations[1] != null){
+                    if(ankitexts[1] != null){
+                        values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, ankitexts[1]);
+                    }
+    				else if(translations[1] != null){
     					values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_TEXTLIT, translations[1]);
     				}
     				values.put(AssimilSQLiteHelper.TABLE_LESSONTEXTS_AUDIOFILEPATH, path);

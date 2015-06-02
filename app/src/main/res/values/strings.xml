@@ -83,6 +83,16 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="note">Note</string>
-    <string name="no_flashcard_app">No compatible flashcard app is installed on your device. Do you want to install the flashcard app \"AnkiDroid\"?</string>
+    <string name="no_flashcard_app">You can synchronise your lessons with AnkiDroid - a flash card app. This allows you to memorise the sentences effectively. Do you want to install AnkiDroid from the Google Play Store?</string>
     <string name="install">Install</string>
+    <string name="did_you_know">Did you know?</string>
+    <string name="lesson_not_synced">Synchronize?</string>
+    <string name="ask_if_lesson_shall_be_synced">This lesson is not yet synchronised with AnkiDroid. Do you want to
+        synchronise now?
+    </string>
+    <string name="learn_more">Learn more</string>
+    <string name="flashcard_app_not_enabled">It is possible to store your texts as flash cards in AnkiDroid. Do you want
+        to enable this feature?
+    </string>
+    <string name="enable">Enable</string>
 </resources>

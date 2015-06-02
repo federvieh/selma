@@ -2,36 +2,19 @@ package com.github.federvieh.selma;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.content.*;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.ContextMenu;
+import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-
-import com.github.federvieh.selma.assimillib.AssimilDatabase;
-import com.github.federvieh.selma.assimillib.AssimilLesson;
-import com.github.federvieh.selma.assimillib.AssimilOnClickListener;
-import com.github.federvieh.selma.assimillib.AssimilShowLessonListAdapter;
-import com.github.federvieh.selma.assimillib.DisplayMode;
-import com.github.federvieh.selma.assimillib.LessonPlayer;
-import com.github.federvieh.selma.assimillib.ListTypes;
+import com.github.federvieh.selma.assimillib.*;
 
 /**
  * A fragment representing a list of lesson tracks.
@@ -48,17 +31,17 @@ public class ShowLessonFragment extends ListFragment {
 
     private BroadcastReceiver messageReceiver = new BroadcastReceiver() {
         private long lastPlayedLessonId = -1;
+
         @Override
         public void onReceive(Context context, Intent intent) {
             long lessonId = intent.getLongExtra(AssimilOnClickListener.EXTRA_LESSON_ID, -1);
-            Log.d("LT", "ShowLessonFragment.messageReceiver.onReceive() got called with lessonId "+lessonId+
-                    ". Current lesson's ID is "+lesson.getHeader().getId()+". Last lesson ID is " + lastPlayedLessonId);
+            Log.d("LT", "ShowLessonFragment.messageReceiver.onReceive() got called with lessonId " + lessonId +
+                    ". Current lesson's ID is " + lesson.getHeader().getId() + ". Last lesson ID is " + lastPlayedLessonId);
             long curShownLessonId = lesson.getHeader().getId();
-            if(lessonId == curShownLessonId){
+            if (lessonId == curShownLessonId) {
                 //Might now be playing a new track, update the list in order to highlight the current track
                 getListView().invalidateViews();
-            }
-            else if (lessonId != lastPlayedLessonId){
+            } else if (lessonId != lastPlayedLessonId) {
                 //Currently one item is shown in bold, but we are now playing a different
                 //lesson. So, the list has to be re-drawn.
                 getListView().invalidateViews();
@@ -92,7 +75,7 @@ public class ShowLessonFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("LT", this.getClass().getSimpleName()+".onCreate(); savedInstanceState="+savedInstanceState);
+        Log.i("LT", this.getClass().getSimpleName() + ".onCreate(); savedInstanceState=" + savedInstanceState);
 
         if (getArguments() != null) {
             long lessonId = getArguments().getLong(ARG_LESSON_ID);
@@ -112,9 +95,9 @@ public class ShowLessonFragment extends ListFragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState){
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(tracknumber >= 0){
+        if (tracknumber >= 0) {
             this.setSelection(tracknumber);
             tracknumber = -1;
         }
@@ -212,12 +195,12 @@ public class ShowLessonFragment extends ListFragment {
         listener.onResumedTitleUpdate(number);
     }
 
-    public void updateListType(ListTypes lt){
+    public void updateListType(ListTypes lt) {
         LessonPlayer.setListType(lt);
         Editor editor = getActivity().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
         editor.putInt(LIST_MODE, lt.ordinal());
         editor.commit();
-        Log.d("LT", "ShowLesson.updateListType(); lt="+lt.ordinal());
+        Log.d("LT", "ShowLesson.updateListType(); lt=" + lt.ordinal());
 
         AssimilShowLessonListAdapter assimilShowLessonListAdapter;
         assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
@@ -256,7 +239,7 @@ public class ShowLessonFragment extends ListFragment {
                 updateListType(LessonPlayer.getListType());
                 return true;
             case R.id.view_translation:
-                displayMode  = DisplayMode.TRANSLATION;
+                displayMode = DisplayMode.TRANSLATION;
                 updateListType(LessonPlayer.getListType());
                 return true;
             case R.id.view_literal:
@@ -271,46 +254,75 @@ public class ShowLessonFragment extends ListFragment {
                 displayMode = DisplayMode.ORIGINAL_LITERAL;
                 updateListType(LessonPlayer.getListType());
                 return true;
-            case R.id.add_to_flashcard: {
-                int nbrTexts = lesson.getTextList(DisplayMode.ORIGINAL_TEXT).length;
-                for (int i=0; i < nbrTexts; i++) {
-                    Intent intent = new Intent();
-                    intent.setAction("org.openintents.action.CREATE_FLASHCARD");
-                    intent.putExtra("SOURCE_LANGUAGE", lesson.getHeader().getLang());
-                    intent.putExtra("TARGET_LANGUAGE", getResources().getConfiguration().locale);//For now let's assume the user translates into the phone language
-                    intent.putExtra("SOURCE_TEXT", lesson.getTextList(DisplayMode.ORIGINAL_TEXT)[i]);
-                    intent.putExtra("TARGET_TEXT", lesson.getTextList(DisplayMode.TRANSLATION)[i]);
-                    try {
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(getText(R.string.note));
-                        builder.setMessage(getText(R.string.no_flashcard_app));
-                        builder.setPositiveButton(getText(R.string.install), new OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.ichi2.anki")));
-                                } catch (android.content.ActivityNotFoundException anfe) {
-                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.ichi2.anki")));
-                                }
-                            }
-                        });
-                        builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Nothing to do
-                            }
-                        });
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                        break;
-                    }
-                }
-                return true;
-            }
+//            case R.id.add_to_flashcard: {
+//                final ContentResolver cr = getActivity().getContentResolver();
+//                /*
+//                 * First let's look for the model, in case we have to add a new note.
+//                 */
+//                String[] columns = {FlashCardsContract.Model._ID, FlashCardsContract.Model.NAME};
+//                // Query all available models
+//                final Cursor allModelsCursor = cr.query(FlashCardsContract.Model.CONTENT_URI, columns, null, null, null);
+//                if (allModelsCursor == null) {
+//                    //No models: It's very likely that the user does not have AnkiDroid installed
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//                    builder.setTitle(getText(R.string.note));
+//                    builder.setMessage(getText(R.string.no_flashcard_app));
+//                    builder.setPositiveButton(getText(R.string.install), new OnClickListener() {
+//
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            try {
+//                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.ichi2.anki")));
+//                            } catch (android.content.ActivityNotFoundException anfe) {
+//                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.ichi2.anki")));
+//                            }
+//                        }
+//                    });
+//                    builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
+//
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            //Nothing to do
+//                        }
+//                    });
+//                    AlertDialog dialog = builder.create();
+//                    dialog.show();
+//                    return true;
+//                }
+//                int idColumnIndex = allModelsCursor.getColumnIndexOrThrow(FlashCardsContract.Model._ID);
+//                int nameColumnIndex = allModelsCursor.getColumnIndexOrThrow(FlashCardsContract.Model.NAME);
+//                long modelId = -1;
+//                try {
+//                    while (allModelsCursor.moveToNext()) {
+//                        String modelName = allModelsCursor.getString(nameColumnIndex);
+//                        if (!modelName.equals(AnkiInterface.MODELNAME)) {
+//                            continue;
+//                        }
+//                        //else we found the right model
+//                        modelId = allModelsCursor.getLong(idColumnIndex);
+//                    }
+//                } finally {
+//                    allModelsCursor.close();
+//                }
+//                if (modelId < 0) {
+//                    //FIXME: We should insert the model, for now just show a dialog and exit
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//                    builder.setTitle(getText(R.string.note));
+//                    builder.setMessage("No model found, cannot copy data to flash card.");//FIXME: This part of the code is to be removed or strings to be added to xml
+//                    builder.setNegativeButton(getText(R.string.cancel), new OnClickListener() {
+//
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            //Nothing to do
+//                        }
+//                    });
+//                    AlertDialog dialog = builder.create();
+//                    dialog.show();
+//                    return true;
+//                }
+//
+//                return true;
+//            }
         }
         return false;
     }

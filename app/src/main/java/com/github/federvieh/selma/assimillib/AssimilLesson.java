@@ -3,8 +3,14 @@
  */
 package com.github.federvieh.selma.assimillib;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
+import com.github.federvieh.selma.anki.AnkiInterface;
+import com.github.federvieh.selma.anki.FlashCardsContract;
 import com.github.federvieh.selma.assimillib.dao.AssimilLessonDataSource;
 import com.github.federvieh.selma.assimillib.dao.AssimilPcSQLiteHelper;
 import com.github.federvieh.selma.assimillib.dao.AssimilSQLiteHelper;
@@ -162,6 +168,9 @@ public class AssimilLesson implements Serializable {
             Log.e("LT", "Could not store translation on file system!", e);
         } catch (IOException e) {
             Log.e("LT", "Could not store translation on file system!", e);
+        }
+        if(AnkiInterface.isSyncEnabled(ctxt)) {
+            AnkiInterface.updateText(ctxt, this, getTextNumber(pos), AnkiInterface.FIRST_LANGUAGE_FIELD, newTrans);
         }
     }
 

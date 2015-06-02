@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/view_original_text" android:title="@string/view_original_text" android:showAsAction="never" android:orderInCategory="100"></item>
-    <item android:id="@+id/view_translation" android:showAsAction="never" android:orderInCategory="100" android:title="@string/view_translation"></item>
-    <item android:id="@+id/view_literal" android:showAsAction="never" android:orderInCategory="100" android:title="@string/view_literal"></item>
-    <item android:id="@+id/view_original_translation" android:showAsAction="never" android:orderInCategory="100" android:title="@string/view_original_translation"></item>
-    <item android:id="@+id/view_original_literal" android:showAsAction="never" android:orderInCategory="100" android:title="@string/view_original_literal"></item>
-    <item android:id="@+id/add_to_flashcard" android:showAsAction="never" android:orderInCategory="100" android:title="@string/add_to_flashcard"></item>
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/view_original_text" android:title="@string/view_original_text" app:showAsAction="never" android:orderInCategory="100"/>
+    <item android:id="@+id/view_translation" app:showAsAction="never" android:orderInCategory="100" android:title="@string/view_translation"/>
+    <item android:id="@+id/view_literal" app:showAsAction="never" android:orderInCategory="100" android:title="@string/view_literal"/>
+    <item android:id="@+id/view_original_translation" app:showAsAction="never" android:orderInCategory="100" android:title="@string/view_original_translation"/>
+    <item android:id="@+id/view_original_literal" app:showAsAction="never" android:orderInCategory="100" android:title="@string/view_original_literal"/>
+    <item android:id="@+id/add_to_flashcard" app:showAsAction="never" android:orderInCategory="100" android:title="@string/add_to_flashcard"/>
 </menu>

@@ -590,7 +590,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 		int trackNumber = getTrackNumber(ctxt);
 		AssimilLesson lesson = getLesson(ctxt);
 		if((trackNumber>=0)&&(lesson!=null)){
-			rv = lesson.getTextNumber(trackNumber);
+            try {
+                rv = lesson.getTextNumber(trackNumber);
+            }
+            catch (IndexOutOfBoundsException e) {
+                Log.i("LT", "Could not find text " + trackNumber);
+            }
 		}
 		return rv;
 	}
