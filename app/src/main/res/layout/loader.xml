@@ -34,7 +34,7 @@
             android:maxLines="1"
             android:singleLine="true" />
 
-        <android.support.v7.widget.Space
+        <android.support.v4.widget.Space
             android:id="@+id/space_top"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
             android:padding="8dp"
             android:text="@string/waiting_for_database" />
 
-        <android.support.v7.widget.Space
+        <android.support.v4.widget.Space
             android:id="@+id/space_bottom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
                 android:enabled="false"
                 android:text="@string/uninstall" />
 
-            <android.support.v7.widget.Space
+            <android.support.v4.widget.Space
                 android:id="@+id/space_buttons1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
                 android:text="@string/continueDlg"
                 android:visibility="gone" />
 
-            <android.support.v7.widget.Space
+            <android.support.v4.widget.Space
                 android:id="@+id/space_buttons2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

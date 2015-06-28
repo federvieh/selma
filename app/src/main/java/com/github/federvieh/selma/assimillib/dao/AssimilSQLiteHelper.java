@@ -157,7 +157,7 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
     			}
     			else{
     				String[] translations = findTexts(path);
-                    String[] ankitexts = AnkiInterface.getTexts(getContext(), language, number, textNumber);
+                    String[] ankitexts = {null, null, null};//AnkiInterface.getTexts(getContext(), language, number, textNumber);
     				ContentValues values = new ContentValues();
     				values.put(TABLE_LESSONTEXTS_LESSONID,  albumId);
     				values.put(TABLE_LESSONTEXTS_TEXTID,    textNumber);

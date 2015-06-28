@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.federvieh.selma"
-    android:versionCode="2020000"
-    android:versionName="2.2.0" >
+    android:versionCode="2029901"
+    android:versionName="2.3.0alpha1" >
     <!-- version code release =    (((major*100 + minor)*100 + bugfix)*100) -->
     <!-- version code alpha/beta = (((major*100 + minor)*100 + bugfix)-1)*100 + index -->
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
