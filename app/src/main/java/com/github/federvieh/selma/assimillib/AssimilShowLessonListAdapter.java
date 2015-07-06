@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.github.federvieh.selma.assimillib;
 
 import android.app.AlertDialog;
@@ -12,45 +9,49 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.github.federvieh.selma.R;
-import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper.TextType;
+import com.github.federvieh.selma.assimillib.dao.SelmaSQLiteHelper;
 
 /**
  * Adapter for showing all the texts in a lesson.
  *
  * @author frank
  */
-public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
-    private AssimilLesson lesson;
-    private DisplayMode displayMode;
+public class AssimilShowLessonListAdapter extends RecyclerView.Adapter<AssimilShowLessonListAdapter.ViewHolder> {
+    private final AssimilLesson lesson;
+    private final DisplayMode displayMode;
+    private final ListTypes lt;
+    private Drawable dots;
 
-    private static Drawable dots = null;
-
-
-    public AssimilShowLessonListAdapter(Context context, AssimilLesson lesson, ListTypes lt, DisplayMode displayMode) {
-        super(context, R.layout.rowlayout, (lt == ListTypes.NO_TRANSLATE) ? lesson.getLessonList(displayMode) : lesson.getTextList(displayMode));
+    public AssimilShowLessonListAdapter(AssimilLesson lesson, DisplayMode displayMode, ListTypes lt) {
         this.lesson = lesson;
         this.displayMode = displayMode;
+        this.lt = lt;
     }
 
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // Create a new view.
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.rowlayout_showlesson, parent, false);
+
+        return new ViewHolder(v);
+    }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        Context context = parent.getContext();
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.rowlayout_showlesson, parent, false);
-        TextView textViewLeft = (TextView) rowView.findViewById(R.id.showLessonTextViewLeft);
-        TextView textViewRight = (TextView) rowView.findViewById(R.id.showLessonTextViewRight);
-        View devider = rowView.findViewById(R.id.showLessonDevider);
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        TextView textViewLeft = holder.getTextViewLeft();
+        TextView textViewRight = holder.getTextViewRight();
+        View devider = holder.getDevider();
+
         switch (displayMode) {
             case LITERAL:
             case ORIGINAL_TEXT:
@@ -76,11 +77,15 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
                 break;
             }
         }
-        TextType textType = lesson.getTextTypeList()[position];
+        SelmaSQLiteHelper.TextType textType = lesson.getTextTypeList()[position];
+        textViewLeft.setTypeface(null, Typeface.NORMAL);
+        textViewRight.setTypeface(null, Typeface.NORMAL);
+        textViewLeft.setTextColor(textViewLeft.getResources().getColor(R.color.Black));
+        textViewRight.setTextColor(textViewRight.getResources().getColor(R.color.Black));
         switch (textType) {
             case TRANSLATE_HEADING:
-                textViewLeft.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
-                textViewRight.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
+                textViewLeft.setTextColor(textViewLeft.getResources().getColor(R.color.DarkSlateGray));
+                textViewRight.setTextColor(textViewRight.getResources().getColor(R.color.DarkSlateGray));
                 //FALLTHROUGH
             case LESSONNUMBER:
             case HEADING:
@@ -90,21 +95,21 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
                 textViewRight.setTypeface(null, Typeface.ITALIC);
                 break;
             case TRANSLATE:
-                textViewLeft.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
-                textViewRight.setTextColor(context.getResources().getColor(R.color.DarkSlateGray));
+                textViewLeft.setTextColor(textViewLeft.getResources().getColor(R.color.DarkSlateGray));
+                textViewRight.setTextColor(textViewRight.getResources().getColor(R.color.DarkSlateGray));
                 //FALLTHROUGH
             case NORMAL:
                 textViewLeft.setTextSize(16);
                 textViewRight.setTextSize(16);
                 break;
         }
-        if ((LessonPlayer.getTrackNumber(getContext()) == position) && (LessonPlayer.getLesson(getContext()).getHeader().equals(lesson.getHeader()))) {
+        if ((LessonPlayer.getTrackNumber(textViewLeft.getContext()) == position) && (LessonPlayer.getLesson(textViewLeft.getContext()).getHeader().equals(lesson.getHeader()))) {
             textViewLeft.setTypeface(null, Typeface.BOLD | ((textViewLeft.getTypeface() != null) ? textViewLeft.getTypeface().getStyle() : 0));
             textViewRight.setTypeface(null, Typeface.BOLD | ((textViewRight.getTypeface() != null) ? textViewRight.getTypeface().getStyle() : 0));
         }
-        final ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
+        final ImageView imageView = (ImageView) holder.getIcon();
         if (dots == null) {
-            Drawable d = getContext().getResources().getDrawable(R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha);
+            Drawable d = imageView.getContext().getResources().getDrawable(R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha);
             PorterDuff.Mode tintMode = PorterDuff.Mode.MULTIPLY;
             PorterDuffColorFilter filter = new PorterDuffColorFilter(Color.GRAY, tintMode);
             d.setColorFilter(filter);
@@ -115,7 +120,7 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
             @Override
             public void onClick(View v) {
                 //Creating the instance of PopupMenu
-                PopupMenu popup = new PopupMenu(getContext(), imageView);
+                PopupMenu popup = new PopupMenu(imageView.getContext(), imageView);
                 //Inflating the Popup using xml file
                 popup.getMenuInflater()
                         .inflate(R.menu.translate, popup.getMenu());
@@ -127,8 +132,8 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
                             case R.id.add_translation:
                             case R.id.add_original_text:
                             case R.id.add_literal: {
-                                final EditText translateEditText = new EditText(getContext());
-                                final Context ctxt = getContext();
+                                final EditText translateEditText = new EditText(imageView.getContext());
+                                final Context ctxt = imageView.getContext();
                                 int title = R.string.change_translation;
                                 DisplayMode dm = DisplayMode.TRANSLATION;
                                 DialogInterface.OnClickListener ocl = new DialogInterface.OnClickListener() {
@@ -190,7 +195,57 @@ public class AssimilShowLessonListAdapter extends ArrayAdapter<String> {
 //		AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, context, position, lt);
 //		textView.setOnClickListener(assimilOnClickListener);
         //imageView.setVisibility(View.GONE);
+    }
 
-        return rowView;
+    @Override
+    public int getItemCount() {
+        return (lt == ListTypes.NO_TRANSLATE) ? lesson.getLessonList(displayMode).length : lesson.getTextList(displayMode).length;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        private final View icon;
+        TextView textViewLeft;
+        TextView textViewRight;
+        View devider;
+
+        public ViewHolder(final View itemView) {
+            super(itemView);
+            textViewLeft = (TextView) itemView.findViewById(R.id.showLessonTextViewLeft);
+            textViewRight = (TextView) itemView.findViewById(R.id.showLessonTextViewRight);
+            devider = itemView.findViewById(R.id.showLessonDevider);
+            icon = itemView.findViewById(R.id.icon);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int currentTrack = LessonPlayer.getTrackNumber(null);
+                    AssimilLesson currentLesson = LessonPlayer.getLesson(null);
+                    if (!lesson.equals(currentLesson) || currentTrack != getPosition()) {
+                        LessonPlayer.play(lesson, getPosition(), false, itemView.getContext());
+                    } else if (LessonPlayer.isPlaying()) {
+                        //We're playing the track that has been clicked
+                        LessonPlayer.stopPlaying(itemView.getContext());
+                    } else {
+                        //We're playing the track that has been clicked
+                        LessonPlayer.play(lesson, getPosition(), true, itemView.getContext());
+                    }
+                }
+            });
+        }
+
+        public TextView getTextViewLeft() {
+            return textViewLeft;
+        }
+
+        public TextView getTextViewRight() {
+            return textViewRight;
+        }
+
+        public View getDevider() {
+            return devider;
+        }
+
+        public View getIcon() {
+            return icon;
+        }
     }
 }

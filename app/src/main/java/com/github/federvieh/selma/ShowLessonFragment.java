@@ -6,20 +6,21 @@ import android.content.*;
 import android.content.DialogInterface.OnClickListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
-import android.widget.ListView;
 import com.github.federvieh.selma.assimillib.*;
 
 /**
  * A fragment representing a list of lesson tracks.
  */
-public class ShowLessonFragment extends ListFragment {
+public class ShowLessonFragment extends Fragment {
 
     public static final String LIST_MODE = "LIST_MODE";
 
@@ -28,6 +29,11 @@ public class ShowLessonFragment extends ListFragment {
 
     private AssimilLesson lesson;
     private int tracknumber = -1;
+
+    protected RecyclerView mRecyclerView;
+    protected AssimilShowLessonListAdapter mAdapter;
+    protected RecyclerView.LayoutManager mLayoutManager;
+
 
     private BroadcastReceiver messageReceiver = new BroadcastReceiver() {
         private long lastPlayedLessonId = -1;
@@ -40,11 +46,13 @@ public class ShowLessonFragment extends ListFragment {
             long curShownLessonId = lesson.getHeader().getId();
             if (lessonId == curShownLessonId) {
                 //Might now be playing a new track, update the list in order to highlight the current track
-                getListView().invalidateViews();
+                mAdapter.notifyItemChanged(LessonPlayer.getPreviousTrack());
+                mAdapter.notifyItemChanged(LessonPlayer.getTrackNumber(null));
             } else if (lessonId != lastPlayedLessonId) {
                 //Currently one item is shown in bold, but we are now playing a different
                 //lesson. So, the list has to be re-drawn.
-                getListView().invalidateViews();
+                //TODO: Test me!
+                mAdapter.notifyDataSetChanged();
             }
             lastPlayedLessonId = lessonId;
         }
@@ -84,24 +92,64 @@ public class ShowLessonFragment extends ListFragment {
         }
 
         ListTypes lt = LessonPlayer.getListType();
-        AssimilShowLessonListAdapter assimilShowLessonListAdapter;
-        assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.recycler_view_frag, container, false);
+//        rootView.setTag(TAG);//FIXME: What is this?
+
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
+
+        // LinearLayoutManager is used here, this will layout the elements in a similar fashion
+        // to the way ListView would layout elements. The RecyclerView.LayoutManager defines how
+        // elements are laid out.
+        mLayoutManager = new LinearLayoutManager(getActivity());
+
+        setRecyclerViewLayoutManager();
+
+        mAdapter = new AssimilShowLessonListAdapter(lesson, displayMode, LessonPlayer.getListType());
+        // Set AssimilShowLessonListAdapter as the adapter for RecyclerView.
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
 
         // needed to indicate that the back
         // button in action bar is used
         setHasOptionsMenu(true);
 
-        setListAdapter(assimilShowLessonListAdapter);
+
+        return rootView;
+    }
+
+
+    /**
+     * Set RecyclerView's LayoutManager to the one given.
+     */
+    public void setRecyclerViewLayoutManager() {
+        int scrollPosition = 0;
+
+        // If a layout manager has already been set, get current scroll position.
+        if (mRecyclerView.getLayoutManager() != null) {
+            scrollPosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+        }
+
+        mLayoutManager = new LinearLayoutManager(getActivity());
+
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.scrollToPosition(scrollPosition);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (tracknumber >= 0) {
-            this.setSelection(tracknumber);
-            tracknumber = -1;
+            //FIXME: Something to do?
+//            this.setSelection(tracknumber);
+//            tracknumber = -1;
         }
-        registerForContextMenu(getListView());
+        registerForContextMenu(mRecyclerView);
     }
 
     /* (non-Javadoc)
@@ -202,9 +250,9 @@ public class ShowLessonFragment extends ListFragment {
         editor.commit();
         Log.d("LT", "ShowLesson.updateListType(); lt=" + lt.ordinal());
 
-        AssimilShowLessonListAdapter assimilShowLessonListAdapter;
-        assimilShowLessonListAdapter = new AssimilShowLessonListAdapter(getActivity(), lesson, lt, displayMode);
-        setListAdapter(assimilShowLessonListAdapter);
+        mAdapter = new AssimilShowLessonListAdapter(lesson, displayMode, lt);
+        // Set AssimilShowLessonListAdapter as the adapter for RecyclerView.
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -218,13 +266,6 @@ public class ShowLessonFragment extends ListFragment {
         // Unregister since the activity is not visible
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(messageReceiver);
         super.onPause();
-    }
-
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        LessonPlayer.play(lesson, position, false, v.getContext());
     }
 
     @Override
