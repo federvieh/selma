@@ -14,6 +14,7 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
@@ -28,7 +29,24 @@ import java.io.File;
 /**
  * @author frank
  */
-public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener {
+public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener, DelayService.DelayServiceListener {
+
+    private static int delayPercentage = 100;
+
+    public static void setDelay(int delay) {
+        LessonPlayer.delayPercentage = delay;
+        Log.d("LT", "Delay: " + delay);
+    }
+
+    @Override
+    public void onWaitingRemainderUpdate(long remainingTime) {
+        Log.d("LT", "remaining: " + remainingTime);
+    }
+
+    @Override
+    public void onWaitingFinished(boolean result) {
+        playNextOrStop(false);
+    }
 
     public enum PlayMode {
         //		SINGLE_TRACK,
@@ -56,8 +74,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 
     private static Object lock = new Object();
     private static MediaPlayer mediaPlayer;
+    private static DelayService delayService;
     private static boolean doCont = false;
     private static int contPos = 0;
+    private static long remWaitTime = 0;
+
     private NotificationCompat.Builder notifyBuilder;
     private static boolean playing;
     private static PlayMode playMode = PlayMode.REPEAT_ALL_LESSONS;
@@ -113,30 +134,62 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
     }
 
     private void play(String path) {
+        Log.d("LT", "play(): doCont=" + doCont + "; remWaitTime=" + remWaitTime);
         File f = new File(path);
         Uri contentUri = Uri.fromFile(f);
 //		Uri contentUri = ContentUris.withAppendedId(
 //				android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
-        if (mediaPlayer == null) {
-            synchronized (lock) {
-                if (mediaPlayer == null) {
-                    mediaPlayer = new MediaPlayer();
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mediaPlayer.setOnCompletionListener(this);
-                    mediaPlayer.setOnPreparedListener(this);
-                    mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-                    //TODO: Move to extra function, add error listener
-                }
+        if (doCont && (remWaitTime > 0)) {
+            if (delayService != null) {
+                delayService.cancel(true); //FIXME: What does this do
             }
+            delayService = new DelayService(this);
+            //FIXME: Make this configurable
+            delayService.execute(remWaitTime);
+            //FIXME: Does the following work here?
+            playing = true;
+            Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
+            currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
+            currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
+            currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
+            Intent resultIntent = new Intent(this, MainActivity.class);//(this, ShowLesson.class);
+            resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
+
+            TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+            // Adds the back stack
+            stackBuilder.addParentStack(MainActivity.class);//(ShowLesson.class);
+            // Adds the Intent to the top of the stack
+            stackBuilder.addNextIntent(resultIntent);
+            // Gets a PendingIntent containing the entire back stack
+            PendingIntent pi = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+            notifyBuilder
+                    .setContentText("Playing: " + getLessonTitle(getApplicationContext()) + " " + getTrackNumberText(getApplicationContext()))
+                    .setContentIntent(pi);
+
+            startForeground(NOTIFICATION_ID, notifyBuilder.getNotification());
         } else {
-            mediaPlayer.reset();
-        }
-        try {
-            mediaPlayer.setDataSource(this, contentUri);
-            mediaPlayer.prepareAsync();
-        } catch (Exception e) {
-            Log.w("LT", "Could not set data source or prepare media player " + contentUri, e);
-            return;
+            if (mediaPlayer == null) {
+                synchronized (lock) {
+                    if (mediaPlayer == null) {
+                        mediaPlayer = new MediaPlayer();
+                        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                        mediaPlayer.setOnCompletionListener(this);
+                        mediaPlayer.setOnPreparedListener(this);
+                        mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+                        //TODO: Move to extra function, add error listener
+                    }
+                }
+            } else {
+                mediaPlayer.reset();
+            }
+            try {
+                mediaPlayer.setDataSource(this, contentUri);
+                mediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                Log.w("LT", "Could not set data source or prepare media player " + contentUri, e);
+                return;
+            }
         }
     }
 
@@ -144,11 +197,23 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         stopForeground(true);
         stopSelf();
 
-        if (savePos) {
+        if (delayService != null && delayService.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            delayService.cancel(true);
+            //FIXME: How to resume?
+            if (savePos) {
+                remWaitTime = delayService.getRemainingTime();
+            } else {
+                remWaitTime = 0;
+            }
+            delayService = null;
+            contPos = 0;
+        } else if (savePos) {
             contPos = ((mediaPlayer != null) ? mediaPlayer.getCurrentPosition() : 0);
+            remWaitTime = 0;
             Log.d("LT", "saving position " + contPos);
         } else {
             contPos = 0;
+            remWaitTime = 0;
         }
         if (mediaPlayer != null) {
             //release
@@ -167,7 +232,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             Log.w("LT", "Releasing audio focus failed! Result: " + result);
         }
-
     }
 
     /* (non-Javadoc)
@@ -217,7 +281,18 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      */
     public void onCompletion(MediaPlayer mp) {
         Log.d("LT", "onCompletion");
-        playNextOrStop(false);
+        //FIXME: Make this configurable
+        if (delayPercentage > 0) {
+            if (delayService != null) {
+                delayService.cancel(true); //FIXME: What does this do
+            }
+            delayService = new DelayService(this);
+            //FIXME: Make this configurable
+            long delay = (mp.getDuration() * delayPercentage) / 100;
+            delayService.execute(delay);
+        } else {
+            playNextOrStop(false);
+        }
     }
 
     private void playNextOrStop(boolean force) {
@@ -227,6 +302,10 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                 //If clicking on next while in repeating track mode, the user still expects to go to the next track
                 pm = PlayMode.REPEAT_ALL_LESSONS;
             }
+        }
+        if (delayService != null && delayService.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            delayService.cancel(true);
+            delayService = null;
         }
         switch (pm) {
 /*		case SINGLE_TRACK:
@@ -251,7 +330,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                 if (endOfLessonReached) {
                     switch (getPlayMode()) {
 /*				case SINGLE_LESSON:
-					stop();
+                    stop();
 					break;*/
                         case REPEAT_LESSON:
                             play(currentLesson, 0, false, this);

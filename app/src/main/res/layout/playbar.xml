@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/playbar_height"
-    android:orientation="horizontal" >
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@color/LightGrey" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/playbar_height"
+        android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/titleTrackSection"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
-            android:orientation="vertical" >
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textViewLesson"
@@ -27,6 +38,13 @@
                 android:text="S01" />
 
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/pauseMode"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@android:drawable/ic_menu_recent_history" />
 
         <ImageView
             android:id="@+id/playmode"
@@ -56,7 +74,88 @@
             android:layout_gravity="center_vertical"
             android:src="@android:drawable/ic_media_ff" />
 
- <!-- Playmodes: Single track, single lesson, all lessons, repeat track, repeat lesson, repeat all lessons  -->
+        <!-- Playmodes: Single track, single lesson, all lessons, repeat track, repeat lesson, repeat all lessons  -->
 
 
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/pauseMode_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_alignParentLeft="true">
+
+        <TextView
+            android:id="@+id/textViewDelayDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:text="Delay after track:"/>
+
+        <TextView
+            android:id="@+id/textViewCurrentDelay"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_toRightOf="@id/textViewDelayDesc"
+            android:text="0%"/>
+
+        <TextView
+            android:id="@+id/textViewMaxDelay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="16dp"
+            android:text="200%"/>
+
+        <SeekBar
+            android:id="@+id/sbDelay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_toRightOf="@id/textViewCurrentDelay"
+            android:layout_toLeftOf="@id/textViewMaxDelay"
+            android:max="200"/>
+    </RelativeLayout>
+
+<!--    <LinearLayout
+        android:id="@+id/dummyTestSpace"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/playbar_height"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textViewCurrentSize"
+            android:layout_width="72dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text
+            android:text="200%" />
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_gravity="center"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="99"
+            android:visibility="visible" />
+        <TextView
+            android:id="@+id/textView200Size"
+            android:layout_width="72dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="200%" />
+    </LinearLayout>
+    -->
 </LinearLayout>
