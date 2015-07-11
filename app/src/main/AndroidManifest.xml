@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.federvieh.selma"
-    android:versionCode="2029903"
-    android:versionName="2.3.0alpha3" >
+    android:versionCode="2029904"
+    android:versionName="2.3.0alpha4" >
     <!-- version code release =    (((major*100 + minor)*100 + bugfix)*100) -->
     <!-- version code alpha/beta = (((major*100 + minor)*100 + bugfix)-1)*100 + index -->
     <uses-sdk
@@ -18,7 +18,14 @@
         android:icon="@drawable/icon"
         android:logo="@drawable/technogirl_vector"
         android:label="@string/app_name"
+        android:name=".Selma"
         android:theme="@style/AppTheme" >
+        <activity android:name="org.acra.CrashReportDialog"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:process=":error_report"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >

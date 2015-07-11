@@ -95,4 +95,5 @@
         to enable this feature?
     </string>
     <string name="enable">Enable</string>
+    <string name="crash_dialog_text">Oops! Selma has crashed! To help fix this problem, please consider sending a bug report to the developer.</string>
 </resources>
