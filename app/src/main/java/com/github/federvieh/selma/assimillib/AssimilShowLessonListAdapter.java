@@ -217,8 +217,8 @@ public class AssimilShowLessonListAdapter extends RecyclerView.Adapter<AssimilSh
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int currentTrack = LessonPlayer.getTrackNumber(null);
-                    AssimilLesson currentLesson = LessonPlayer.getLesson(null);
+                    int currentTrack = LessonPlayer.getTrackNumber(view.getContext());
+                    AssimilLesson currentLesson = LessonPlayer.getLesson(view.getContext());
                     if (!lesson.equals(currentLesson) || currentTrack != getPosition()) {
                         LessonPlayer.play(lesson, getPosition(), false, itemView.getContext());
                     } else if (LessonPlayer.isPlaying()) {

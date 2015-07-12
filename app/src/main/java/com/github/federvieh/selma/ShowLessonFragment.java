@@ -47,7 +47,7 @@ public class ShowLessonFragment extends Fragment {
             if (lessonId == curShownLessonId) {
                 //Might now be playing a new track, update the list in order to highlight the current track
                 mAdapter.notifyItemChanged(LessonPlayer.getPreviousTrack());
-                mAdapter.notifyItemChanged(LessonPlayer.getTrackNumber(null));
+                mAdapter.notifyItemChanged(LessonPlayer.getTrackNumber(context));
             } else if (lessonId != lastPlayedLessonId) {
                 //Currently one item is shown in bold, but we are now playing a different
                 //lesson. So, the list has to be re-drawn.
