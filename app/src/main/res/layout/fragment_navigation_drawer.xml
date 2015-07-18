@@ -51,5 +51,18 @@
             android:layout_height="48dp"
             android:background="@drawable/abc_list_selector_holo_dark"
             android:text="@string/action_license" />
+        <TextView
+            android:id="@+id/textViewLogToDev"
+            android:layout_weight="1"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:paddingEnd="16dp"
+            android:paddingRight="16dp"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_height="48dp"
+            android:background="@drawable/abc_list_selector_holo_dark"
+            android:text="@string/action_log_to_dev" />
     </LinearLayout>
+
 </ScrollView>

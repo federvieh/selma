@@ -96,4 +96,5 @@
     </string>
     <string name="enable">Enable</string>
     <string name="crash_dialog_text">Oops! Selma has crashed! To help fix this problem, please consider sending a bug report to the developer.</string>
+    <string name="action_log_to_dev">Developer log</string>
 </resources>

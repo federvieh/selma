@@ -33,6 +33,9 @@ import android.widget.LinearLayout;
 
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.OverlayManager;
+import org.acra.ACRA;
+import org.acra.ACRAConfigurationException;
+import org.acra.ReportingInteractionMode;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation
@@ -152,6 +155,26 @@ public class NavigationDrawerFragment extends Fragment {
             }
         };
         showLicense.setOnClickListener(oclLicense);
+
+        View sendLogToDev = mDrawerView.findViewById(R.id.textViewLogToDev);
+        OnClickListener oclLogToDev = new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                try {
+                    ACRA.getConfig().setMode(ReportingInteractionMode.SILENT);
+                } catch (ACRAConfigurationException e) {
+                    Log.e("LT", "Problem setting ACRA config to silent", e);
+                }
+                ACRA.getErrorReporter().handleException(null, false);
+                try {
+                    ACRA.getConfig().setMode(ReportingInteractionMode.DIALOG);
+                } catch (ACRAConfigurationException e) {
+                    Log.e("LT", "Problem setting ACRA config back to dialog", e);
+                }
+            }
+        };
+        sendLogToDev.setOnClickListener(oclLogToDev);
 
         return mDrawerView;
     }
