@@ -36,14 +36,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".assimillib.ShowLesson"
-            android:label="@string/title_activity_show_lesson"
-            android:parentActivityName=".assimillib.LessonListActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".assimillib.LessonListActivity" />
-        </activity>
         <service android:name=".assimillib.LessonPlayer" />
     </application>
 

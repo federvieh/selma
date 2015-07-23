@@ -27,12 +27,22 @@ import com.github.federvieh.selma.MainActivity;
 import java.io.File;
 
 /**
+ * This is a service that handles the complete playback functionality (i.e. interacting with MediaPlayer).
+ *
+ * It's possible to define an additional waiting time percentage, so that after a track has finished the service waits
+ * before continuing to play the next track based on the length of the previous track ({@see setDelay}).
+ *
  * @author frank
  */
 public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener, DelayService.DelayServiceListener {
 
     private static int delayPercentage = 100;
 
+    /**
+     * Set the percentage of track length to wait after playing a track before starting playback of the next track. E.g.
+     * if the track that has just finished was 6 seconds and the delayPercentage is 50, the next track will start after
+     * waiting 3 seconds.
+     */
     public static void setDelay(int delay) {
         LessonPlayer.delayPercentage = delay;
         Log.d("LT", "Delay: " + delay);
@@ -141,12 +151,10 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 //				android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
         if (doCont && (remWaitTime > 0)) {
             if (delayService != null) {
-                delayService.cancel(true); //FIXME: What does this do
+                delayService.cancel(true);
             }
             delayService = new DelayService(this);
-            //FIXME: Make this configurable
             delayService.execute(remWaitTime);
-            //FIXME: Does the following work here?
             playing = true;
             Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
             currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
@@ -176,6 +184,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                         mediaPlayer.setOnCompletionListener(this);
                         mediaPlayer.setOnPreparedListener(this);
+                        mediaPlayer.setOnErrorListener(this);
                         mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
                         //TODO: Move to extra function, add error listener
                     }
@@ -199,7 +208,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 
         if (delayService != null && delayService.getStatus().equals(AsyncTask.Status.RUNNING)) {
             delayService.cancel(true);
-            //FIXME: How to resume?
             if (savePos) {
                 remWaitTime = delayService.getRemainingTime();
             } else {
@@ -281,13 +289,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      */
     public void onCompletion(MediaPlayer mp) {
         Log.d("LT", "onCompletion");
-        //FIXME: Make this configurable
         if (delayPercentage > 0) {
             if (delayService != null) {
-                delayService.cancel(true); //FIXME: What does this do
+                delayService.cancel(true);
             }
             delayService = new DelayService(this);
-            //FIXME: Make this configurable
             long delay = (mp.getDuration() * delayPercentage) / 100;
             delayService.execute(delay);
         } else {

@@ -94,7 +94,7 @@ public class AssimilDatabase {
 	//private SharedPreferences settings = null; 
 	private HashMap<Long, AssimilLessonHeader> lessonMap;
 
-	private Object lock = new Object();
+	private final Object lock = new Object();
 
 	private boolean tainted = true;
 
