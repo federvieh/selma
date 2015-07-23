@@ -23,7 +23,9 @@ import org.acra.annotation.ReportsCrashes;
                 ReportField.CUSTOM_DATA,
                 ReportField.STACK_TRACE,
                 ReportField.LOGCAT
-        })
+        },
+        logcatArguments = { "-t", "1000", "-v", "time"}
+)
 public class Selma extends Application{
     @Override
     public void onCreate() {
