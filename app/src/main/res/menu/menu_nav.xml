@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<!--    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/inbox"
+            android:checked="false"
+            android:title="Test 1" />
+
+        <item
+            android:id="@+id/starred"
+            android:checked="false"
+            android:title="Test 2" />
+
+        <item
+            android:id="@+id/sent_mail"
+            android:checked="false"
+            android:title="Test 3" />
+        <item
+            android:id="@+id/navigation_subheader"
+            android:title="nav_sub_header">
+            <menu>
+                <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/navigation_sub_item_1"
+                    android:title="nav_sub_item_1" />
+                <item
+                    android:id="@+id/navigation_sub_item_2"
+                    android:title="nav_sub_item_2" />
+                </group>
+            </menu>
+        </item>
+    </group>-->
+</menu>

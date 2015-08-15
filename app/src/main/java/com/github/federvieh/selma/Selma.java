@@ -33,5 +33,7 @@ public class Selma extends Application{
 
         // The following line triggers the initialization of ACRA
         ACRA.init(this);
+
+        //FIXME: Move loading here
     }
 }
