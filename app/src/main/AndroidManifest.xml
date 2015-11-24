@@ -1,42 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.federvieh.selma"
-    android:versionCode="2029906"
-    android:versionName="2.3.0alpha7" >
-    <!-- version code release =    (((major*100 + minor)*100 + bugfix)*100) -->
-    <!-- version code alpha/beta = (((major*100 + minor)*100 + bugfix)-1)*100 + index -->
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="22" />
-
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    package="com.github.federvieh.selma" >
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_LOGS"/>
-
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icon"
-        android:logo="@drawable/technogirl_vector"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".Selma"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-        <activity android:name="org.acra.CrashReportDialog"
-            android:theme="@style/Theme.AppCompat.Dialog"
-            android:process=":error_report"
-            android:launchMode="singleInstance"
-            android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true" />
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:name=".LessonListActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".assimillib.LessonPlayer" />
+        <activity
+            android:name=".LessonDetailActivity"
+            android:label="@string/title_lesson_detail"
+            android:parentActivityName=".LessonListActivity"
+            android:theme="@style/AppTheme.NoActionBar" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LessonListActivity" />
+        </activity>
+        <provider
+            android:name=".SelmaContentProvider"
+            android:authorities="com.github.federvieh.selma"
+            android:enabled="true"
+            android:exported="false" >
+        </provider>
     </application>
-
 </manifest>
