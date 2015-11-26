@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.github.federvieh.selma.dao.ScannerAssimilMP3Type1;
 
@@ -59,8 +60,31 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
                 SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME,
                 SelmaSQLiteHelper2.TABLE_LESSONS_STARRED };
         //FIXME: build where clause using mCourse and mShowStarredOnly
-        CursorLoader cursorLoader = new CursorLoader(getContext(),
-                SelmaContentProvider.CONTENT_URI_LESSONS, projection, null, null, null);
+        CursorLoader cursorLoader;
+        if(args != null) {
+            StringBuffer selection = new StringBuffer();
+            if(args.getString(ARG_COURSE)!=null) {
+                selection
+                        .append(SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME)
+                        .append("='")
+                        .append(args.getString(ARG_COURSE))
+                        .append("'");
+            }
+            if(args.getBoolean(ARG_STARRED)) {
+                if (selection.length() > 0) {
+                    selection.append(" AND ");
+                }
+                selection
+                        .append(SelmaSQLiteHelper2.TABLE_LESSONS_STARRED)
+                        .append("<>0");
+            }
+            Log.d(getClass().getSimpleName(), "selection: " + selection);
+            cursorLoader = new CursorLoader(getContext(),
+                    SelmaContentProvider.CONTENT_URI_LESSONS, projection, selection.toString(), null, null);
+        } else {
+            cursorLoader = new CursorLoader(getContext(),
+                    SelmaContentProvider.CONTENT_URI_LESSONS, projection, null, null, null);
+        }
         return cursorLoader;
     }
 
@@ -75,23 +99,39 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
         if((data != null) && (data.getCount() > 0)){
             final int count = data.getCount();
             Log.d(this.getClass().getSimpleName(), "Found " + count + " lessons.");
-            setListAdapter(new LessonListCursorAdapter(getContext(), data, 0));//TODO: What does third parameter "flags" do?
+            ListAdapter ca = getListAdapter();
+            if(ca!=null && ca instanceof LessonListCursorAdapter) {
+                ((LessonListCursorAdapter) ca).swapCursor(data);
+            } else {
+                ca = new LessonListCursorAdapter(getContext(), data, 0);//TODO: What does third parameter "flags" do?
+                setListAdapter(ca);
+            }
         } else {
             //FIXME: Set proper text using resources
             Log.d(this.getClass().getSimpleName(), "No lessons found.");
             setEmptyText("No lessons found.");
             setListAdapter(new LessonListCursorAdapter(getContext(), data, 0));//TODO: What does third parameter "flags" do?
-            ScannerAssimilMP3Type1.startScanning(getContext());
+            //FIXME: Use some kind of flag that indicates if a scan has been performed before
+            if(((CursorLoader)loader).getSelection()==null) {
+                ScannerAssimilMP3Type1.startScanning(getContext());
+            }
         }
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         //FIXME: What should be done now?
         Log.d("LT", "Loader reset. What now!?");
-        loader.reset();
         mCursor = null;
+    }
+
+    public void setCourse(String courseName, boolean starred) {
+        Bundle arguments = new Bundle();
+        if(!courseName.equals(getString(R.string.all_courses))) {
+            arguments.putString(ARG_COURSE, courseName);
+        }
+        arguments.putBoolean(ARG_STARRED, starred);
+        getLoaderManager().restartLoader(LOADER_ID_DATABASE, arguments, LessonListFragment.this);
     }
 
     /**
@@ -127,15 +167,15 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getArguments()!=null) {
-            if (getArguments().containsKey(ARG_COURSE)) {
-                mCourse = getArguments().getString(ARG_COURSE);
-            }
-            if (getArguments().containsKey(ARG_STARRED)) {
-                mShowStarredOnly = getArguments().getBoolean(ARG_STARRED);
-            }
-        }
-        Loader<Cursor> cursorLoader = getLoaderManager().initLoader(LOADER_ID_DATABASE, null, this);
+//        if(getArguments()!=null) {
+//            if (getArguments().containsKey(ARG_COURSE)) {
+//                mCourse = getArguments().getString(ARG_COURSE);
+//            }
+//            if (getArguments().containsKey(ARG_STARRED)) {
+//                mShowStarredOnly = getArguments().getBoolean(ARG_STARRED);
+//            }
+//        }
+        Loader<Cursor> cursorLoader = getLoaderManager().initLoader(LOADER_ID_DATABASE, getArguments(), this);
         //FIXME: This just tests notification and must be moved to a useful location
         ContentObserver observer = new ContentObserver(new Handler()) {
             @Override

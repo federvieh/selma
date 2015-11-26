@@ -14,7 +14,7 @@ public class SelmaContentProvider extends ContentProvider {
     private SelmaSQLiteHelper2 databaseHelper;
 
     // used for the UriMacher
-    private static final int COURSES = 10;  //FIXME: This could be done through a distinct query, let's see if it's needed.
+    private static final int COURSES = 10;  //Note that courses don't have an ID
     private static final int LESSONS = 110;
     private static final int LESSON_ID = 120; //Will probably not be used
     private static final int LESSONS_TEXT = 210; //Will be used for reading complete lesson
@@ -22,6 +22,10 @@ public class SelmaContentProvider extends ContentProvider {
     private static final int LESSON_LESSON_TEXT = 230; //Will be used for reading/writing a single text in a lesson
 
     private static final String AUTHORITY = "com.github.federvieh.selma";
+
+    private static final String BASE_PATH_COURSES = "courses";
+    public static final Uri CONTENT_URI_COURSES = Uri.parse("content://" + AUTHORITY
+            + "/" + BASE_PATH_COURSES);
 
     private static final String BASE_PATH_LESSONS = "lessons";
     public static final Uri CONTENT_URI_LESSONS = Uri.parse("content://" + AUTHORITY
@@ -31,6 +35,10 @@ public class SelmaContentProvider extends ContentProvider {
     public static final Uri CONTENT_URI_LESSON_CONTENT = Uri.parse("content://" + AUTHORITY
             + "/" + BASE_PATH_LESSON_TEXT);
 
+    public static final String CONTENT_TYPE_COURSES = ContentResolver.CURSOR_DIR_BASE_TYPE
+            + "/courses";
+    public static final String CONTENT_ITEM_TYPE_COURSES = ContentResolver.CURSOR_ITEM_BASE_TYPE
+            + "/course";
     public static final String CONTENT_TYPE_LESSONS = ContentResolver.CURSOR_DIR_BASE_TYPE
             + "/lessons";
     public static final String CONTENT_ITEM_TYPE_LESSONS = ContentResolver.CURSOR_ITEM_BASE_TYPE
@@ -43,6 +51,7 @@ public class SelmaContentProvider extends ContentProvider {
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH_COURSES, COURSES);
         sURIMatcher.addURI(AUTHORITY, BASE_PATH_LESSONS, LESSONS);
         sURIMatcher.addURI(AUTHORITY, BASE_PATH_LESSONS + "/#", LESSON_ID);
         sURIMatcher.addURI(AUTHORITY, BASE_PATH_LESSON_TEXT, LESSONS_TEXT);
@@ -74,13 +83,17 @@ public class SelmaContentProvider extends ContentProvider {
 
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
+            case COURSES:
+                throw new IllegalArgumentException("Unsupported URI: " + uri);
+                //break;
             case LESSONS:
                 newId = db.insert(
                         SelmaSQLiteHelper2.TABLE_LESSONS,
                         null,
                         values);
-//                Log.d("LT", "Notifying about URI "+uri);
+                //Notify about change for both the lesson and the courses URI
                 getContext().getContentResolver().notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(CONTENT_URI_COURSES, null);//TODO: Room for improvement: Only notify if there actually was a change in the courses
                 return uri
                         .buildUpon()
                         .appendPath(Long.toString(newId))
@@ -127,6 +140,17 @@ public class SelmaContentProvider extends ContentProvider {
 
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
+            case COURSES:
+                return db.query(true,
+                        SelmaSQLiteHelper2.TABLE_LESSONS,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null, //no grouping ...
+                        null, //..ergo no filter for grouping
+                        sortOrder,
+                        null  //no limit
+                );
             case LESSONS:
                 return db.query(SelmaSQLiteHelper2.TABLE_LESSONS,
                         projection,

@@ -2,4 +2,14 @@
     <string name="app_name">Selma</string>
     <string name="title_lesson_detail">Lesson Detail</string>
     <string name="lesson">Lesson</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="all_courses">All courses</string>
+    <string name="all_lessons">All lessons</string>
+    <string name="starred_lessons">Starred lessons</string>
+
+    <string name="action_license">License</string>
+    <string name="action_show_tips">Show tips</string>
+    <string name="settings">Settings</string>
 </resources>
