@@ -1,6 +1,20 @@
-/**
+/*
+ * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
  *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.github.federvieh.selma;
 
 import android.app.PendingIntent;
@@ -20,6 +34,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -36,6 +51,8 @@ import java.io.File;
 public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener, DelayService.DelayServiceListener {
     private static final String LAST_LESSON_PLAYED = "LAST_LESSON_PLAYED";
     private static final String LAST_TRACK_PLAYED = "LAST_TRACK_PLAYED";
+    public static final String EXTRA_LESSON_ID = "EXTRA_LESSON_ID";
+    private static final String EXTRA_TRACK_INDEX = "EXTRA_TRACK_INDEX";
 
     private static int delayPercentage = 100;
 
@@ -175,12 +192,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             delayService = new DelayService(this);
             delayService.execute(remWaitTime);
             playing = true;
-            //FIXME: Broadcast to all kinds of UI elements
-//            Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
-//            currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
-//            currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
-//            currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
-//            LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
+            //Broadcast to all kinds of UI elements
+            Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
+            currTrackIntent.putExtra(EXTRA_LESSON_ID, currentLesson.getId());
+            currTrackIntent.putExtra(EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
+            currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 
             Intent resultIntent = new Intent(this, LessonListActivity.class);//(this, ShowLesson.class);
             //TODO: Create the stack to open the correct lesson
@@ -255,12 +272,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             mediaPlayer = null;
         }
         playing = false;
-        //FIXME: Broadcast to all kinds of UI elements
-//        Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
-//        currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
-//        currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
-//        currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
+        //Broadcast to all kinds of UI elements
+        Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
+        currTrackIntent.putExtra(EXTRA_LESSON_ID, currentLesson.getId());
+        currTrackIntent.putExtra(EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
+        currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int result = audioManager.abandonAudioFocus(this);
@@ -515,12 +532,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         }
         mediaPlayer.start();
         playing = true;
-        //FIXME: Broadcast to all kinds of UI elements
-//        Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
-//        currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
-//        currTrackIntent.putExtra(AssimilOnClickListener.EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
-//        currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
+        //Broadcast to all kinds of UI elements
+        Intent currTrackIntent = new Intent(LessonPlayer.PLAY_UPDATE_INTENT);
+        currTrackIntent.putExtra(EXTRA_LESSON_ID, currentLesson.getId());
+        currTrackIntent.putExtra(EXTRA_TRACK_INDEX, getTrackNumber(getApplicationContext()));
+        currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 
             Intent resultIntent = new Intent(this, LessonListActivity.class);//(this, ShowLesson.class);
         //TODO: Create the stack to open the correct lesson

@@ -43,18 +43,18 @@ import java.util.Date;
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
  * currently being viewed in a {@link LessonDetailFragment}.
- * <p/>
+ * <p>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
- *
+ * <p>
  * When opening this Fragment:
- *   - A list of lessons is being loaded from the database
- *   - The scanners are being started (looking in the Android medida library for lessons) if it has
- *     not been started in the last ten minutes.
- *
+ * - A list of lessons is being loaded from the database
+ * - The scanners are being started (looking in the Android medida library for lessons) if it has
+ * not been started in the last ten minutes.
+ * <p>
  * When a lesson in this list is clicked the underlying activity is informed (which should then
  * show the lesson in a {@link LessonDetailFragment}).
- *
+ * <p>
  * The list of lessons is by default the complete list of all lessons in the database. This can be
  * changed by calling the {@link #setCourse(String, boolean)} method.
  */
@@ -81,7 +81,7 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
-//    private String mCourse;
+    //    private String mCourse;
 //    private boolean mShowStarredOnly;
     private Cursor mCursor;
     private int mIdxId = -1;
@@ -92,18 +92,18 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
         Log.d(this.getClass().getSimpleName(), "onCreateLoader()");
         String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONS_ID,
                 SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME,
-                SelmaSQLiteHelper2.TABLE_LESSONS_STARRED };
+                SelmaSQLiteHelper2.TABLE_LESSONS_STARRED};
         CursorLoader cursorLoader;
-        if(args != null) {
+        if (args != null) {
             StringBuffer selection = new StringBuffer();
-            if(args.getString(ARG_COURSE)!=null) {
+            if (args.getString(ARG_COURSE) != null) {
                 selection
                         .append(SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME)
                         .append("='")
                         .append(args.getString(ARG_COURSE))
                         .append("'");
             }
-            if(args.getBoolean(ARG_STARRED)) {
+            if (args.getBoolean(ARG_STARRED)) {
                 if (selection.length() > 0) {
                     selection.append(" AND ");
                 }
@@ -125,15 +125,15 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(this.getClass().getSimpleName(), "onLoadFinished()");
         mCursor = data;
-        if( mCursor!= null) {
+        if (mCursor != null) {
             mIdxId = mCursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONS_ID);
         }
 
-        if((data != null) && (data.getCount() > 0)){
+        if ((data != null) && (data.getCount() > 0)) {
             final int count = data.getCount();
             Log.d(this.getClass().getSimpleName(), "Found " + count + " lessons.");
             ListAdapter ca = getListAdapter();
-            if(ca!=null && ca instanceof LessonListCursorAdapter) {
+            if (ca != null && ca instanceof LessonListCursorAdapter) {
                 ((LessonListCursorAdapter) ca).swapCursor(data);
             } else {
                 ca = new LessonListCursorAdapter(getContext(), data, 0);
@@ -147,11 +147,11 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
             setListAdapter(new LessonListCursorAdapter(getContext(), data, 0));
         }
         long now = (new Date()).getTime();
-        if(lastScanTime < (now - MIN_TIME_SINCE_LAST_SCAN)) {
+        if (lastScanTime < (now - MIN_TIME_SINCE_LAST_SCAN)) {
             lastScanTime = now;
             ScannerAssimilMP3Type1.startScanning(getActivity().getApplicationContext());
         } else {
-            Log.d(this.getClass().getSimpleName(), "Skipped scanning, last scan was " + ( now - lastScanTime ) + " milliseconds ago.");
+            Log.d(this.getClass().getSimpleName(), "Skipped scanning, last scan was " + (now - lastScanTime) + " milliseconds ago.");
         }
     }
 
@@ -164,7 +164,7 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
 
     public void setCourse(String courseName, boolean starred) {
         Bundle arguments = new Bundle();
-        if(!courseName.equals(getString(R.string.all_courses))) {
+        if (!courseName.equals(getString(R.string.all_courses))) {
             arguments.putString(ARG_COURSE, courseName);
         }
         arguments.putBoolean(ARG_STARRED, starred);

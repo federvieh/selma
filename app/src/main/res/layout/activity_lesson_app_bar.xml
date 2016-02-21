@@ -36,6 +36,11 @@
             <include layout="@layout/activity_lesson_list" />
         </FrameLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
         <fragment
             android:id="@+id/play_bar"
             android:name="com.github.federvieh.selma.PlaybarFragment"

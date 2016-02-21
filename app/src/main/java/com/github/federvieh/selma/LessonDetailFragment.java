@@ -1,6 +1,27 @@
+/*
+ * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.github.federvieh.selma;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
@@ -8,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +57,32 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     private LinearLayoutManager mLayoutManager;
     private long mLessonId;
 
+    private BroadcastReceiver messageReceiver = new BroadcastReceiver() {
+        private long lastPlayedLessonId = -1;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(mAdapter!=null) {
+                long lessonId = intent.getLongExtra(LessonPlayer.EXTRA_LESSON_ID, -1);
+                long curShownLessonId = mAdapter.getLessonId();
+                Log.d("LT", "ShowLessonFragment.messageReceiver.onReceive() got called with lessonId " + lessonId +
+                        ". Current lesson's ID is " + curShownLessonId + ". Last lesson ID is " + lastPlayedLessonId);
+                if (lessonId == curShownLessonId) {
+                    //Might now be playing a new track, update the list in order to highlight the current track
+                    mAdapter.notifyItemChanged(LessonPlayer.getPreviousTrack());
+                    mAdapter.notifyItemChanged(LessonPlayer.getTrackNumber(context));
+                } else if (lessonId != lastPlayedLessonId) {
+                    //Currently one item is shown in bold, but we are now playing a different
+                    //lesson. So, the list has to be re-drawn.
+                    //TODO: Test me!
+                    mAdapter.notifyDataSetChanged();
+                }
+                lastPlayedLessonId = lessonId;
+            }
+        }
+    };
+    private LessonDetailAdapter mAdapter;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -52,8 +100,8 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
             Activity activity = this.getActivity();
             if(activity instanceof LessonDetailActivity) {
                 activity.setTitle(R.string.lesson);
-                Loader<Cursor> cursorLoader = getLoaderManager().initLoader(LOADER_ID_LESSON_TITLE, getArguments(), this);
             }
+            Loader<Cursor> cursorLoader = getLoaderManager().initLoader(LOADER_ID_LESSON_TITLE, getArguments(), this);
 //            Toolbar appBarLayout = (Toolbar) activity.findViewById(R.id.detail_toolbar);
 //            if (appBarLayout != null) {
 //                appBarLayout.setTitle(R.string.lesson);//FIXME
@@ -124,7 +172,9 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
                     SelmaContentProvider.CONTENT_URI_LESSON_CONTENT, projection, selection, null, null);
             return cursorLoader;
         } else if (id == LOADER_ID_LESSON_TITLE) {
-            String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME,
+            String[] projection = {
+                    SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME,
+                    SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME,
             };
             CursorLoader cursorLoader;
             String selection = SelmaSQLiteHelper2.TABLE_LESSONS_ID + "=" + args.getLong(ARG_ITEM_ID);
@@ -143,21 +193,43 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
         Log.d(this.getClass().getSimpleName(), "onLoadFinished()");
         if(loader.getId()==LOADER_ID_LESSON) {
             //FIXME: Need to set the displaymode
-            LessonDetailAdapter adapter = new LessonDetailAdapter(data, DisplayMode.ORIGINAL_TEXT);
+            mAdapter = new LessonDetailAdapter(data, DisplayMode.ORIGINAL_TEXT);
             // Set AssimilShowLessonListAdapter as the adapter for RecyclerView.
-            mRecyclerView.setAdapter(adapter);
+            mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
             setRecyclerViewLayoutManager();
         } else if(loader.getId()==LOADER_ID_LESSON_TITLE) {
             //There is always only one result.
             data.moveToFirst();
-            getActivity().setTitle(getContext().getString(R.string.lesson) +
-                    " " +
-                    data.getString(data.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME)));
+            Activity activity = getActivity();
+            if(activity instanceof LessonDetailActivity) {
+                activity.setTitle(
+                        getContext().getString(R.string.lesson) +
+                                " " +
+                                data.getString(data.getColumnIndex(
+                                        SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME)));
+            } else {
+                activity.setTitle(
+                        data.getString(data.getColumnIndex(
+                                SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME)) + ": " +
+                        getContext().getString(R.string.lesson) +
+                                " " +
+                                data.getString(data.getColumnIndex(
+                                        SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME)));
+            }
         } else {
             Log.wtf(this.getClass().getSimpleName(), "Unknown loader ID " + loader.getId());
             throw new IllegalArgumentException("Unknown loader ID " + loader.getId());
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Register mMessageReceiver to receive messages.
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(messageReceiver,
+                new IntentFilter(LessonPlayer.PLAY_UPDATE_INTENT));
     }
 
     @Override

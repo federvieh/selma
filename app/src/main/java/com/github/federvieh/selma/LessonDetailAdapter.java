@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.github.federvieh.selma;
 
 import android.database.Cursor;
@@ -27,6 +44,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
     private final int idxLessonId;
     //    private final ListTypes lt;
     private Drawable dots;
+    private long lessonId;
 
     public LessonDetailAdapter(Cursor cursor, DisplayMode displayMode/*FIXME: , ListTypes lt*/) {
         Log.d(this.getClass().getSimpleName(), "created with cursor of size " + cursor.getCount());
@@ -49,6 +67,8 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
         }
         this.idxTextType = cursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE);
         this.idxLessonId = cursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_LESSONID);
+        cursor.moveToFirst();
+        this.lessonId = cursor.getLong(this.idxLessonId);
         /*FIXME: this.lt = lt;*/
     }
 
@@ -126,7 +146,6 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
                 break;
         }
         //FIXME: Highlight currently played item
-        long lessonId = cursor.getLong(idxLessonId);
         holder.setLessonId(lessonId);
         if ((LessonPlayer.getTrackNumber(textViewLeft.getContext()) == position) &&
                 (LessonPlayer.getLesson(textViewLeft.getContext()).getId()==lessonId)) {
@@ -224,6 +243,10 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
     @Override
     public int getItemCount() {
         return cursor.getCount();
+    }
+
+    public long getLessonId() {
+        return lessonId;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

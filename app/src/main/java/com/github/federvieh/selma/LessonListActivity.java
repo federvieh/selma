@@ -1,11 +1,30 @@
+/*
+ * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.github.federvieh.selma;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -43,6 +62,9 @@ import android.view.View;
 public class LessonListActivity extends AppCompatActivity
         implements LessonListFragment.Callbacks, NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String PREF_STARRED_ONLY = "PREF_STARRED_ONLY";
+    private static final String PREF_CURRENT_COURSE = "PREF_CURRENT_COURSE";
+
     private static final int LOADER_ID_DATABASE = 0;
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -58,15 +80,6 @@ public class LessonListActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -108,6 +121,13 @@ public class LessonListActivity extends AppCompatActivity
         };
         //FIXME: This should only be done once! When can we unregister?
         getContentResolver().registerContentObserver(SelmaContentProvider.CONTENT_URI_COURSES, true, observer);
+
+        //Which lesson list (language+starred) to show is stored as preference
+        SharedPreferences sp = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String currCourse = sp.getString(PREF_CURRENT_COURSE, getString(R.string.all_courses));
+        final boolean starredOnly = sp.getBoolean(PREF_STARRED_ONLY, false);
+        onLangItemSelected(currCourse, starredOnly);
 
         // TODO: If exposing deep links into your app, handle intents here.
     }
@@ -187,6 +207,12 @@ public class LessonListActivity extends AppCompatActivity
     }
 
     private void onLangItemSelected(String courseName, boolean starred) {
+        SharedPreferences sp = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        sp.edit().putBoolean(PREF_STARRED_ONLY, starred).putString(PREF_CURRENT_COURSE, courseName)
+                .commit();
+
+        setTitle(courseName);
         ((LessonListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.lesson_list))
                 .setCourse(courseName, starred);
