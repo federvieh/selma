@@ -3,6 +3,7 @@ package com.github.federvieh.selma;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v4.widget.CursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,11 +41,13 @@ public class LessonListCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView textView = (TextView) view.findViewById(R.id.showLessonTextViewLeft);
+        Log.d(this.getClass().getSimpleName(), "bindView(): Called for position "
+                + cursor.getPosition() + ": " + cursor.getString(mIdxLessonName));
+        TextView textView = (TextView) view.findViewById(R.id.lessonListRowTextView);
         ImageView imageView = (ImageView) view.findViewById(R.id.icon);
         textView.setText(context.getResources().getText(R.string.lesson)
                 + " " + cursor.getString(mIdxLessonName));
-        //FIXME: We need a listener to open the lesson and to star/unstar the lesson
+        //FIXME: We need a listener to star/unstar the lesson
 //        AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, mListener, position);
 //        textView.setOnClickListener(assimilOnClickListener);
 //        imageView.setOnClickListener(assimilOnClickListener);

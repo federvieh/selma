@@ -16,7 +16,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by frank on 10/25/15.
+ * Used for scanning files in the format of the Assimil MP3 courses. Examples that are known to
+ * work with this format:
+ *  - Turkish with Ease
+ *  - New Russian with Ease
+ *  - Hebrew with Ease
+ *  - Greek with Ease
+ *  - Spanish
  */
 public class ScannerAssimilMP3Type1 extends AsyncTask {
     /* Prefixes as used in the Assimil lesson MP3 files.
@@ -26,6 +32,7 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
     private static final int PREFIX_LENGTH = "S01-".length();
     private static ScannerAssimilMP3Type1 instance = null;
     private static Object lock = new Object();
+    private boolean running = false;
 
 
     public static void startScanning(Context ctxt) {
@@ -36,8 +43,14 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
                 }
             }
         }
-        instance.execute();
-        Log.i(instance.getClass().getSimpleName(), "Started scan");
+        if(instance.isRunning()) {
+            //Nothing to do
+            Log.i(instance.getClass().getSimpleName(), "Scan already running.");
+        } else {
+            instance.running = true;
+            instance.execute();
+            Log.i(instance.getClass().getSimpleName(), "Started scan");
+        }
     }
 
     private final ContentResolver contentResolver;
@@ -49,6 +62,10 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
     @Override
     protected void onPostExecute(Object o) {
         Log.i(instance.getClass().getSimpleName(), "Scan finished");
+        synchronized (lock) {
+            running = false;
+            instance = null;
+        }
         //FIXME: Inform caller that scanning has finished
     }
 
@@ -102,7 +119,18 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
             return true;
         }
     }
+
+    /**
+     * This method creates a new text entry in the selma database, if it doesn't already exist.
+     * If the entry does exist, it is updated. TODO: Is that so?
+     * @param number The lesson number used in Selma's database
+     * @param language The language name used in Selma's database
+     * @param fullAlbum The album name used in the Android media store (each lesson is in it's own
+     *                  album)
+     */
     public void createIfNotExists(String number, String language, String fullAlbum) {
+        /* First find all texts for this album ( i.e. lesson).
+         */
         Uri mediaUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {android.provider.MediaStore.Audio.Media.TITLE,
                 android.provider.MediaStore.Audio.Media.ALBUM,
@@ -114,14 +142,19 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
                 android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'S%' OR " +   //Text
                 android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'T%')";      //Translate
         Cursor cursor = contentResolver.query(mediaUri, projection, findLessonTexts, null, android.provider.MediaStore.Audio.Media.TITLE);
+
+        /* Check that we found a least one entry. Note that this should never fail, because why
+         * should this function have been called if there are no texts?
+         */
         if (cursor == null) {
-            //TODO: query failed
+            Log.e(this.getClass().getSimpleName(), "Query for album returned null");
             return;
         } else if (!cursor.moveToFirst()) {
-            // TODO: no media on device
+            Log.e(this.getClass().getSimpleName(), "Query for album returned empty cursor");
             return;
         } else {
-            //Find the lesson in the lesson table
+            /* Check if the lesson already exists in Selma's database.
+             */
             Uri selmaUri = SelmaContentProvider.CONTENT_URI_LESSONS;
             String[] columns = {SelmaSQLiteHelper2.TABLE_LESSONS_ID};
             Cursor cursorAlbum = contentResolver.query(
@@ -131,8 +164,11 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
                             " AND " + SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME + "= '" + language + "'",
                     null,
                     null);
+
             if (!cursorAlbum.moveToFirst()) {
-                //No result, i.e. we need to create a new entry for this album
+                /* The lesson does not yet exist in the database, i.e. we need to create a new entry
+                 * for this album.
+                 */
                 Log.d("LT", "Creating new lesson for " + fullAlbum);
                 ContentValues valuesLessonTable = new ContentValues();
                 valuesLessonTable.put(SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME, language);
@@ -159,6 +195,9 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
             long albumId = cursorAlbum.getLong(cursorAlbum.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONS_ID));
             cursorAlbum.close();
 
+            /* Now go through each entry for this album (i.e. lesson) and see if the lesson is
+             * already in Selma's database.
+             */
             int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
             int idColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
             int dataColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.DATA);
@@ -214,7 +253,7 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
                         new String[] {textNumber},
                         null);
                 if (cursorLessontext.moveToFirst()) {
-                    //No result, i.e. we don't need to create a new entry for this text
+                    //Found a result, i.e. we don't need to create a new entry for this text
                     Log.d("LT", "Text " + textNumber + " for lesson \"" + fullAlbum + "\" already exists. Skipping...");
                     //FIXME: We should probably update the entry
                 } else {
@@ -258,16 +297,10 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
     protected static String[] findTexts(String pathStr) {
         StringBuffer fileNamePatt = new StringBuffer(pathStr);
         fileNamePatt.delete(fileNamePatt.length()-4, fileNamePatt.length());
-//		fileNamePatt.delete(0, fileNamePatt.lastIndexOf("/")+1);
-
-//		StringBuffer directory = new StringBuffer(pathStr);
-//		directory.delete(directory.lastIndexOf("/")+1,directory.length());
-
-//		Log.d("LT", "directory: "+directory.toString());
         Log.d("LT", "fileNamePatt: " + fileNamePatt.toString());
 
         String translatedText = getFileContent(fileNamePatt+"_translate.txt");
-        String translatedTextVerbatim = getFileContent(fileNamePatt+"_translate_verbatim.txt");
+        String translatedTextVerbatim = getFileContent(fileNamePatt + "_translate_verbatim.txt");
         String originalText = getFileContent(fileNamePatt+"_orig.txt");
 
         String[] rv = {translatedText, translatedTextVerbatim, originalText};
@@ -299,5 +332,9 @@ public class ScannerAssimilMP3Type1 extends AsyncTask {
             Log.w("LT", e);
         }
         return null;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 }

@@ -1,3 +1,22 @@
+/*
+ * Selma is an Android app that helps you in learning a new language using the Assimil language training courses' MP3 CDs.
+ *
+ * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.github.federvieh.selma;
 
 import android.app.Activity;
@@ -12,10 +31,12 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
 import com.github.federvieh.selma.dao.ScannerAssimilMP3Type1;
+
+import java.util.Date;
 
 /**
  * A list fragment representing a list of Lessons. This fragment
@@ -25,6 +46,17 @@ import com.github.federvieh.selma.dao.ScannerAssimilMP3Type1;
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
+ *
+ * When opening this Fragment:
+ *   - A list of lessons is being loaded from the database
+ *   - The scanners are being started (looking in the Android medida library for lessons) if it has
+ *     not been started in the last ten minutes.
+ *
+ * When a lesson in this list is clicked the underlying activity is informed (which should then
+ * show the lesson in a {@link LessonDetailFragment}).
+ *
+ * The list of lessons is by default the complete list of all lessons in the database. This can be
+ * changed by calling the {@link #setCourse(String, boolean)} method.
  */
 public class LessonListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -37,8 +69,9 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     private static final String ARG_STARRED = "show_starred_only";
 
     private static final int LOADER_ID_DATABASE = 0;
+    private static final long MIN_TIME_SINCE_LAST_SCAN = (10 * 60 * 1000); // Ten minutes
 
-     /**
+    /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
@@ -48,10 +81,11 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
      * The current activated item position. Only used on tablets.
      */
     private int mActivatedPosition = ListView.INVALID_POSITION;
-    private String mCourse;
-    private boolean mShowStarredOnly;
+//    private String mCourse;
+//    private boolean mShowStarredOnly;
     private Cursor mCursor;
     private int mIdxId = -1;
+    private static long lastScanTime = 0;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -59,7 +93,6 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
         String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONS_ID,
                 SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME,
                 SelmaSQLiteHelper2.TABLE_LESSONS_STARRED };
-        //FIXME: build where clause using mCourse and mShowStarredOnly
         CursorLoader cursorLoader;
         if(args != null) {
             StringBuffer selection = new StringBuffer();
@@ -103,18 +136,22 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
             if(ca!=null && ca instanceof LessonListCursorAdapter) {
                 ((LessonListCursorAdapter) ca).swapCursor(data);
             } else {
-                ca = new LessonListCursorAdapter(getContext(), data, 0);//TODO: What does third parameter "flags" do?
+                ca = new LessonListCursorAdapter(getContext(), data, 0);
                 setListAdapter(ca);
+                Log.d(this.getClass().getSimpleName(), "adapter has " + ca.getCount() + " lessons.");
             }
         } else {
             //FIXME: Set proper text using resources
             Log.d(this.getClass().getSimpleName(), "No lessons found.");
             setEmptyText("No lessons found.");
-            setListAdapter(new LessonListCursorAdapter(getContext(), data, 0));//TODO: What does third parameter "flags" do?
-            //FIXME: Use some kind of flag that indicates if a scan has been performed before
-            if(((CursorLoader)loader).getSelection()==null) {
-                ScannerAssimilMP3Type1.startScanning(getContext());
-            }
+            setListAdapter(new LessonListCursorAdapter(getContext(), data, 0));
+        }
+        long now = (new Date()).getTime();
+        if(lastScanTime < (now - MIN_TIME_SINCE_LAST_SCAN)) {
+            lastScanTime = now;
+            ScannerAssimilMP3Type1.startScanning(getActivity().getApplicationContext());
+        } else {
+            Log.d(this.getClass().getSimpleName(), "Skipped scanning, last scan was " + ( now - lastScanTime ) + " milliseconds ago.");
         }
     }
 
@@ -189,7 +226,7 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
                 LessonListFragment.this.getLoaderManager().restartLoader(LOADER_ID_DATABASE, null, LessonListFragment.this);
             }
         };
-        //FIXME: This should only be done once! When cam we unregister?
+        //FIXME: This should only be done once! When can we unregister?
         getContext().getContentResolver().registerContentObserver(SelmaContentProvider.CONTENT_URI_LESSONS, true, observer);
 //TODO: Maybe set title
 //        Activity activity = this.getActivity();
@@ -197,13 +234,6 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
 //        if (appBarLayout != null) {
 //            appBarLayout.setTitle(mItem.content);
 //        }
-        // TODO: replace with a real list adapter.
-        // FIXME: use Loader
-//        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
-//                getActivity(),
-//                android.R.layout.simple_list_item_activated_1,
-//                android.R.id.text1,
-//                DummyContent.ITEMS));
     }
 
     @Override

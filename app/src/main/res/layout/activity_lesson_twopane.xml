@@ -1,25 +1,66 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp" android:baselineAligned="false" android:divider="?android:attr/dividerHorizontal"
-    android:orientation="horizontal" android:showDividers="middle" tools:context=".LessonListActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:divider="?android:attr/dividerVertical"
+    android:orientation="vertical"
+    android:showDividers="middle">
 
-    <!--
-    This layout is a two-pane layout for the Lessons
-    master/detail flow.
-    See res/values-large/refs.xml and
-    res/values-sw600dp/refs.xml for an example of layout aliases
-    that replace the single-pane version of the layout with
-    this two-pane version.
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="99"
+        android:baselineAligned="false"
+        android:divider="?android:attr/dividerHorizontal"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        tools:context=".LessonListActivity">
 
-    For more on layout aliases, see:
-    http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+        <!--
+        This layout is a two-pane layout for the Lessons
+        master/detail flow.
+        See res/values-large/refs.xml and
+        res/values-sw600dp/refs.xml for an example of layout aliases
+        that replace the single-pane version of the layout with
+        this two-pane version.
+
+        For more on layout aliases, see:
+        http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
+        -->
+
+        <fragment
+            android:id="@+id/lesson_list"
+            android:name="com.github.federvieh.selma.LessonListFragment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:layout="@android:layout/list_content" />
+
+        <FrameLayout
+            android:id="@+id/lesson_detail_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3" />
+
+    </LinearLayout>
+    <!--    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <include layout="@layout/playbar"/>
+        </FrameLayout>
     -->
-
-    <fragment android:id="@+id/lesson_list" android:name="com.github.federvieh.selma.LessonListFragment"
-        android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
-        tools:layout="@android:layout/list_content" />
-
-    <FrameLayout android:id="@+id/lesson_detail_container" android:layout_width="0dp"
-        android:layout_height="match_parent" android:layout_weight="3" />
-
+    <!--    <include layout="@layout/pausebar"></include> -->
+<!--    <fragment
+        android:id="@+id/play_bar"
+        android:name="com.github.federvieh.selma.PlaybarFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1"
+        tools:context=".PlaybarFragment" /> -->
 </LinearLayout>

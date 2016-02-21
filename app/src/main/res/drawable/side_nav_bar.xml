@@ -6,4 +6,9 @@
         android:endColor="@color/colorPrimaryDark"
         android:type="linear"
         android:angle="135"/>
+<!--    <gradient
+        android:startColor="@color/colorPrimary"
+        android:endColor="@color/colorPrimaryDark"
+        android:type="linear"
+        android:angle="135"/>-->
 </shape>

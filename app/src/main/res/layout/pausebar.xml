@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pauseMode_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_alignParentLeft="true">
+
+        <TextView
+            android:id="@+id/textViewDelayDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/delayExplanation"/>
+
+        <TextView
+            android:id="@+id/textViewCurrentDelay"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/sbDelay"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/textViewDelayDesc"
+            android:text="0%"/>
+
+        <TextView
+            android:id="@+id/textViewMaxDelay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/sbDelay"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/textViewDelayDesc"
+            android:layout_marginRight="8dp"
+            android:text="200%"/>
+
+        <SeekBar
+            android:id="@id/sbDelay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_toRightOf="@id/textViewCurrentDelay"
+            android:layout_toLeftOf="@id/textViewMaxDelay"
+            android:layout_below="@id/textViewDelayDesc"
+            android:max="200"/>
+    </RelativeLayout>

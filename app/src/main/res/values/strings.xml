@@ -12,4 +12,13 @@
     <string name="action_license">License</string>
     <string name="action_show_tips">Show tips</string>
     <string name="settings">Settings</string>
+
+    <string name="repeat_none">Repeat none</string>
+    <string name="repeat_track">Repeat current track</string>
+    <string name="repeat_lesson">Repeat current lesson</string>
+    <string name="repeat_all">Repeat all lessons</string>
+    <string name="delayExplanation">Set an additional pause after playing a track according to the track length:</string>
+    <string name="title_adjust_pause">Adjust pause</string>
+    <string name="OK">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>
