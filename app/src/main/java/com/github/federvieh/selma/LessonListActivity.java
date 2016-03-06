@@ -25,9 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -40,7 +38,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
-import android.view.View;
 
 
 /**
@@ -50,11 +47,11 @@ import android.view.View;
  * lead to a {@link LessonDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
- * <p/>
+ * <p>
  * The activity makes heavy use of fragments. The list of items is a
  * {@link LessonListFragment} and the item details
  * (if present) is a {@link LessonDetailFragment}.
- * <p/>
+ * <p>
  * This activity also implements the required
  * {@link LessonListFragment.Callbacks} interface
  * to listen for item selections.
@@ -70,7 +67,11 @@ public class LessonListActivity extends AppCompatActivity
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
-    private boolean mTwoPane;
+    private static boolean sTwoPane;
+
+    public static boolean getTwoPane() {
+        return sTwoPane;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +96,7 @@ public class LessonListActivity extends AppCompatActivity
             // large-screen layouts (res/values-large and
             // res/values-sw600dp). If this view is present, then the
             // activity should be in two-pane mode.
-            mTwoPane = true;
+            sTwoPane = true;
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
@@ -103,7 +104,7 @@ public class LessonListActivity extends AppCompatActivity
                     .findFragmentById(R.id.lesson_list))
                     .setActivateOnItemClick(true);
         }
-        
+
         getSupportLoaderManager().initLoader(LOADER_ID_DATABASE, null, this);
 
         //If new courses have been added, the list of courses needs to be reloaded to refresh the navigation view.
@@ -129,7 +130,22 @@ public class LessonListActivity extends AppCompatActivity
         final boolean starredOnly = sp.getBoolean(PREF_STARRED_ONLY, false);
         onLangItemSelected(currCourse, starredOnly);
 
-        // TODO: If exposing deep links into your app, handle intents here.
+        //Called from notification
+        if (getIntent() != null) {
+            long lessonId = getIntent().getLongExtra(LessonDetailFragment.ARG_ITEM_ID, -1);
+            if (lessonId != -1) {
+                //FIXME: Highlight the lesson
+                if (sTwoPane) {
+                    LessonListFragment llf = ((LessonListFragment) getSupportFragmentManager()
+                            .findFragmentById(R.id.lesson_list));
+                    //Hmm... Highlighting the lessons seems only to work when the fragment has been fully loaded
+//                    int lessonPos = llf.getPosFromId(lessonId);
+//                    llf.setSelection(lessonPos);
+//                    llf.setSelectedLesson(lessonId);
+                }
+                onItemSelected(lessonId);
+            }
+        }
     }
 
     @Override
@@ -148,7 +164,7 @@ public class LessonListActivity extends AppCompatActivity
      */
     @Override
     public void onItemSelected(long id) {
-        if (mTwoPane) {
+        if (sTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
@@ -234,9 +250,10 @@ public class LessonListActivity extends AppCompatActivity
         return null;
     }
 
-    /** De-select all other menu items after selecting an item in the navigation view. This is necessary due to a
+    /**
+     * De-select all other menu items after selecting an item in the navigation view. This is necessary due to a
      * bug in the NavigationView: https://code.google.com/p/android/issues/detail?id=175216
-     *
+     * <p>
      * TODO: Check once in a while if issue 175216 has been solved.
      *
      * @param menuItem
@@ -271,10 +288,10 @@ public class LessonListActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(this.getClass().getSimpleName(), "onLoadFinished()");
 
-        if( data != null) {
+        if (data != null) {
         }
 
-        if((data != null) && (data.getCount() > 0)){
+        if ((data != null) && (data.getCount() > 0)) {
             final int count = data.getCount();
             int idxCourseName = data.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME);
             Log.d(this.getClass().getSimpleName(), "Found " + count + " courses.");

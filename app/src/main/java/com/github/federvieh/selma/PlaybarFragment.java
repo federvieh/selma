@@ -26,6 +26,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.*;
@@ -148,7 +149,19 @@ public class PlaybarFragment extends Fragment {
                 Lesson lesson = LessonPlayer.getLesson(getActivity());
                 if (lesson != null) {
                     //Show current lesson
-//                    mListener.onLessonClicked(lesson.getId(), LessonPlayer.getTrackNumber(getActivity()));
+                    Activity activity = getActivity();
+                    long id = LessonPlayer.getLesson(activity).getId();
+                    if(activity instanceof  LessonListActivity) {
+                        ((LessonListActivity) activity).onItemSelected(id);
+                    } else {
+                        //We're in the detail view. In order to get the correct navigation history
+                        //we first go to the list activity (navigate up) and then start the detail
+                        //activity (by intent).
+                        NavUtils.navigateUpTo(activity, new Intent(activity, LessonListActivity.class));
+                        Intent detailIntent = new Intent(activity, LessonDetailActivity.class);
+                        detailIntent.putExtra(LessonDetailFragment.ARG_ITEM_ID, id);
+                        startActivity(detailIntent);
+                    }
                 }
             }
         });

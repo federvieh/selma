@@ -42,7 +42,7 @@ import java.io.File;
 
 /**
  * This is a service that handles the complete playback functionality (i.e. interacting with MediaPlayer).
- *
+ * <p>
  * It's possible to define an additional waiting time percentage, so that after a track has finished the service waits
  * before continuing to play the next track based on the length of the previous track ({@see setDelay}).
  *
@@ -121,11 +121,13 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
     private static PlayMode playMode = PlayMode.REPEAT_ALL_LESSONS;
 //    private static ListTypes lt = ListTypes.TRANSLATE;
 
-    /** Name of the course that is currently being played back. {@code null} for all.
+    /**
+     * Name of the course that is currently being played back. {@code null} for all.
      * FIXME: Implement
      */
     private String courseName = null;
-    /** Are currently only starred being played back?
+    /**
+     * Are currently only starred being played back?
      * FIXME: Implement
      */
     private boolean starredOnly = false;
@@ -199,13 +201,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
             LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 
-            Intent resultIntent = new Intent(this, LessonListActivity.class);//(this, ShowLesson.class);
-            //TODO: Create the stack to open the correct lesson
-//            resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
+            Intent resultIntent = new Intent(this, LessonDetailActivity.class);//(this, ShowLesson.class);
+            resultIntent.putExtra(LessonDetailFragment.ARG_ITEM_ID, currentLesson.getId());
 
             TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
             // Adds the back stack
-            stackBuilder.addParentStack(LessonListActivity.class);
+            stackBuilder.addParentStack(LessonDetailActivity.class);
             // Adds the Intent to the top of the stack
             stackBuilder.addNextIntent(resultIntent);
             // Gets a PendingIntent containing the entire back stack
@@ -448,13 +449,14 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         }
     }
 
-    /** FIXME: Is this needed?
+    /**
+     * FIXME: Is this needed?
+     *
      * @return
      */
 //    public static ListTypes getListType() {
 //        return lt;
 //    }
-
     private void playNextLesson() {
 //		switch(getListType()){
 //		case REPEAT_ALL_STARRED:
@@ -539,13 +541,14 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         currTrackIntent.putExtra(EXTRA_IS_PLAYING, playing);
         LocalBroadcastManager.getInstance(this).sendBroadcast(currTrackIntent);
 
-            Intent resultIntent = new Intent(this, LessonListActivity.class);//(this, ShowLesson.class);
-        //TODO: Create the stack to open the correct lesson
-//            resultIntent.putExtra(AssimilOnClickListener.EXTRA_LESSON_ID, currentLesson.getHeader().getId());
+        Intent resultIntent = new Intent(this, LessonListActivity.getTwoPane() ? LessonListActivity.class : LessonDetailActivity.class);
+
+        //Create the stack to open the correct lesson
+        resultIntent.putExtra(LessonDetailFragment.ARG_ITEM_ID, currentLesson.getId());
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         // Adds the back stack
-        stackBuilder.addParentStack(LessonListActivity.class);
+        stackBuilder.addParentStack(LessonListActivity.getTwoPane() ? LessonListActivity.class : LessonDetailActivity.class);
         // Adds the Intent to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         // Gets a PendingIntent containing the entire back stack
@@ -680,7 +683,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         }
     }
 
-    /** FIXME: Do we still need this?
+    /**
+     * FIXME: Do we still need this?
+     *
      * @return the lesson
      */
     public static String getLessonTitle(Context ctxt) {

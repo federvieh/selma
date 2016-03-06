@@ -1,6 +1,4 @@
 /*
- * Selma is an Android app that helps you in learning a new language using the Assimil language training courses' MP3 CDs.
- *
  * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -172,6 +170,33 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     }
 
     /**
+     * Return the position of the requested lesson.
+     *
+     * @param lessonId ID of lesson
+     * @return the position of the lesson in the list. Or -1 if not found.
+     */
+    private int getPosFromId(long lessonId) {
+        boolean emptyCursor = true;
+//        if(mCursor!=null) {
+        emptyCursor = !mCursor.moveToFirst();
+//        }
+        if (emptyCursor) {
+            return -1;
+        }
+        int pos = 0;
+        do {
+            if (mCursor.getLong(mIdxId) == lessonId) {
+                Log.d(getClass().getSimpleName(), "Found position of lesson " + lessonId + " at position " + pos);
+                return pos;
+            }
+            pos++;
+        } while (mCursor.moveToNext());
+        //Not found
+        Log.d(getClass().getSimpleName(), "Lesson " + lessonId + " not found in list");
+        return -1;
+    }
+
+    /**
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
      * selections.
@@ -179,6 +204,8 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     public interface Callbacks {
         /**
          * Callback for when an item has been selected.
+         *
+         * @param id The ID of the selected item
          */
         public void onItemSelected(long id);
     }
