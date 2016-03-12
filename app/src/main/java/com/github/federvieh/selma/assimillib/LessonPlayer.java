@@ -189,15 +189,15 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                         //TODO: Move to extra function, add error listener
                     }
                 }
-            } else {
-                mediaPlayer.reset();
             }
-            try {
-                mediaPlayer.setDataSource(this, contentUri);
-                mediaPlayer.prepareAsync();
-            } catch (Exception e) {
-                Log.w("LT", "Could not set data source or prepare media player " + contentUri, e);
-                return;
+            if(!doCont) {
+                try {
+                    mediaPlayer.setDataSource(this, contentUri);
+                    mediaPlayer.prepareAsync();
+                } catch (Exception e) {
+                    Log.w("LT", "Could not set data source or prepare media player " + contentUri, e);
+                    return;
+                }
             }
         }
     }
@@ -313,6 +313,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             delayService.cancel(true);
             delayService = null;
         }
+        // reset
+        if (mediaPlayer != null) {
+            mediaPlayer.reset();
+        }
+
         switch (pm) {
 /*		case SINGLE_TRACK:
             Log.d("LT", "Playing single song finished. Stopping.");
