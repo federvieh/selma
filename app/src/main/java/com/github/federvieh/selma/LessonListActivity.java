@@ -168,6 +168,7 @@ public class LessonListActivity extends AppCompatActivity
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
+
             Bundle arguments = new Bundle();
             arguments.putLong(LessonDetailFragment.ARG_ITEM_ID, id);
             LessonDetailFragment fragment = new LessonDetailFragment();
@@ -175,7 +176,12 @@ public class LessonListActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.lesson_detail_container, fragment)
                     .commit();
-
+            LessonListFragment llf = ((LessonListFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.lesson_list));
+            //Hmm... Highlighting the lessons seems only to work when the fragment has been fully loaded
+//                    int lessonPos = llf.getPosFromId(lessonId);
+//                    llf.setSelection(lessonPos);
+                    llf.setSelectedLesson(id);
         } else {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.

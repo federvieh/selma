@@ -2,6 +2,7 @@ package com.github.federvieh.selma;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +48,11 @@ public class LessonListCursorAdapter extends CursorAdapter {
         ImageView imageView = (ImageView) view.findViewById(R.id.icon);
         textView.setText(context.getResources().getText(R.string.lesson)
                 + " " + cursor.getString(mIdxLessonName));
+        if(LessonPlayer.getLesson(context).getId() == cursor.getLong(mxIdxId)) {
+            textView.setTypeface(null, Typeface.BOLD);
+        } else {
+            textView.setTypeface(null, Typeface.NORMAL);
+        }
         //FIXME: We need a listener to star/unstar the lesson
 //        AssimilOnClickListener assimilOnClickListener = new AssimilOnClickListener(current, mListener, position);
 //        textView.setOnClickListener(assimilOnClickListener);

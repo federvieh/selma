@@ -152,6 +152,7 @@ public class PlaybarFragment extends Fragment {
                     Activity activity = getActivity();
                     long id = LessonPlayer.getLesson(activity).getId();
                     if(activity instanceof  LessonListActivity) {
+                        //Either we are in two pane mode or in lesson list mode
                         ((LessonListActivity) activity).onItemSelected(id);
                     } else {
                         //We're in the detail view. In order to get the correct navigation history

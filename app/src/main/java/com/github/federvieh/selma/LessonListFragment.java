@@ -18,6 +18,10 @@
 package com.github.federvieh.selma;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -27,6 +31,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListAdapter;
@@ -35,24 +40,25 @@ import android.widget.ListView;
 import com.github.federvieh.selma.dao.ScannerAssimilMP3Type1;
 
 import java.util.Date;
+import java.util.concurrent.FutureTask;
 
 /**
  * A list fragment representing a list of Lessons. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
  * currently being viewed in a {@link LessonDetailFragment}.
- * <p>
+ * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
- * <p>
+ * <p/>
  * When opening this Fragment:
  * - A list of lessons is being loaded from the database
  * - The scanners are being started (looking in the Android medida library for lessons) if it has
  * not been started in the last ten minutes.
- * <p>
+ * <p/>
  * When a lesson in this list is clicked the underlying activity is informed (which should then
  * show the lesson in a {@link LessonDetailFragment}).
- * <p>
+ * <p/>
  * The list of lessons is by default the complete list of all lessons in the database. This can be
  * changed by calling the {@link #setCourse(String, boolean)} method.
  */
@@ -69,6 +75,22 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     private static final int LOADER_ID_DATABASE = 0;
     private static final long MIN_TIME_SINCE_LAST_SCAN = (10 * 60 * 1000); // Ten minutes
 
+    private BroadcastReceiver messageReceiver = new BroadcastReceiver() {
+        private long lastPlayedLessonId = -1;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ListAdapter la = getListAdapter();
+            if(la!=null) {
+                long lessonId = intent.getLongExtra(LessonPlayer.EXTRA_LESSON_ID, -1);
+                if (lessonId != lastPlayedLessonId) {
+                    //TODO: Test me!
+                    ((LessonListCursorAdapter)la).notifyDataSetChanged();
+                }
+                lastPlayedLessonId = lessonId;
+            }
+        }
+    };
     /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
@@ -84,6 +106,7 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     private Cursor mCursor;
     private int mIdxId = -1;
     private static long lastScanTime = 0;
+    private long selectedLessonId = -1;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -133,6 +156,8 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
             ListAdapter ca = getListAdapter();
             if (ca != null && ca instanceof LessonListCursorAdapter) {
                 ((LessonListCursorAdapter) ca).swapCursor(data);
+                int pos = getPosFromId(selectedLessonId);
+                this.setActivatedPosition(pos);
             } else {
                 ca = new LessonListCursorAdapter(getContext(), data, 0);
                 setListAdapter(ca);
@@ -177,9 +202,9 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
      */
     private int getPosFromId(long lessonId) {
         boolean emptyCursor = true;
-//        if(mCursor!=null) {
-        emptyCursor = !mCursor.moveToFirst();
-//        }
+        if (mCursor != null) {
+            emptyCursor = !mCursor.moveToFirst();
+        }
         if (emptyCursor) {
             return -1;
         }
@@ -194,6 +219,13 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
         //Not found
         Log.d(getClass().getSimpleName(), "Lesson " + lessonId + " not found in list");
         return -1;
+    }
+
+    public void setSelectedLesson(long lessonId) {
+        int pos = getPosFromId(lessonId);
+        this.selectedLessonId = lessonId;
+        setActivatedPosition(pos);
+//        setSelection(pos);
     }
 
     /**
@@ -267,10 +299,14 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Log.d(this.getClass().getSimpleName(), "onViewCreated()");
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
             setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+        } else {
+            //FIXME: This doesn't work. When can we activate the current position?
+            setActivatedPosition(getPosFromId(selectedLessonId));
         }
     }
 
@@ -333,5 +369,21 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
         }
 
         mActivatedPosition = position;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Register mMessageReceiver to receive messages.
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(messageReceiver,
+                new IntentFilter(LessonPlayer.PLAY_UPDATE_INTENT));
+    }
+
+    @Override
+    public void onPause() {
+        // Unregister since the activity is not visible
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(messageReceiver);
+        super.onPause();
     }
 }

@@ -233,6 +233,13 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
+    public void onPause() {
+        // Unregister since the activity is not visible
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(messageReceiver);
+        super.onPause();
+    }
+
+    @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         //FIXME: What should be done now?
         Log.d(this.getClass().getSimpleName(), "Loader reset. What now!?");
