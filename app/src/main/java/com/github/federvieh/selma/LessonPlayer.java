@@ -42,7 +42,7 @@ import java.io.File;
 
 /**
  * This is a service that handles the complete playback functionality (i.e. interacting with MediaPlayer).
- * <p>
+ * <p/>
  * It's possible to define an additional waiting time percentage, so that after a track has finished the service waits
  * before continuing to play the next track based on the length of the previous track ({@see setDelay}).
  *
@@ -51,6 +51,7 @@ import java.io.File;
 public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener, DelayService.DelayServiceListener {
     private static final String LAST_LESSON_PLAYED = "LAST_LESSON_PLAYED";
     private static final String LAST_TRACK_PLAYED = "LAST_TRACK_PLAYED";
+    private static final String DELAY_PERCENTAGE = "DELAY_PERCENTAGE";
     public static final String EXTRA_LESSON_ID = "EXTRA_LESSON_ID";
     private static final String EXTRA_TRACK_INDEX = "EXTRA_TRACK_INDEX";
 
@@ -61,7 +62,14 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      * if the track that has just finished was 6 seconds and the delayPercentage is 50, the next track will start after
      * waiting 3 seconds.
      */
-    public static void setDelay(int delay) {
+    public static void setDelay(int delay, Context ctxt) {
+        if (ctxt != null) {
+            Editor editor = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+            editor
+                    .putInt(DELAY_PERCENTAGE, delay)
+                    .commit();
+        }
+
         LessonPlayer.delayPercentage = delay;
         Log.d("LT", "Delay: " + delay);
     }
@@ -71,7 +79,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      * if the track that has just finished was 6 seconds and the delayPercentage is 50, the next track will start after
      * waiting 3 seconds.
      */
-    public static int getDelay() {
+    public static int getDelay(Context ctxt) {
+        if (ctxt != null) {
+            SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
+            delayPercentage = settings.getInt(DELAY_PERCENTAGE, 0);
+        }
         return delayPercentage;
     }
 
@@ -125,6 +137,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      * Name of the course that is currently being played back. {@code null} for all.
      */
     private static String courseName = null;
+
     public static void setCourseName(String courseName) {
         LessonPlayer.courseName = courseName;
     }
@@ -133,6 +146,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      * Are currently only starred being played back?
      */
     private static boolean starredOnly = false;
+
     public static void setStarredOnly(boolean starredOnly) {
         LessonPlayer.starredOnly = starredOnly;
     }
@@ -343,7 +357,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         Log.d("LT", "onCompletion");
         //TODO: A wake lock might be needed here:
         //http://developer.android.com/training/scheduling/wakelock.html#cpu
-        if (delayPercentage > 0) {
+        if (getDelay(getApplicationContext()) > 0) {
             if (delayService != null) {
                 delayService.cancel(true);
             }

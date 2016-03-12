@@ -8,12 +8,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class AdjustPauseDialogFragment extends DialogFragment implements SeekBar.OnSeekBarChangeListener {
     private SeekBar seekBar;
@@ -29,7 +25,7 @@ public class AdjustPauseDialogFragment extends DialogFragment implements SeekBar
                 .setPositiveButton(R.string.OK,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                LessonPlayer.setDelay(currentDelay);
+                                LessonPlayer.setDelay(currentDelay, getContext());
                                 dialog.dismiss();
                             }
                         }
@@ -49,7 +45,7 @@ public class AdjustPauseDialogFragment extends DialogFragment implements SeekBar
 
         // set this instance as callback for editor action
         seekBar.setOnSeekBarChangeListener(this);
-        seekBar.setProgress(LessonPlayer.getDelay());
+        seekBar.setProgress(LessonPlayer.getDelay(getContext()));
 
         b.setView(view);
 

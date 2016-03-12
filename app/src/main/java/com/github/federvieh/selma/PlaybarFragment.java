@@ -28,13 +28,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.view.*;
+import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
+
 import com.github.federvieh.selma.LessonPlayer.PlayMode;
 
 /**
@@ -151,7 +155,7 @@ public class PlaybarFragment extends Fragment {
                     //Show current lesson
                     Activity activity = getActivity();
                     long id = LessonPlayer.getLesson(activity).getId();
-                    if(activity instanceof  LessonListActivity) {
+                    if (activity instanceof LessonListActivity) {
                         //Either we are in two pane mode or in lesson list mode
                         ((LessonListActivity) activity).onItemSelected(id);
                     } else {
@@ -231,36 +235,12 @@ public class PlaybarFragment extends Fragment {
         });
         pauseModeLayout = view.findViewById(R.id.pauseMode_layout);
         ImageView pauseMode = (ImageView) view.findViewById(R.id.pauseMode);
-        Log.d(this.getClass().getSimpleName(), "Looking for ID " + R.id.pauseMode_layout);
-//        textViewCurrentPause = (TextView) view.findViewById(R.id.textViewCurrentDelay);
-//        textViewCurrentPause.setMinWidth(textViewCurrentPause.getWidth());
         pauseMode.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
                 showPauseDialog();
             }
         });
-        //FIXME: Restore functionality
-//        SeekBar seekBar = (SeekBar) view.findViewById(R.id.sbDelay);
-//        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-////                textViewCurrentPause.setText(i + "%");
-//                LessonPlayer.setDelay(i);
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//            }
-//        });
-//        seekBar.setProgress(10);
-//        seekBar.setProgress(0);
         return view;
     }
 
@@ -271,7 +251,7 @@ public class PlaybarFragment extends Fragment {
             manager.beginTransaction().remove(frag).commit();
         }
         AdjustPauseDialogFragment dialog = new AdjustPauseDialogFragment();
-        dialog.show(manager,"fragment_adjust_pause");
+        dialog.show(manager, "fragment_adjust_pause");
     }
 
     @Override
