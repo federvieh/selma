@@ -235,6 +235,13 @@ public class LessonListActivity extends AppCompatActivity
                 .commit();
 
         setTitle(courseName);
+        if (!courseName.equals(getString(R.string.all_courses))) {
+            LessonPlayer.setCourseName(courseName);
+        } else {
+            LessonPlayer.setCourseName(null);
+        }
+        LessonPlayer.setStarredOnly(starred);
+
         ((LessonListFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.lesson_list))
                 .setCourse(courseName, starred);

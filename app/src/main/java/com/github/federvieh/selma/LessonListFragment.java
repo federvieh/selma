@@ -84,7 +84,6 @@ public class LessonListFragment extends ListFragment implements LoaderManager.Lo
             if(la!=null) {
                 long lessonId = intent.getLongExtra(LessonPlayer.EXTRA_LESSON_ID, -1);
                 if (lessonId != lastPlayedLessonId) {
-                    //TODO: Test me!
                     ((LessonListCursorAdapter)la).notifyDataSetChanged();
                 }
                 lastPlayedLessonId = lessonId;

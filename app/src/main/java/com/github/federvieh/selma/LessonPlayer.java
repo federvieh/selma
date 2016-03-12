@@ -123,15 +123,19 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 
     /**
      * Name of the course that is currently being played back. {@code null} for all.
-     * FIXME: Implement
      */
-    private String courseName = null;
+    private static String courseName = null;
+    public static void setCourseName(String courseName) {
+        LessonPlayer.courseName = courseName;
+    }
+
     /**
      * Are currently only starred being played back?
-     * FIXME: Implement
      */
-    private boolean starredOnly = false;
-
+    private static boolean starredOnly = false;
+    public static void setStarredOnly(boolean starredOnly) {
+        LessonPlayer.starredOnly = starredOnly;
+    }
 
     public LessonPlayer() {
         numberOfInstances++;
@@ -364,18 +368,12 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             delayService = null;
         }
         switch (pm) {
-/*		case SINGLE_TRACK:
-            Log.d("LT", "Playing single song finished. Stopping.");
-			stop();
-			break;*/
             case REPEAT_TRACK:
                 play(currentLesson, currentTrack, false, this);
                 break;
             case ALL_LESSONS:
             case REPEAT_ALL_LESSONS:
             case REPEAT_LESSON:
-//		case SINGLE_LESSON:
-//		case REPEAT_ALL_STARRED:
                 boolean endOfLessonReached = false;
                 try {
                     currentLesson.getPathByTrackNo(currentTrack + 1);
@@ -385,26 +383,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                 }
                 if (endOfLessonReached) {
                     switch (getPlayMode()) {
-/*				case SINGLE_LESSON:
-                    stop();
-					break;*/
                         case REPEAT_LESSON:
                             play(currentLesson, 0, false, this);
                             break;
                         case ALL_LESSONS:
                         case REPEAT_ALL_LESSONS: {
-                            //find next lesson
-//					AssimilDatabase ad = null;
-//					switch(getListType()){
-//					case LIST_TYPE_ALL_NO_TRANSLATE:
-//					case LIST_TYPE_ALL_TRANSLATE:
-//						ad = AssimilDatabase.getDatabase(null);
-//						break;
-//					case LIST_TYPE_STARRED_NO_TRANSLATE:
-//					case LIST_TYPE_STARRED_TRANSLATE:
-//						ad = AssimilDatabase.getStarredOnly(null);
-//						break;
-//					}
                             Lesson nextLesson = currentLesson.getNextLesson(starredOnly, courseName, pm, getApplicationContext());
                             if (nextLesson == null) {
                                 stop(false);
@@ -413,39 +396,15 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                             }
                             break;
                         }
-//				case REPEAT_ALL_STARRED:
-//				{
-//					//find next lesson
-////					AssimilDatabase db = AssimilDatabase.getDatabase(null);
-//					int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
-//					if(lessonIdx<0){
-//						Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextOrStop_2). WTF? Stop playing.");
-//						stop(false);
-//					}
-//					else{
-//						AssimilLesson nextLesson = currentLesson;
-//						do{
-//							lessonIdx++;
-//							if(lessonIdx >= AssimilDatabase.getCurrentLessons().size()){
-//								lessonIdx=0;
-//							}
-//							nextLesson = AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx).getId(), this);
-//						}
-//						while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
-//						if(nextLesson.isStarred()){
-//							play(nextLesson, 0, false, this);
-//						}
-//						else{
-//							stop(false);
-//						}
-//					}
-//					break;
-//				}
                         default:
                             //Not possible
                             break;
                     }
                 }
+                break;
+            default:
+                //Not possible
+                break;
         }
     }
 
@@ -458,57 +417,16 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
 //        return lt;
 //    }
     private void playNextLesson() {
-//		switch(getListType()){
-//		case REPEAT_ALL_STARRED:
-//		case LIST_TYPE_STARRED_NO_TRANSLATE:
-//		case LIST_TYPE_STARRED_TRANSLATE:
-//		{
-//			//find next lesson
-//			//AssimilDatabase db = AssimilDatabase.getDatabase(null);
-//			List<AssimilLessonHeader> currentLessons = AssimilDatabase.getCurrentLessons();
-//			int lessonIdx = currentLessons.indexOf(currentLesson.getHeader());
-//			if(lessonIdx<0){
-//				Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_1). WTF? Stop playing.");
-//				stop(false);
-//			}
-//			else{
-//				AssimilLessonHeader nextLessonHeader = currentLesson.getHeader();
-//				do{
-//					lessonIdx++;
-//					if(lessonIdx >= currentLessons.size()){
-//						lessonIdx=0;
-//					}
-//					nextLessonHeader = currentLessons.get(lessonIdx);
-//				}
-//				while((!nextLessonHeader.isStarred()) &&
-//						(!nextLessonHeader.equals(currentLesson.getHeader())));
-//				AssimilLesson lesson;
-//				if(nextLessonHeader.equals(currentLesson.getHeader())){
-//					lesson = currentLesson;
-//				}
-//				else{
-//					lesson = AssimilDatabase.getLesson(nextLessonHeader.getId(), this);
-//				}
-//				play(lesson, 0, false, this);
-//			}
-//			break;
-//		}
-//		case REPEAT_LESSON:
-//		case ALL_LESSONS:
-//		case REPEAT_ALL_LESSONS:
-//		case REPEAT_TRACK:
-//		default:
         {
             //find next lesson
-            Lesson nextLesson = currentLesson.getNextLesson(starredOnly, courseName, PlayMode.REPEAT_ALL_LESSONS, getApplicationContext());
+            Lesson nextLesson = currentLesson.getNextLesson(starredOnly, courseName, getPlayMode(), getApplicationContext());
             if (nextLesson == null) {
+                //TODO: Maybe show a snack bar why playback has been stopped and option to continue at first lesson?
                 stop(false);
             } else {
                 play(nextLesson, 0, false, this);
             }
-//			break;
         }
-//		}
     }
 
     /* (non-Javadoc)
