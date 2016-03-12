@@ -146,7 +146,7 @@ public class AssimilDatabase {
         		Log.i("LT", "lang =   '"+language+"'");
         		Log.i("LT", "album  = '"+fullAlbum+"'");
         		Log.i("LT", "==============================================");
-        		Pattern patternAssimilPcMp3 = Pattern.compile("l([0-9][0-9][0-9])_0a");
+        		Pattern patternAssimilPcMp3 = Pattern.compile("[Ll]([0-9][0-9][0-9])(_0a)?");
         		Matcher matcherAssimilPcMp3 = patternAssimilPcMp3.matcher(fullTitle);
         		if(matcherAssimilPcMp3.find()){
         			String number = null;
