@@ -22,7 +22,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,6 +37,10 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -53,6 +59,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     public static final String ARG_ITEM_ID = "item_id";
     private static final int LOADER_ID_LESSON = 0;
     private static final int LOADER_ID_LESSON_TITLE = 1;
+    private static final String LAST_DISPLAY_MODE = "LAST_DISPLAY_MODE";
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private long mLessonId;
@@ -82,6 +89,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
         }
     };
     private LessonDetailAdapter mAdapter;
+    private DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -94,6 +102,9 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences sp = getContext().getSharedPreferences("selma", Context.MODE_PRIVATE);
+        int ldm = sp.getInt(LAST_DISPLAY_MODE, DisplayMode.ORIGINAL_TEXT.ordinal());
+        displayMode = DisplayMode.values()[ldm];
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             Log.d(this.getClass().getSimpleName(), "onCreate: ID is " + getArguments().getLong(ARG_ITEM_ID));
             mLessonId = getArguments().getLong(ARG_ITEM_ID);
@@ -108,6 +119,37 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
 //            }
         } else {
             Log.d(this.getClass().getSimpleName(), "onCreate: No item ID");
+        }
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        SubMenu displayModeMenu = menu.addSubMenu(R.string.display_mode);
+        inflater.inflate(R.menu.display_modes, displayModeMenu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_display_mode_original:
+                setDisplayMode(DisplayMode.ORIGINAL_TEXT);
+                return true;
+            case R.id.action_display_mode_translation:
+                setDisplayMode(DisplayMode.TRANSLATION);
+                return true;
+            case R.id.action_display_mode_literal:
+                setDisplayMode(DisplayMode.LITERAL);
+                return true;
+            case R.id.action_display_mode_original_translation:
+                setDisplayMode(DisplayMode.ORIGINAL_TRANSLATION);
+                return true;
+            case R.id.action_display_mode_original_literal:
+                setDisplayMode(DisplayMode.ORIGINAL_LITERAL);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -130,10 +172,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
 
         // needed to indicate that the back
         // button in action bar is used
-        //FIXME: How does this work in two-pane view?
         setHasOptionsMenu(true);
-
-
         return rootView;
     }
 
@@ -192,9 +231,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(this.getClass().getSimpleName(), "onLoadFinished()");
         if(loader.getId()==LOADER_ID_LESSON) {
-            //FIXME: Need to set the displaymode
-            mAdapter = new LessonDetailAdapter(data, DisplayMode.ORIGINAL_TEXT);
-            // Set AssimilShowLessonListAdapter as the adapter for RecyclerView.
+            mAdapter = new LessonDetailAdapter(data, this.displayMode, getContext());
             mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
             setRecyclerViewLayoutManager();
@@ -243,5 +280,18 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     public void onLoaderReset(Loader<Cursor> loader) {
         //FIXME: What should be done now?
         Log.d(this.getClass().getSimpleName(), "Loader reset. What now!?");
+    }
+
+    public void setDisplayMode(DisplayMode displayMode) {
+        this.displayMode = displayMode;
+        SharedPreferences.Editor editor = getContext().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+        editor
+                .putInt(LAST_DISPLAY_MODE, displayMode.ordinal())
+                .commit();
+
+        if(mAdapter!=null) {
+            mAdapter.setDisplayMode(this.displayMode);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

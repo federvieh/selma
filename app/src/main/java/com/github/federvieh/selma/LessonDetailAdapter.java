@@ -17,6 +17,7 @@
 
 package com.github.federvieh.selma;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -24,6 +25,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +39,8 @@ import android.widget.TextView;
  * @author frank
  */
 public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapter.ViewHolder> {
-    private final DisplayMode displayMode;
+    private final String notYetTranslated;
+    private DisplayMode displayMode;
     private final Cursor cursor;
     private static final int[] idxText = new int[DisplayMode.values().length];
     private final int idxTextType;
@@ -46,7 +49,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
     private Drawable dots;
     private long lessonId;
 
-    public LessonDetailAdapter(Cursor cursor, DisplayMode displayMode/*FIXME: , ListTypes lt*/) {
+    public LessonDetailAdapter(Cursor cursor, DisplayMode displayMode/*FIXME: , ListTypes lt*/, Context ctxt) {
         Log.d(this.getClass().getSimpleName(), "created with cursor of size " + cursor.getCount());
         this.cursor = cursor;
         this.displayMode = displayMode;
@@ -70,6 +73,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
         cursor.moveToFirst();
         this.lessonId = cursor.getLong(this.idxLessonId);
         /*FIXME: this.lt = lt;*/
+        this.notYetTranslated = ctxt.getString(R.string.not_yet_translated);
     }
 
     @Override
@@ -93,6 +97,9 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
             case ORIGINAL_TEXT:
             case TRANSLATION: {
                 String current = cursor.getString(idxText[displayMode.ordinal()]);
+                if(TextUtils.isEmpty(current)){
+                    current = notYetTranslated;
+                }
                 textViewLeft.setText(current);
                 textViewRight.setVisibility(View.GONE);
                 devider.setVisibility(View.GONE);
@@ -101,6 +108,9 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
             case ORIGINAL_TRANSLATION: {
                 String original = cursor.getString(idxText[DisplayMode.ORIGINAL_TEXT.ordinal()]);
                 String translation = cursor.getString(idxText[DisplayMode.TRANSLATION.ordinal()]);
+                if(TextUtils.isEmpty(translation)){
+                    translation = notYetTranslated;
+                }
                 textViewLeft.setText(original);
                 textViewRight.setText(translation);
 
@@ -111,6 +121,9 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
             case ORIGINAL_LITERAL: {
                 String original = cursor.getString(idxText[DisplayMode.ORIGINAL_TEXT.ordinal()]);
                 String translation = cursor.getString(idxText[DisplayMode.LITERAL.ordinal()]);
+                if(TextUtils.isEmpty(translation)){
+                    translation = notYetTranslated;
+                }
                 textViewLeft.setText(original);
                 textViewRight.setText(translation);
 
@@ -247,6 +260,10 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
 
     public long getLessonId() {
         return lessonId;
+    }
+
+    public void setDisplayMode(DisplayMode displayMode) {
+        this.displayMode = displayMode;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

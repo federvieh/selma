@@ -12,6 +12,7 @@
     <string name="action_license">License</string>
     <string name="action_show_tips">Show tips</string>
     <string name="settings">Settings</string>
+    <string name="not_yet_translated">(Not translated yet)</string>
 
     <string name="repeat_none">Repeat none</string>
     <string name="repeat_track">Repeat current track</string>
@@ -21,4 +22,10 @@
     <string name="title_adjust_pause">Adjust pause</string>
     <string name="OK">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="display_mode">Display mode</string>
+    <string name="display_mode_original">Original text</string>
+    <string name="display_mode_translation">Translated text</string>
+    <string name="display_mode_literal">Literal translation</string>
+    <string name="display_mode_original_translation"><![CDATA[Original & translation]]></string>
+    <string name="display_mode_original_literal"><![CDATA[Original & Literal]]></string>
 </resources>
