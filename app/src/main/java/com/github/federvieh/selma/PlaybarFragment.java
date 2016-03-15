@@ -189,7 +189,7 @@ public class PlaybarFragment extends Fragment {
 
             public void onClick(View v) {
                 if (LessonPlayer.isPlaying()) {
-                    LessonPlayer.stopPlaying(getActivity());
+                    LessonPlayer.stopPlaying(getActivity(), true);
                 } else {
                     if ((LessonPlayer.getLesson(getActivity()) == null) || (LessonPlayer.getTrackNumber(getActivity()) < 0)) {
                         try {

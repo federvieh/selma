@@ -42,27 +42,27 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
     private final String notYetTranslated;
     private DisplayMode displayMode;
     private final Cursor cursor;
-    private static final int[] idxText = new int[DisplayMode.values().length];
+    private final int[] idxText = new int[DisplayMode.values().length];
     private final int idxTextType;
     private final int idxLessonId;
-    //    private final ListTypes lt;
+    private final ListTypes lt;
     private Drawable dots;
     private long lessonId;
 
-    public LessonDetailAdapter(Cursor cursor, DisplayMode displayMode/*FIXME: , ListTypes lt*/, Context ctxt) {
+    public LessonDetailAdapter(Cursor cursor, DisplayMode displayMode, ListTypes lt, Context ctxt) {
         Log.d(this.getClass().getSimpleName(), "created with cursor of size " + cursor.getCount());
         this.cursor = cursor;
         this.displayMode = displayMode;
-        for(DisplayMode dm: DisplayMode.values()) {
-            if(dm == DisplayMode.LITERAL) {
+        for (DisplayMode dm : DisplayMode.values()) {
+            if (dm == DisplayMode.LITERAL) {
                 this.idxText[dm.ordinal()] = cursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTLIT);
-            } else if(dm == DisplayMode.ORIGINAL_TEXT) {
+            } else if (dm == DisplayMode.ORIGINAL_TEXT) {
                 this.idxText[dm.ordinal()] = cursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXT);
-            } else if(dm == DisplayMode.TRANSLATION) {
+            } else if (dm == DisplayMode.TRANSLATION) {
                 this.idxText[dm.ordinal()] = cursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTRANS);
-            } else if(dm == DisplayMode.ORIGINAL_LITERAL) {
+            } else if (dm == DisplayMode.ORIGINAL_LITERAL) {
                 /* silently ignore */
-            } else if(dm == DisplayMode.ORIGINAL_TRANSLATION) {
+            } else if (dm == DisplayMode.ORIGINAL_TRANSLATION) {
                 /* silently ignore */
             } else {
                 throw new IllegalArgumentException("The code is not complete!");
@@ -72,7 +72,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
         this.idxLessonId = cursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_LESSONID);
         cursor.moveToFirst();
         this.lessonId = cursor.getLong(this.idxLessonId);
-        /*FIXME: this.lt = lt;*/
+        this.lt = lt;
         this.notYetTranslated = ctxt.getString(R.string.not_yet_translated);
     }
 
@@ -97,7 +97,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
             case ORIGINAL_TEXT:
             case TRANSLATION: {
                 String current = cursor.getString(idxText[displayMode.ordinal()]);
-                if(TextUtils.isEmpty(current)){
+                if (TextUtils.isEmpty(current)) {
                     current = notYetTranslated;
                 }
                 textViewLeft.setText(current);
@@ -108,7 +108,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
             case ORIGINAL_TRANSLATION: {
                 String original = cursor.getString(idxText[DisplayMode.ORIGINAL_TEXT.ordinal()]);
                 String translation = cursor.getString(idxText[DisplayMode.TRANSLATION.ordinal()]);
-                if(TextUtils.isEmpty(translation)){
+                if (TextUtils.isEmpty(translation)) {
                     translation = notYetTranslated;
                 }
                 textViewLeft.setText(original);
@@ -121,7 +121,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
             case ORIGINAL_LITERAL: {
                 String original = cursor.getString(idxText[DisplayMode.ORIGINAL_TEXT.ordinal()]);
                 String translation = cursor.getString(idxText[DisplayMode.LITERAL.ordinal()]);
-                if(TextUtils.isEmpty(translation)){
+                if (TextUtils.isEmpty(translation)) {
                     translation = notYetTranslated;
                 }
                 textViewLeft.setText(original);
@@ -161,7 +161,7 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
         //FIXME: Highlight currently played item
         holder.setLessonId(lessonId);
         if ((LessonPlayer.getTrackNumber(textViewLeft.getContext()) == position) &&
-                (LessonPlayer.getLesson(textViewLeft.getContext()).getId()==lessonId)) {
+                (LessonPlayer.getLesson(textViewLeft.getContext()).getId() == lessonId)) {
             textViewLeft.setTypeface(null, Typeface.BOLD | ((textViewLeft.getTypeface() != null) ? textViewLeft.getTypeface().getStyle() : 0));
             textViewRight.setTypeface(null, Typeface.BOLD | ((textViewRight.getTypeface() != null) ? textViewRight.getTypeface().getStyle() : 0));
         }
@@ -286,20 +286,20 @@ public class LessonDetailAdapter extends RecyclerView.Adapter<LessonDetailAdapte
                     int currentTrack = LessonPlayer.getTrackNumber(itemView.getContext());
                     Lesson currentLesson = LessonPlayer.getLesson(itemView.getContext());
                     long currentLessonId = -1;
-                    if(currentLesson!=null){
+                    if (currentLesson != null) {
                         currentLessonId = currentLesson.getId();
                     }
-                    if (currentLessonId!=lessonId || currentTrack != getAdapterPosition()) {
+                    if (currentLessonId != lessonId || currentTrack != getAdapterPosition()) {
                         Lesson lesson;
-                        if(currentLessonId==lessonId){
+                        if (currentLessonId == lessonId) {
                             lesson = LessonPlayer.getLesson(itemView.getContext());
                         } else {
-                            lesson = new Lesson(lessonId, itemView.getContext());
+                            lesson = new Lesson(lessonId, itemView.getContext(), lt);
                         }
                         LessonPlayer.play(lesson, getAdapterPosition(), false, itemView.getContext());
                     } else if (LessonPlayer.isPlaying()) {
                         //We're playing the track that has been clicked -> pause
-                        LessonPlayer.stopPlaying(itemView.getContext());
+                        LessonPlayer.stopPlaying(itemView.getContext(), true);
                     } else {
                         //We're pausing on the track that has been clicked -> resume
                         LessonPlayer.play(LessonPlayer.getLesson(itemView.getContext()), getAdapterPosition(), true, itemView.getContext());

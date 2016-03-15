@@ -27,11 +27,14 @@ public class Lesson {
     private final int mIdxPath;
     private final int mIdxTextId;
     private final String mCourseName;
+    private final ListTypes listType;
+    private final int mIdxTextType;
     private long id;
 
-    public Lesson(long id, Context context) {
+    public Lesson(long id, Context context, ListTypes lt) {
         ContentResolver cr = context.getContentResolver();
         this.id = id;
+        this.listType = lt;
         {
             String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME, SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME};
             String selection = SelmaSQLiteHelper2.TABLE_LESSONS_ID + " = " + id;
@@ -43,11 +46,12 @@ public class Lesson {
         }
 
         {
-            String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONTEXTS_AUDIOFILEPATH, SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTID};
-            String selection = SelmaSQLiteHelper2.TABLE_LESSONTEXTS_LESSONID + " = " + id;
+            String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONTEXTS_AUDIOFILEPATH, SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTID, SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE};
+            String selection = SelmaSQLiteHelper2.getSelectionQuery(id, lt);
             mCursor = cr.query(SelmaContentProvider.CONTENT_URI_LESSON_CONTENT, projection, selection, null, SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTID);
             mIdxPath = mCursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_AUDIOFILEPATH);
             mIdxTextId = mCursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTID);
+            this.mIdxTextType = mCursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE);
         }
 
     }
@@ -62,6 +66,11 @@ public class Lesson {
         return mCursor.getString(mIdxTextId);
     }
 
+    public SelmaSQLiteHelper2.TextType getTextType(int trackNumber) {
+        mCursor.moveToPosition(trackNumber);
+        return SelmaSQLiteHelper2.TextType.values()[mCursor.getInt(mIdxTextType)];
+    }
+
     public long getId() {
         return id;
     }
@@ -71,8 +80,8 @@ public class Lesson {
         Lesson rv = null;
         String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME, SelmaSQLiteHelper2.TABLE_LESSONS_ID, SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME};
         String selection = courseName != null ? SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME + " = '" + courseName + "'" : null;
-        if(starredOnly){
-            if(selection != null) {
+        if (starredOnly) {
+            if (selection != null) {
                 selection += " AND " + SelmaSQLiteHelper2.TABLE_LESSONS_STARRED + " != 0";
             } else {
                 selection = SelmaSQLiteHelper2.TABLE_LESSONS_STARRED + " != 0";
@@ -96,11 +105,11 @@ public class Lesson {
         if (found) {
             int idxId = lessonCursor.getColumnIndex(SelmaSQLiteHelper2.TABLE_LESSONS_ID);
             if (lessonCursor.moveToNext()) {
-                rv = new Lesson(lessonCursor.getLong(idxId), context);
+                rv = new Lesson(lessonCursor.getLong(idxId), context, listType);
             } else {
-                if(pm == LessonPlayer.PlayMode.REPEAT_ALL_LESSONS) {
+                if (pm == LessonPlayer.PlayMode.REPEAT_ALL_LESSONS) {
                     lessonCursor.moveToFirst();
-                    rv = new Lesson(lessonCursor.getLong(idxId), context);
+                    rv = new Lesson(lessonCursor.getLong(idxId), context, listType);
                 }
             }
         }
@@ -116,5 +125,16 @@ public class Lesson {
 
     public String getLessonName() {
         return mLessonName;
+    }
+
+    public ListTypes getListType() {
+        return listType;
+    }
+
+    public int getSize() {
+        if (mCursor != null) {
+            return mCursor.getCount();
+        }
+        return 0;
     }
 }

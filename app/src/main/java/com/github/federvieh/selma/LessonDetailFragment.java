@@ -24,8 +24,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.preference.PreferenceManager;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -34,7 +32,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,7 +40,6 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 /**
  * A fragment representing a single Lesson detail screen.
@@ -60,6 +56,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     private static final int LOADER_ID_LESSON = 0;
     private static final int LOADER_ID_LESSON_TITLE = 1;
     private static final String LAST_DISPLAY_MODE = "LAST_DISPLAY_MODE";
+    public static final String LAST_LIST_TYPE = "LAST_LIST_TYPE";
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private long mLessonId;
@@ -69,7 +66,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(mAdapter!=null) {
+            if (mAdapter != null) {
                 long lessonId = intent.getLongExtra(LessonPlayer.EXTRA_LESSON_ID, -1);
                 long curShownLessonId = mAdapter.getLessonId();
                 Log.d("LT", "ShowLessonFragment.messageReceiver.onReceive() got called with lessonId " + lessonId +
@@ -90,6 +87,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     };
     private LessonDetailAdapter mAdapter;
     private DisplayMode displayMode = DisplayMode.ORIGINAL_TEXT;
+    private ListTypes listType;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -105,11 +103,15 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
         SharedPreferences sp = getContext().getSharedPreferences("selma", Context.MODE_PRIVATE);
         int ldm = sp.getInt(LAST_DISPLAY_MODE, DisplayMode.ORIGINAL_TEXT.ordinal());
         displayMode = DisplayMode.values()[ldm];
+
+        int llt = sp.getInt(LAST_LIST_TYPE, ListTypes.ALL.ordinal());
+        listType = ListTypes.values()[llt];
+
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             Log.d(this.getClass().getSimpleName(), "onCreate: ID is " + getArguments().getLong(ARG_ITEM_ID));
             mLessonId = getArguments().getLong(ARG_ITEM_ID);
             Activity activity = this.getActivity();
-            if(activity instanceof LessonDetailActivity) {
+            if (activity instanceof LessonDetailActivity) {
                 activity.setTitle(R.string.lesson);
             }
             Loader<Cursor> cursorLoader = getLoaderManager().initLoader(LOADER_ID_LESSON_TITLE, getArguments(), this);
@@ -127,6 +129,8 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         SubMenu displayModeMenu = menu.addSubMenu(R.string.display_mode);
         inflater.inflate(R.menu.display_modes, displayModeMenu);
+        SubMenu listTypeMenu = menu.addSubMenu(R.string.filter);
+        inflater.inflate(R.menu.list_type, listTypeMenu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -147,6 +151,15 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
                 return true;
             case R.id.action_display_mode_original_literal:
                 setDisplayMode(DisplayMode.ORIGINAL_LITERAL);
+                return true;
+            case R.id.action_list_type_all:
+                setListType(ListTypes.ALL);
+                return true;
+            case R.id.action_list_type_show_no_translation:
+                setListType(ListTypes.NO_TRANSLATE);
+                return true;
+            case R.id.action_list_type_show_only_translation:
+                setListType(ListTypes.ONLY_TRANSLATE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -197,7 +210,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(this.getClass().getSimpleName(), "onCreateLoader()");
-        if(id == LOADER_ID_LESSON) {
+        if (id == LOADER_ID_LESSON) {
             String[] projection = {SelmaSQLiteHelper2.TABLE_LESSONTEXTS_LESSONID,
                     SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTLIT,
                     SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXT,
@@ -205,7 +218,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
                     SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE
             };
             CursorLoader cursorLoader;
-            String selection = SelmaSQLiteHelper2.TABLE_LESSONTEXTS_LESSONID + "=" + args.getLong(ARG_ITEM_ID);
+            String selection = SelmaSQLiteHelper2.getSelectionQuery(args.getLong(ARG_ITEM_ID), listType);
             Log.d(getClass().getSimpleName(), "selection: " + selection);
             cursorLoader = new CursorLoader(getContext(),
                     SelmaContentProvider.CONTENT_URI_LESSON_CONTENT, projection, selection, null, null);
@@ -230,16 +243,16 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.d(this.getClass().getSimpleName(), "onLoadFinished()");
-        if(loader.getId()==LOADER_ID_LESSON) {
-            mAdapter = new LessonDetailAdapter(data, this.displayMode, getContext());
+        if (loader.getId() == LOADER_ID_LESSON) {
+            mAdapter = new LessonDetailAdapter(data, this.displayMode, listType, getContext());
             mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
             setRecyclerViewLayoutManager();
-        } else if(loader.getId()==LOADER_ID_LESSON_TITLE) {
+        } else if (loader.getId() == LOADER_ID_LESSON_TITLE) {
             //There is always only one result.
             data.moveToFirst();
             Activity activity = getActivity();
-            if(activity instanceof LessonDetailActivity) {
+            if (activity instanceof LessonDetailActivity) {
                 activity.setTitle(
                         getContext().getString(R.string.lesson) +
                                 " " +
@@ -249,7 +262,7 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
                 activity.setTitle(
                         data.getString(data.getColumnIndex(
                                 SelmaSQLiteHelper2.TABLE_LESSONS_COURSENAME)) + ": " +
-                        getContext().getString(R.string.lesson) +
+                                getContext().getString(R.string.lesson) +
                                 " " +
                                 data.getString(data.getColumnIndex(
                                         SelmaSQLiteHelper2.TABLE_LESSONS_LESSONNAME)));
@@ -289,9 +302,19 @@ public class LessonDetailFragment extends Fragment implements LoaderManager.Load
                 .putInt(LAST_DISPLAY_MODE, displayMode.ordinal())
                 .commit();
 
-        if(mAdapter!=null) {
+        if (mAdapter != null) {
             mAdapter.setDisplayMode(this.displayMode);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    public void setListType(ListTypes listType) {
+        this.listType = listType;
+        SharedPreferences.Editor editor = getContext().getSharedPreferences("selma", Context.MODE_PRIVATE).edit();
+        editor
+                .putInt(LAST_LIST_TYPE, listType.ordinal())
+                .commit();
+        getLoaderManager().restartLoader(LOADER_ID_LESSON, getArguments(), this);
+        LessonPlayer.setListType(listType, getContext());
     }
 }

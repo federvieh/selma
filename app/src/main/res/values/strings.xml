@@ -1,3 +1,20 @@
+<!--
+  ~ Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <resources>
     <string name="app_name">Selma</string>
     <string name="title_lesson_detail">Lesson Detail</string>
@@ -28,4 +45,8 @@
     <string name="display_mode_literal">Literal translation</string>
     <string name="display_mode_original_translation"><![CDATA[Original & translation]]></string>
     <string name="display_mode_original_literal"><![CDATA[Original & Literal]]></string>
+    <string name="list_type_show_all">Show all texts</string>
+    <string name="list_type_show_no_translation">Don\'t show translation exercises</string>
+    <string name="list_type_show_only_translation">Show only translation exercises</string>
+    <string name="filter">Filter texts</string>
 </resources>

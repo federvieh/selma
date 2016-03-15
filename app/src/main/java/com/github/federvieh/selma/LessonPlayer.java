@@ -42,7 +42,7 @@ import java.io.File;
 
 /**
  * This is a service that handles the complete playback functionality (i.e. interacting with MediaPlayer).
- * <p/>
+ * <p>
  * It's possible to define an additional waiting time percentage, so that after a track has finished the service waits
  * before continuing to play the next track based on the length of the previous track ({@see setDelay}).
  *
@@ -87,6 +87,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         return delayPercentage;
     }
 
+
     @Override
     public void onWaitingRemainderUpdate(long remainingTime) {
 //        Log.d("LT", "remaining: " + remainingTime);
@@ -95,6 +96,99 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
     @Override
     public void onWaitingFinished(boolean result) {
         playNextOrStop(false);
+    }
+
+    public static void setListType(ListTypes listType, Context ctxt) {
+        switch (listType) {
+            case ALL: {
+                switch (currentLesson.getListType()) {
+                    case ALL:
+                        //No change
+                        break;
+                    case NO_TRANSLATE:
+                        // NO_TRANSLATE -> ALL
+                        //reload the lesson with translations while continuing playback
+                        currentLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                        break;
+                    case ONLY_TRANSLATE:
+                        // ONLY_TRANSLATE -> ALL
+                        int translateSize = currentLesson.getSize();
+                        Lesson newLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                        int allTextsSize = newLesson.getSize();
+                        int numberOfLessonTexts = allTextsSize - translateSize;
+                        int newIndex = currentTrack + numberOfLessonTexts;
+                        currentTrack = newIndex;
+                        currentLesson = newLesson;
+//                        //TODO: Is this even necessary? Might be enough to just correct currentTrack!
+//                        play(newLesson, newIndex, true, ctxt);
+                        break;
+                }
+                break;
+            }
+            case NO_TRANSLATE: {
+                switch (currentLesson.getListType()) {
+                    case ALL:
+                        // ALL -> NO_TRANSLATE
+                        // Check if we are currently playing translate, if so -> stop. Otherwise
+                        // reload the lesson without translations while continuing playback
+                        if (currentLesson.getTextType(currentTrack) == SelmaSQLiteHelper2.TextType.TRANSLATE
+                                || currentLesson.getTextType(currentTrack) == SelmaSQLiteHelper2.TextType.TRANSLATE_HEADING) {
+                            currentLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                            currentTrack = 0;
+                            LessonPlayer.stopPlaying(ctxt, false);
+                        } else {
+                            currentLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                        }
+                        break;
+                    case NO_TRANSLATE:
+                        //No change
+                        break;
+                    case ONLY_TRANSLATE:
+                        //ONLY_TRANSLATE -> NO_TRANSLATE
+                        currentLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                        currentTrack = 0;
+                        LessonPlayer.stopPlaying(ctxt, false);
+                        break;
+                }
+                break;
+            }
+            case ONLY_TRANSLATE: {
+                switch (currentLesson.getListType()) {
+                    case ALL:
+                        // ALL->ONLY_TRANSLATE
+                        // Check if we are currently playing translate, if so -> Reload and correct
+                        // the current track. Otherwise stop.
+                        if (currentLesson.getTextType(currentTrack) == SelmaSQLiteHelper2.TextType.TRANSLATE
+                                || currentLesson.getTextType(currentTrack) == SelmaSQLiteHelper2.TextType.TRANSLATE_HEADING) {
+                            int allTextsSize = currentLesson.getSize();
+                            Lesson newLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                            int translateSize = newLesson.getSize();
+                            int numberOfLessonTexts = allTextsSize - translateSize;
+                            int newIndex = currentTrack - numberOfLessonTexts;
+                            currentLesson = newLesson;
+                            currentTrack = newIndex;
+//                            //TODO: Is this even necessary? Might be enough to just correct currentTrack!
+//                            play(newLesson, newIndex, true, ctxt);
+                        } else {
+                            currentLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                            currentTrack = 0;
+                            LessonPlayer.stopPlaying(ctxt, false);
+                        }
+
+                        break;
+                    case NO_TRANSLATE:
+                        // NO_TRANSLATE->ONLY_TRANSLATE
+                        currentLesson = new Lesson(currentLesson.getId(), ctxt, listType);
+                        currentTrack = 0;
+                        LessonPlayer.stopPlaying(ctxt, false);
+                        break;
+                    case ONLY_TRANSLATE:
+                        //No change
+                        break;
+                }
+                break;
+            }
+        }
     }
 
     public enum PlayMode {
@@ -162,9 +256,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                 .setOngoing(true);
     }
 
-    public static void stopPlaying(Context context) {
+    public static void stopPlaying(Context context, boolean savePos) {
         Intent service = new Intent(context, LessonPlayer.class);
-        service.putExtra(STOP, (long) 0);
+        // 0: save position when stopping (e.g. when pause button was pressed)
+        // 1: Don't save position. E.g. when the current track/lesson has become invalid
+        service.putExtra(STOP, savePos ? (long)0 : (long)1);
         context.startService(service);
     }
 
@@ -322,7 +418,11 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         if (playPath != null) {
             play(playPath);
         } else if (stopId != -1) {
-            stop(true);
+            if(stopId == 1) {
+                stop(false);
+            } else {
+                stop(true);
+            }
         } else if (nextTrackId != -1) {
             playNextOrStop(true);
         } else if (nextLessonId != -1) {
@@ -509,19 +609,18 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                 // resume playback
                 play(currentLesson, currentTrack, true, this);
                 break;
-
             case AudioManager.AUDIOFOCUS_LOSS:
                 Log.d("LT", "received AUDIOFOCUS_LOSS");
-                stopPlaying(this);
+                stopPlaying(this, true);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 Log.d("LT", "received AUDIOFOCUS_LOSS_TRANSIENT");
-                stopPlaying(this);
+                stopPlaying(this, true);
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
                 // Lost focus for an unbounded amount of time: stop playback and release media player
                 Log.d("LT", "received AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
-                stopPlaying(this);
+                stopPlaying(this, true);
                 break;
         }
     }
@@ -554,7 +653,8 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
             long lessonId = settings.getLong(LAST_LESSON_PLAYED, -1);
             if (lessonId > 0) {
-                currentLesson = new Lesson(lessonId, ctxt);
+                int lt = settings.getInt(LessonDetailFragment.LAST_LIST_TYPE, ListTypes.ALL.ordinal());
+                currentLesson = new Lesson(lessonId, ctxt, ListTypes.values()[lt]);
             }
         }
 

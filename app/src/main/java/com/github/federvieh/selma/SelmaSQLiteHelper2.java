@@ -1,22 +1,56 @@
+/*
+ * Copyright (C) 2016 Frank Oltmanns (frank.oltmanns+selma(at)gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.github.federvieh.selma;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/**
- * Created by frank on 10/22/15.
- */
 public class SelmaSQLiteHelper2 extends SQLiteOpenHelper {
+    public static String getSelectionQuery(long lessonId, ListTypes listType) {
+        String selection = SelmaSQLiteHelper2.TABLE_LESSONTEXTS_LESSONID + "=" + lessonId;
+        switch (listType) {
+            case ALL:
+                //No further limitation
+                break;
+            case NO_TRANSLATE:
+                selection += " AND (" +
+                        SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE + " = " + SelmaSQLiteHelper2.TextType.HEADING.ordinal() + " OR " +
+                        SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE + " = " + SelmaSQLiteHelper2.TextType.LESSONNUMBER.ordinal() + " OR " +
+                        SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE + " = " + SelmaSQLiteHelper2.TextType.NORMAL.ordinal() + ")";
+                break;
+            case ONLY_TRANSLATE:
+                selection += " AND (" +
+                        SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE + " = " + SelmaSQLiteHelper2.TextType.TRANSLATE_HEADING.ordinal() + " OR " +
+                        SelmaSQLiteHelper2.TABLE_LESSONTEXTS_TEXTTYPE + " = " + SelmaSQLiteHelper2.TextType.TRANSLATE.ordinal() + ")";
+                break;
+        }
+        return selection;
+    }
+
     public enum TextType {
         NORMAL,
         HEADING,
         LESSONNUMBER,
         TRANSLATE,
         TRANSLATE_HEADING
-    };
+    }
 
     /* Table "lessons"
      * | _id | coursename        | lessonname | starred |
@@ -95,18 +129,16 @@ public class SelmaSQLiteHelper2 extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if((oldVersion == 1)&&(newVersion == 2)){
+        if ((oldVersion == 1) && (newVersion == 2)) {
             //Change from Version 1 to 2: Added index
             db.execSQL(ASSIMIL_INDEX_LESSONID_LESSONTEXTS);
-        }
-        else if (newVersion == 3){
+        } else if (newVersion == 3) {
             Log.w(this.getClass().getName(), "There is not reasonable way to upgrade from version " +
                     oldVersion + " to " + newVersion + ". Dropping database content.");
             db.execSQL(ASSIMIL_DROP_TABLE_LESSONTEXTS);
             db.execSQL(ASSIMIL_DROP_TABLE_LESSONS);
             onCreate(db);
-        }
-        else{
+        } else {
             Log.w(this.getClass().getName(), "Unknown version upgrade. Dropping database content in order" +
                     " to upgrade from version " + oldVersion + " to " + newVersion);
             db.execSQL(ASSIMIL_DROP_TABLE_LESSONTEXTS);
