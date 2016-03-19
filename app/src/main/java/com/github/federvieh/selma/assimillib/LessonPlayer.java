@@ -128,6 +128,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         currentLesson = lesson;
         previousTrack = currentTrack;
         currentTrack = trackNo;
+        if(mediaPlayer!=null){
+            mediaPlayer.reset();
+        }
         Intent service = new Intent(ctxt, LessonPlayer.class);
         service.putExtra(PLAY, id);
         ctxt.startService(service);
@@ -180,8 +183,8 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                         //TODO: Move to extra function, add error listener
                     }
                 }
-            } else {
-                mediaPlayer.reset();
+//            } else {
+//                mediaPlayer.reset();
             }
             try {
                 mediaPlayer.setDataSource(this, contentUri);
@@ -281,6 +284,9 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      */
     public void onCompletion(MediaPlayer mp) {
         Log.d("LT", "onCompletion");
+        if(mp != null) {
+            mp.reset();
+        }
         //FIXME: Make this configurable
         if (delayPercentage > 0) {
             if (delayService != null) {
