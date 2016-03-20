@@ -114,26 +114,34 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
         context.startService(service);
     }
 
-    public static void play(AssimilLesson lesson, int trackNo, boolean cont, Context ctxt) {
+    private static String preparePlayAndGetPath(AssimilLesson lesson, int trackNo){
         String id = null;
         try {
             id = lesson.getPathByTrackNo(trackNo);
         } catch (Exception e) {
             Log.w("LT", "Could not find track " + trackNo + " in lesson " + lesson, e);
-            return;
+            return null;
         }
-        Log.d("LT", "doCont=" + cont);
-        doCont = cont;
-        //send intent to service
         currentLesson = lesson;
         previousTrack = currentTrack;
         currentTrack = trackNo;
-        if(mediaPlayer!=null){
-            mediaPlayer.reset();
+
+        return id;
+    }
+
+    public static void play(AssimilLesson lesson, int trackNo, boolean cont, Context ctxt) {
+        String trackPath = preparePlayAndGetPath(lesson, trackNo);
+        if(trackPath!=null){
+            Log.d("LT", "doCont=" + cont);
+            doCont = cont;
+            //send intent to service
+            if(mediaPlayer!=null){
+                mediaPlayer.reset();
+            }
+            Intent service = new Intent(ctxt, LessonPlayer.class);
+            service.putExtra(PLAY, trackPath);
+            ctxt.startService(service);
         }
-        Intent service = new Intent(ctxt, LessonPlayer.class);
-        service.putExtra(PLAY, id);
-        ctxt.startService(service);
     }
 
     private void play(String path) {
@@ -318,19 +326,23 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             Log.d("LT", "Playing single song finished. Stopping.");
 			stop();
 			break;*/
-            case REPEAT_TRACK:
-                play(currentLesson, currentTrack, false, this);
+            case REPEAT_TRACK: {
+                String trackPath = preparePlayAndGetPath(currentLesson, currentTrack);
+                if(trackPath!=null) {
+                    play(trackPath);
+                }
                 break;
+            }
             case ALL_LESSONS:
             case REPEAT_ALL_LESSONS:
             case REPEAT_LESSON:
 //		case SINGLE_LESSON:
 //		case REPEAT_ALL_STARRED:
                 boolean endOfLessonReached = false;
-                try {
-                    currentLesson.getPathByTrackNo(currentTrack + 1);
-                    play(currentLesson, currentTrack + 1, false, this);
-                } catch (IllegalArgumentException e) {
+                String trackPath = preparePlayAndGetPath(currentLesson, currentTrack + 1);
+                if(trackPath!=null) {
+                    play(trackPath);
+                } else {
                     endOfLessonReached = true;
                 }
                 if (endOfLessonReached) {
@@ -339,7 +351,10 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                     stop();
 					break;*/
                         case REPEAT_LESSON:
-                            play(currentLesson, 0, false, this);
+                            trackPath = preparePlayAndGetPath(currentLesson, 0);
+                            if(trackPath!=null) {
+                                play(trackPath);
+                            }
                             break;
                         case ALL_LESSONS:
                         case REPEAT_ALL_LESSONS: {
@@ -362,14 +377,20 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                             } else if (lessonIdx + 1 < AssimilDatabase.getCurrentLessons().size()) {
                                 AssimilLesson lesson =
                                         AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx + 1).getId(), this);
-                                play(lesson, 0, false, this);
+                                trackPath = preparePlayAndGetPath(lesson, 0);
+                                if(trackPath!=null) {
+                                    play(trackPath);
+                                }
                             } else {
                                 //last lesson reached
                                 if (getPlayMode() == PlayMode.REPEAT_ALL_LESSONS) {
                                     //start again at first lesson again
                                     AssimilLesson lesson =
                                             AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this);
-                                    play(lesson, 0, false, this);
+                                    trackPath = preparePlayAndGetPath(lesson, 0);
+                                    if(trackPath!=null) {
+                                        play(trackPath);
+                                    }
                                 } else {
                                     stop(false);
                                 }
@@ -467,11 +488,19 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                 Log.w("LT", "Current lesson not found (@ LessonPlayer.playNextLesson_2). WTF? Stop playing.");
                 stop(false);
             } else if (lessonIdx + 1 < AssimilDatabase.getCurrentLessons().size()) {
-                play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx + 1).getId(), this), 0, false, this);
+                String trackPath = preparePlayAndGetPath(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx + 1).getId(), this), 0);
+                if(trackPath!=null) {
+                    play(trackPath);
+                }
+//                play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx + 1).getId(), this), 0, false, this);
             } else {
                 //last lesson reached
                 //start again at first lesson again
-                play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this), 0, false, this);
+                String trackPath = preparePlayAndGetPath(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this), 0);
+                if(trackPath!=null) {
+                    play(trackPath);
+                }
+//                play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this), 0, false, this);
             }
 //			break;
         }

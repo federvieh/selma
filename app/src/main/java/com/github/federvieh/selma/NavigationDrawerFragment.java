@@ -234,7 +234,7 @@ public class NavigationDrawerFragment extends Fragment {
         View layoutView = inflater.inflate(R.layout.license_view, null);
         builder.setView(layoutView);
         WebView webView = (WebView)layoutView.findViewById(R.id.webViewLicense);
-        webView.loadUrl("file:///android_res/raw/gpl_3.0_standalone.html");
+        webView.loadUrl("file:///android_res/raw/gpl_3_0_standalone.html");
 
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
