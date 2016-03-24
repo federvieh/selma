@@ -73,7 +73,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
     private static int numberOfInstances = 0; //This should always be one after the first time, right?
 
     private static Object lock = new Object();
-    private static MediaPlayer mediaPlayer;
+    private /*static*/ MediaPlayer mediaPlayer;
     private static DelayService delayService;
     private static boolean doCont = false;
     private static int contPos = 0;
@@ -135,9 +135,6 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             Log.d("LT", "doCont=" + cont);
             doCont = cont;
             //send intent to service
-            if(mediaPlayer!=null){
-                mediaPlayer.reset();
-            }
             Intent service = new Intent(ctxt, LessonPlayer.class);
             service.putExtra(PLAY, trackPath);
             ctxt.startService(service);
@@ -191,12 +188,14 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
                         //TODO: Move to extra function, add error listener
                     }
                 }
-//            } else {
-//                mediaPlayer.reset();
+            } else {
+                mediaPlayer.reset();
             }
             try {
                 mediaPlayer.setDataSource(this, contentUri);
-                mediaPlayer.prepareAsync();
+//                mediaPlayer.prepareAsync();
+                mediaPlayer.prepare();
+                onPrepared(mediaPlayer);
             } catch (Exception e) {
                 Log.w("LT", "Could not set data source or prepare media player " + contentUri, e);
                 return;
@@ -292,6 +291,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
      */
     public void onCompletion(MediaPlayer mp) {
         Log.d("LT", "onCompletion");
+        int dur = mp.getDuration();
         if(mp != null) {
             mp.reset();
         }
@@ -302,7 +302,7 @@ public class LessonPlayer extends Service implements MediaPlayer.OnErrorListener
             }
             delayService = new DelayService(this);
             //FIXME: Make this configurable
-            long delay = (mp.getDuration() * delayPercentage) / 100;
+            long delay = (dur * delayPercentage) / 100;
             delayService.execute(delay);
         } else {
             playNextOrStop(false);
