@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.github.federvieh.selma"
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 22
     }
 
@@ -31,4 +31,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:recyclerview-v7:22.0.0'
     compile 'ch.acra:acra:4.6.2'
+    compile 'com.google.android.exoplayer:exoplayer:r1.5.6'
 }
