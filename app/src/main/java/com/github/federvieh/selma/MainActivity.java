@@ -27,7 +27,7 @@ import com.github.federvieh.selma.assimillib.AssimilLessonListAdapter;
 import com.github.federvieh.selma.assimillib.AssimilOnClickListener;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
 import com.github.federvieh.selma.assimillib.OverlayManager;
-import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
+import com.github.federvieh.selma.assimillib.PlayMode;
 import com.github.federvieh.selma.assimillib.ListTypes;
 import com.github.federvieh.selma.assimillib.LoaderFragment;
 import com.github.federvieh.selma.assimillib.LoaderFragment.LoaderFragmentCallbacks;

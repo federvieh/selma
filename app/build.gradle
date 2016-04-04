@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.github.federvieh.selma"
-        minSdkVersion 9
+        minSdkVersion 8
         targetSdkVersion 22
     }
 

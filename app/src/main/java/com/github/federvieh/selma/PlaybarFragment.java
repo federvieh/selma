@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.github.federvieh.selma.assimillib.AssimilDatabase;
 import com.github.federvieh.selma.assimillib.AssimilLesson;
 import com.github.federvieh.selma.assimillib.LessonPlayer;
-import com.github.federvieh.selma.assimillib.LessonPlayer.PlayMode;
+import com.github.federvieh.selma.assimillib.PlayMode;
 import com.github.federvieh.selma.assimillib.OverlayManager;
 
 /**
