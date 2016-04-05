@@ -4,10 +4,8 @@
 package com.github.federvieh.selma.assimillib;
 
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
@@ -15,13 +13,12 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.IBinder;
 import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.github.federvieh.selma.MainActivity;
 
 import java.io.File;
@@ -29,100 +26,11 @@ import java.io.File;
 /**
  * @author frank
  */
-public class LessonPlayerMP extends Service implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener, DelayService.DelayServiceListener {
-
-    private static int delayPercentage = 100;
-
-    public static void setDelay(int delay) {
-        LessonPlayerMP.delayPercentage = delay;
-        Log.d("LT", "Delay: " + delay);
-    }
-
-    @Override
-    public void onWaitingRemainderUpdate(long remainingTime) {
-        Log.d("LT", "remaining: " + remainingTime);
-    }
-
-    @Override
-    public void onWaitingFinished(boolean result) {
-        playNextOrStop(false);
-    }
-
-    private static final String PLAY = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.PLAY";
-    private static final String STOP = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.STOP";
-    private static final String NEXT_TRACK = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.NEXT_TRACK";
-    private static final String NEXT_LESSON = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.NEXT_LESSON";
-    private static final String EXTRA_IS_PLAYING = "com.gmail.oltmanns.frank.language.trainer.LessonPlayer.EXTRA_IS_PLAYING";
-    private static final int NOTIFICATION_ID = 0x21349843;
-
-    private static AssimilLesson currentLesson;
-    private static int currentTrack = -1;
-    private static int previousTrack = -1;
-
-    private static int numberOfInstances = 0; //This should always be one after the first time, right?
-
-    private static Object lock = new Object();
+public class LessonPlayerMP extends LessonPlayer implements MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, OnPreparedListener, OnAudioFocusChangeListener {
     private static MediaPlayer mediaPlayer;
-    private static DelayService delayService;
-    private static boolean doCont = false;
-    private static int contPos = 0;
-    private static long remWaitTime = 0;
 
-    private NotificationCompat.Builder notifyBuilder;
-    private static boolean playing;
-    private static PlayMode playMode = PlayMode.REPEAT_ALL_LESSONS;
-    private static ListTypes lt = ListTypes.TRANSLATE;
-
-
-    public LessonPlayerMP() {
-        numberOfInstances++;
-        Log.i("LT", "Created a new LessonPlayerMP for the " + numberOfInstances + "th time.");
-
-        notifyBuilder = new NotificationCompat.Builder(this)
-                .setContentTitle("Selma")
-                .setContentText("Paused.")
-                .setSmallIcon(android.R.drawable.ic_media_play)
-                .setOngoing(true);
-    }
-
-    public static void stopPlaying(Context context) {
-        Intent service = new Intent(context, LessonPlayerMP.class);
-        service.putExtra(STOP, (long) 0);
-        context.startService(service);
-    }
-
-    public static void playNextTrack(Context context) {
-        Intent service = new Intent(context, LessonPlayerMP.class);
-        service.putExtra(NEXT_TRACK, (long) 0);
-        context.startService(service);
-    }
-
-    public static void playNextLesson(Context context) {
-        Intent service = new Intent(context, LessonPlayerMP.class);
-        service.putExtra(NEXT_LESSON, (long) 0);
-        context.startService(service);
-    }
-
-    public static void play(AssimilLesson lesson, int trackNo, boolean cont, Context ctxt) {
-        String id = null;
-        try {
-            id = lesson.getPathByTrackNo(trackNo);
-        } catch (Exception e) {
-            Log.w("LT", "Could not find track " + trackNo + " in lesson " + lesson, e);
-            return;
-        }
-        Log.d("LT", "doCont=" + cont);
-        doCont = cont;
-        //send intent to service
-        currentLesson = lesson;
-        previousTrack = currentTrack;
-        currentTrack = trackNo;
-        Intent service = new Intent(ctxt, LessonPlayerMP.class);
-        service.putExtra(PLAY, id);
-        ctxt.startService(service);
-    }
-
-    private void play(String path) {
+    @Override
+    protected void play(String path) {
         Log.d("LT", "play(): doCont=" + doCont + "; remWaitTime=" + remWaitTime);
         File f = new File(path);
         Uri contentUri = Uri.fromFile(f);
@@ -182,7 +90,8 @@ public class LessonPlayerMP extends Service implements MediaPlayer.OnErrorListen
         }
     }
 
-    private void stop(boolean savePos) {
+    @Override
+    protected void stop(boolean savePos) {
         stopForeground(true);
         stopSelf();
 
@@ -224,39 +133,6 @@ public class LessonPlayerMP extends Service implements MediaPlayer.OnErrorListen
     }
 
     /* (non-Javadoc)
-     * @see android.app.Service#onBind(android.content.Intent)
-     */
-    @Override
-    public IBinder onBind(Intent arg0) {
-        //Binding is not used in this service
-        return null;
-    }
-
-    private void handleCommand(Intent intent) {
-        String playPath = intent.getStringExtra(PLAY);
-        long stopId = intent.getLongExtra(STOP, -1);
-        long nextTrackId = intent.getLongExtra(NEXT_TRACK, -1);
-        long nextLessonId = intent.getLongExtra(NEXT_LESSON, -1);
-        if (playPath != null) {
-            play(playPath);
-        } else if (stopId != -1) {
-            stop(true);
-        } else if (nextTrackId != -1) {
-            playNextOrStop(true);
-        } else if (nextLessonId != -1) {
-            playNextLesson();
-        }
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        handleCommand(intent);
-        // If the service is stopped for some reason, the user must explicitly
-        // start again, e.g. by pressing the play button.
-        return START_NOT_STICKY;
-    }
-
-    /* (non-Javadoc)
      * @see android.media.MediaPlayer.OnErrorListener#onError(android.media.MediaPlayer, int, int)
      */
     public boolean onError(MediaPlayer mp, int what, int extra) {
@@ -284,183 +160,6 @@ public class LessonPlayerMP extends Service implements MediaPlayer.OnErrorListen
         }
     }
 
-    private void playNextOrStop(boolean force) {
-        PlayMode pm = getPlayMode();
-        if (force) {
-            if (pm == PlayMode.REPEAT_TRACK) {
-                //If clicking on next while in repeating track mode, the user still expects to go to the next track
-                pm = PlayMode.REPEAT_ALL_LESSONS;
-            }
-        }
-        if (delayService != null && delayService.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            delayService.cancel(true);
-            delayService = null;
-        }
-        switch (pm) {
-/*		case SINGLE_TRACK:
-            Log.d("LT", "Playing single song finished. Stopping.");
-			stop();
-			break;*/
-            case REPEAT_TRACK:
-                play(currentLesson, currentTrack, false, this);
-                break;
-            case ALL_LESSONS:
-            case REPEAT_ALL_LESSONS:
-            case REPEAT_LESSON:
-//		case SINGLE_LESSON:
-//		case REPEAT_ALL_STARRED:
-                boolean endOfLessonReached = false;
-                try {
-                    currentLesson.getPathByTrackNo(currentTrack + 1);
-                    play(currentLesson, currentTrack + 1, false, this);
-                } catch (IllegalArgumentException e) {
-                    endOfLessonReached = true;
-                }
-                if (endOfLessonReached) {
-                    switch (getPlayMode()) {
-/*				case SINGLE_LESSON:
-                    stop();
-					break;*/
-                        case REPEAT_LESSON:
-                            play(currentLesson, 0, false, this);
-                            break;
-                        case ALL_LESSONS:
-                        case REPEAT_ALL_LESSONS: {
-                            //find next lesson
-//					AssimilDatabase ad = null;
-//					switch(getListType()){
-//					case LIST_TYPE_ALL_NO_TRANSLATE:
-//					case LIST_TYPE_ALL_TRANSLATE:
-//						ad = AssimilDatabase.getDatabase(null);
-//						break;
-//					case LIST_TYPE_STARRED_NO_TRANSLATE:
-//					case LIST_TYPE_STARRED_TRANSLATE:
-//						ad = AssimilDatabase.getStarredOnly(null);
-//						break;
-//					}
-                            int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
-                            if (lessonIdx < 0) {
-                                Log.w("LT", "Current lesson not found (@ LessonPlayerMP.playNextOrStop_1). WTF? Stop playing.");
-                                stop(false);
-                            } else if (lessonIdx + 1 < AssimilDatabase.getCurrentLessons().size()) {
-                                AssimilLesson lesson =
-                                        AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx + 1).getId(), this);
-                                play(lesson, 0, false, this);
-                            } else {
-                                //last lesson reached
-                                if (getPlayMode() == PlayMode.REPEAT_ALL_LESSONS) {
-                                    //start again at first lesson again
-                                    AssimilLesson lesson =
-                                            AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this);
-                                    play(lesson, 0, false, this);
-                                } else {
-                                    stop(false);
-                                }
-                            }
-                            break;
-                        }
-//				case REPEAT_ALL_STARRED:
-//				{
-//					//find next lesson
-////					AssimilDatabase db = AssimilDatabase.getDatabase(null);
-//					int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
-//					if(lessonIdx<0){
-//						Log.w("LT", "Current lesson not found (@ LessonPlayerMP.playNextOrStop_2). WTF? Stop playing.");
-//						stop(false);
-//					}
-//					else{
-//						AssimilLesson nextLesson = currentLesson;
-//						do{
-//							lessonIdx++;
-//							if(lessonIdx >= AssimilDatabase.getCurrentLessons().size()){
-//								lessonIdx=0;
-//							}
-//							nextLesson = AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx).getId(), this);
-//						}
-//						while((!nextLesson.isStarred()) && (!nextLesson.equals(currentLesson)));
-//						if(nextLesson.isStarred()){
-//							play(nextLesson, 0, false, this);
-//						}
-//						else{
-//							stop(false);
-//						}
-//					}
-//					break;
-//				}
-                        default:
-                            //Not possible
-                            break;
-                    }
-                }
-        }
-    }
-
-    /**
-     * @return
-     */
-    public static ListTypes getListType() {
-        return lt;
-    }
-
-    private void playNextLesson() {
-//		switch(getListType()){
-//		case REPEAT_ALL_STARRED:
-//		case LIST_TYPE_STARRED_NO_TRANSLATE:
-//		case LIST_TYPE_STARRED_TRANSLATE:
-//		{
-//			//find next lesson
-//			//AssimilDatabase db = AssimilDatabase.getDatabase(null);
-//			List<AssimilLessonHeader> currentLessons = AssimilDatabase.getCurrentLessons();
-//			int lessonIdx = currentLessons.indexOf(currentLesson.getHeader());
-//			if(lessonIdx<0){
-//				Log.w("LT", "Current lesson not found (@ LessonPlayerMP.playNextLesson_1). WTF? Stop playing.");
-//				stop(false);
-//			}
-//			else{
-//				AssimilLessonHeader nextLessonHeader = currentLesson.getHeader();
-//				do{
-//					lessonIdx++;
-//					if(lessonIdx >= currentLessons.size()){
-//						lessonIdx=0;
-//					}
-//					nextLessonHeader = currentLessons.get(lessonIdx);
-//				}
-//				while((!nextLessonHeader.isStarred()) &&
-//						(!nextLessonHeader.equals(currentLesson.getHeader())));
-//				AssimilLesson lesson;
-//				if(nextLessonHeader.equals(currentLesson.getHeader())){
-//					lesson = currentLesson;
-//				}
-//				else{
-//					lesson = AssimilDatabase.getLesson(nextLessonHeader.getId(), this);
-//				}
-//				play(lesson, 0, false, this);
-//			}
-//			break;
-//		}
-//		case REPEAT_LESSON:
-//		case ALL_LESSONS:
-//		case REPEAT_ALL_LESSONS:
-//		case REPEAT_TRACK:
-//		default:
-        {
-            //find next lesson
-            int lessonIdx = AssimilDatabase.getCurrentLessons().indexOf(currentLesson.getHeader());
-            if (lessonIdx < 0) {
-                Log.w("LT", "Current lesson not found (@ LessonPlayerMP.playNextLesson_2). WTF? Stop playing.");
-                stop(false);
-            } else if (lessonIdx + 1 < AssimilDatabase.getCurrentLessons().size()) {
-                play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(lessonIdx + 1).getId(), this), 0, false, this);
-            } else {
-                //last lesson reached
-                //start again at first lesson again
-                play(AssimilDatabase.getLesson(AssimilDatabase.getCurrentLessons().get(0).getId(), this), 0, false, this);
-            }
-//			break;
-        }
-//		}
-    }
-
     /* (non-Javadoc)
      * @see android.media.MediaPlayer.OnPreparedListener#onPrepared(android.media.MediaPlayer)
      */
@@ -480,7 +179,7 @@ public class LessonPlayerMP extends Service implements MediaPlayer.OnErrorListen
                 contPos = 0;
             }
             Log.d("LT", "Resuming at position " + contPos);
-            mediaPlayer.seekTo(contPos);
+            mediaPlayer.seekTo((int) contPos);
         }
         mediaPlayer.start();
         playing = true;
@@ -539,138 +238,4 @@ public class LessonPlayerMP extends Service implements MediaPlayer.OnErrorListen
                 break;
         }
     }
-
-    /**
-     * @return The number (index) of the track that is currently being played.
-     */
-    public static int getTrackNumber(Context ctxt) {
-        if (currentTrack < 0) {
-            //On start read current lesson from SharedPreferences
-            SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
-            currentTrack = settings.getInt(AssimilDatabase.LAST_TRACK_PLAYED, -1);
-        }
-        return currentTrack;
-    }
-
-    /**
-     * @return The number (index) of the track that was previously played.
-     */
-    public static int getPreviousTrack() {
-        return previousTrack;
-    }
-
-    /**
-     * @return The lesson that is currently being played.
-     */
-    public static AssimilLesson getLesson(Context ctxt) {
-        if (currentLesson == null) {
-            //On start read current lesson from SharedPreferences
-            SharedPreferences settings = ctxt.getSharedPreferences("selma", Context.MODE_PRIVATE);
-            long lessonId = settings.getLong(AssimilDatabase.LAST_LESSON_PLAYED, -1);
-            if (lessonId > 0) {
-                currentLesson = AssimilDatabase.getLesson(lessonId, ctxt);
-            }
-        }
-
-        return currentLesson;
-    }
-
-    /**
-     * @return
-     */
-    public static boolean isPlaying() {
-        return playing;
-    }
-
-    public static PlayMode getPlayMode() {
-        return playMode;
-    }
-
-    /**
-     *
-     */
-    public static void setPlayMode(PlayMode pm) {
-        playMode = pm;
-    }
-
-    public static void increasePlayMode() {
-        switch (playMode) {
-//		case SINGLE_TRACK:
-//			playMode = PlayMode.SINGLE_LESSON;
-//			break;
-//		case SINGLE_LESSON:
-//			playMode = PlayMode.ALL_LESSONS;
-//			break;
-            case ALL_LESSONS:
-                playMode = PlayMode.REPEAT_TRACK;
-                break;
-            case REPEAT_TRACK:
-                playMode = PlayMode.REPEAT_LESSON;
-                break;
-            case REPEAT_LESSON:
-//			if((lt == ListTypes.LIST_TYPE_ALL_NO_TRANSLATE)||(lt == ListTypes.LIST_TYPE_ALL_TRANSLATE)){
-                playMode = PlayMode.REPEAT_ALL_LESSONS;
-//			}
-//			else{
-//				playMode = PlayMode.REPEAT_ALL_STARRED;
-//			}
-                break;
-            case REPEAT_ALL_LESSONS:
-                playMode = PlayMode.ALL_LESSONS;
-                break;
-//		case REPEAT_ALL_STARRED:
-////			playMode = PlayMode.SINGLE_TRACK;
-//			playMode = PlayMode.ALL_LESSONS;
-//			break;
-            default:
-//			playMode = PlayMode.SINGLE_TRACK;
-                playMode = PlayMode.REPEAT_LESSON;
-                break;
-        }
-    }
-
-    /**
-     * @return the lesson
-     */
-    public static String getLessonTitle(Context ctxt) {
-        String rv = "...";
-        AssimilLesson lesson = getLesson(ctxt);
-        if (lesson != null) {
-            rv = lesson.getNumber();
-        }
-        return rv;
-    }
-
-    /**
-     * @return the number
-     */
-    public static String getTrackNumberText(Context ctxt) {
-        String rv = "...";
-        int trackNumber = getTrackNumber(ctxt);
-        AssimilLesson lesson = getLesson(ctxt);
-        if ((trackNumber >= 0) && (lesson != null)) {
-            try {
-                rv = lesson.getTextNumber(trackNumber);
-            } catch (IndexOutOfBoundsException e) {
-                Log.i("LT", "Could not find text " + trackNumber);
-            }
-        }
-        return rv;
-    }
-
-
-    /**
-     * @return
-     */
-    public static boolean isPlayingTranslate() {
-        return (lt == ListTypes.TRANSLATE);
-    }
-
-    /**
-     * @param lt
-     */
-    public static void setListType(ListTypes lt) {
-        LessonPlayerMP.lt = lt;
-    }
-
 }
