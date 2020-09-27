@@ -83,6 +83,10 @@ public class AssimilLessonHeader {
         ds.open();
         ds.star(this.id);
         ds.close();
+        //handleAnki(ctxt);
+    }
+
+    private void handleAnki(final Context ctxt) {
         if (!AnkiInterface.isAnkiInstalled(ctxt)) {
             if (AnkiInterface.mayRemindInstallAnki(ctxt)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(ctxt);

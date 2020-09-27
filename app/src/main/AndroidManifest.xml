@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.github.federvieh.selma"
-    android:versionCode="2029912"
-    android:versionName="2.3.0alpha12" >
+    android:versionCode="2029914"
+    android:versionName="2.3.0alpha14" >
     <!-- version code release =    (((major*100 + minor)*100 + bugfix)*100) -->
     <!-- version code alpha/beta = (((major*100 + minor)*100 + bugfix)-1)*100 + index -->
     <uses-sdk tools:overrideLibrary="com.google.android.exoplayer"/>
