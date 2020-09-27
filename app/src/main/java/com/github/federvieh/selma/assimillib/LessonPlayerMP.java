@@ -73,7 +73,7 @@ public class LessonPlayerMP extends LessonPlayer implements MediaPlayer.OnErrorL
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                         mediaPlayer.setOnCompletionListener(this);
                         mediaPlayer.setOnPreparedListener(this);
-                        mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+                        //mediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
                         //TODO: Move to extra function, add error listener
                     }
                 }
@@ -130,6 +130,7 @@ public class LessonPlayerMP extends LessonPlayer implements MediaPlayer.OnErrorL
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             Log.w("LT", "Releasing audio focus failed! Result: " + result);
         }
+        wakeLock.release();
     }
 
     /* (non-Javadoc)
@@ -211,6 +212,15 @@ public class LessonPlayerMP extends LessonPlayer implements MediaPlayer.OnErrorL
         } catch (NullPointerException e) {
             //Might happen when in "starred only" mode but current last played lesson is not starred.
         }
+        if(wakeLock == null) {
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    "MyWakelockTag");
+            wakeLock.setReferenceCounted(false);
+        }
+        long lockLength = mediaPlayer.getDuration();
+        lockLength = (long) (lockLength * MAX_LOCK_LENGTH_FACTOR);
+        wakeLock.acquire(lockLength);
     }
 
     /* (non-Javadoc)

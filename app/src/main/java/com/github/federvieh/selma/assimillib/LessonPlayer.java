@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public abstract class LessonPlayer extends Service implements DelayService.DelayServiceListener {
     public static final String PLAY_UPDATE_INTENT = "PLAY_UPDATE_INTENT";
+    protected static final double MAX_LOCK_LENGTH_FACTOR = 3.1; //trackLength + 200% delay is the longest lock we need
 
     /**
      *
@@ -210,7 +212,7 @@ public abstract class LessonPlayer extends Service implements DelayService.Delay
 
     @Override
     public void onWaitingRemainderUpdate(long remainingTime) {
-        Log.d("LT", "remaining: " + remainingTime);
+//        Log.d("LT", "remaining: " + remainingTime);
     }
 
     @Override
@@ -230,6 +232,8 @@ public abstract class LessonPlayer extends Service implements DelayService.Delay
     private static int previousTrack = -1;
 
     private static int numberOfInstances = 0; //This should always be one after the first time, right?
+
+    protected static PowerManager.WakeLock wakeLock;
 
     protected final static Object lock = new Object();
     protected static DelayService delayService;
