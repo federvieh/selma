@@ -116,8 +116,12 @@ public class AssimilDatabase {
         		android.provider.MediaStore.Audio.Media._ID,
         		android.provider.MediaStore.Audio.Media.ARTIST
         };
-        String findLessons = "(" + android.provider.MediaStore.Audio.Media.ALBUM+" LIKE '%ASSIMIL%' AND "+
-        		android.provider.MediaStore.Audio.Media.TITLE+" LIKE 'S00-TITLE-%') OR ("+
+        String findLessons =
+				"(" + android.provider.MediaStore.Audio.Media.ALBUM+" LIKE '%ASSIMIL%' AND "+
+        		   "(" + android.provider.MediaStore.Audio.Media.TITLE+" LIKE '" + AssimilSQLiteHelper.TITLE_PREFIX_TYPE_1 + "%' OR "+
+				         android.provider.MediaStore.Audio.Media.TITLE+" LIKE '" + AssimilSQLiteHelper.TITLE_PREFIX_TYPE_2 + "%'" +
+		            ")" +
+				" OR "+
         		android.provider.MediaStore.Audio.Media.TITLE+" GLOB 'l[0-9][0-9][0-9]_0a')";
         
         Cursor cursor = contentResolver.query(uri, projection, findLessons, null, android.provider.MediaStore.Audio.Media.ALBUM);

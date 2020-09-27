@@ -22,7 +22,10 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
     /* Prefixes as used in the Assimil lesson MP3 files.
      *
      */
-    public static final String TITLE_PREFIX = "S00-TITLE-";
+    public static final String TITLE_PREFIX_TYPE_1 = "S00-TITLE-";
+    public static final String TITLE_PREFIX_TYPE_2 = "S00-CHAPTER-TITLE-"; // Type 2 is used e.g. for Business English
+    public static final String INTRO_PREFIX_TYPE_2 = "S00-INTRODUCTION-"; // There is no introduction for type 1
+    public static final String COMPREHENSION_PREFIX_TYPE_2 = "X00-COMPREHENSION-"; // There is no comprehension for type 1
     private static final int PREFIX_LENGTH = "S01-".length();
 
     /* This stores the file list of all directories that contain mp3 files in order
@@ -53,7 +56,8 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
         String findLessonTexts = android.provider.MediaStore.Audio.Media.ALBUM + " = '" + fullAlbum + "' AND (" +
                 android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'N%-%' OR " + //NUMBER
                 android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'S%' OR " +   //Text
-                android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'T%')";      //Translate
+                android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'T%' OR " +   //Translate
+                android.provider.MediaStore.Audio.Media.TITLE + " LIKE 'X%')";       //Comprehension
         Cursor cursor = contentResolver.query(uri, projection, findLessonTexts, null, android.provider.MediaStore.Audio.Media.TITLE);
         if (cursor == null) {
             //TODO: query failed
@@ -109,10 +113,18 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
                 String text = null;
                 String textNumber = null;
                 TextType textType;
-                if (fullTitle.startsWith(TITLE_PREFIX)) {
-                    text = fullTitle.substring(TITLE_PREFIX.length());
+                if (fullTitle.startsWith(TITLE_PREFIX_TYPE_1)) {
+                    text = fullTitle.substring(TITLE_PREFIX_TYPE_1.length());
                     textNumber = fullTitle.substring(0, PREFIX_LENGTH - 1);
                     textType = TextType.HEADING;
+                } else if (fullTitle.startsWith(TITLE_PREFIX_TYPE_2)) {
+                    text = fullTitle.substring(TITLE_PREFIX_TYPE_2.length());
+                    textNumber = fullTitle.substring(0, TITLE_PREFIX_TYPE_2.length() - 1);
+                    textType = TextType.HEADING;
+                } else if (fullTitle.startsWith(INTRO_PREFIX_TYPE_2)) {
+                    text = fullTitle.substring(INTRO_PREFIX_TYPE_2.length());
+                    textNumber = fullTitle.substring(0, INTRO_PREFIX_TYPE_2.length() - 1);
+                    textType = TextType.NORMAL;
                 } else if (fullTitle.matches("S[0-9][0-9]-.*")) {
                     text = fullTitle.substring(PREFIX_LENGTH);
                     textNumber = fullTitle.substring(0, PREFIX_LENGTH - 1);
@@ -123,6 +135,16 @@ public class AssimilSQLiteHelper extends SelmaSQLiteHelper {
                     if (textNumber.equals("T00")) {
                         textType = TextType.TRANSLATE_HEADING;
                     } else {
+                        textType = TextType.TRANSLATE;
+                    }
+                } else if (fullTitle.matches("X[0-9][0-9]-.*")) {
+                    if (fullTitle.startsWith(COMPREHENSION_PREFIX_TYPE_2)){
+                        text = fullTitle.substring(COMPREHENSION_PREFIX_TYPE_2.length());
+                        textNumber = fullTitle.substring(0, PREFIX_LENGTH - 1);
+                        textType = TextType.TRANSLATE_HEADING;
+                    } else {
+                        text = fullTitle.substring(PREFIX_LENGTH);
+                        textNumber = fullTitle.substring(0, PREFIX_LENGTH - 1 + 2); // "-Q" or "-S"
                         textType = TextType.TRANSLATE;
                     }
                 } else if (fullTitle.matches("N[0-9]*-.*")) {
